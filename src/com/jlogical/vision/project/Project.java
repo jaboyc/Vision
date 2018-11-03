@@ -1,8 +1,13 @@
 package com.jlogical.vision.project;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import com.jlogical.vision.compiler.exceptions.FileFormatException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.io.*;
 import java.util.ArrayList;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Stores information regarding the uncompiled version of a project. Stored as a ZIP file disguised as a .vproj file. A project.json file can be found in the ZIP containing the information and code for the project.
@@ -64,16 +69,47 @@ public class Project {
 
 
     /**
-     * Saves the Project in a File.
+     * Saves the Project in a File as a ZIP with an extension of .vproj.
      *
      * @param file the File to save the Project in.
-     * @throws FileNotFoundException if the File is not found.
+     * @throws FileFormatException if the File does not end with .vproj
+     * @throws FileNotFoundException if the File is null.
+     * @throws IOException if there is an error writing to the file.
      */
-    public void save(File file) throws FileNotFoundException {
-        if(file == null || !file.exists()){
+    public void save(File file) throws FileFormatException, IOException {
+        if(file == null){
             throw new FileNotFoundException();
         }
-        //TODO save the Project into a File.
+        if(!file.getPath().endsWith(".vproj")){
+            throw new FileFormatException("Needs to be .vproj format.");
+        }
+        zip(file);
+    }
+
+    /**
+     * Compresses the Project into a ZIP and stores it in the given file.
+     * @param file the File to store the Project in.
+     * @throws IOException if there is an error writing to the file.
+     */
+    private void zip(File file) throws IOException{
+        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(file));
+        out.putNextEntry(new ZipEntry("project.json"));
+        out.write(toJSon().getBytes());
+        out.closeEntry();
+        out.close();
+    }
+
+    /**
+     * @return the JSON version of the Project.
+     */
+    private String toJSon(){
+        JSONObject root = new JSONObject();
+        JSONArray files = new JSONArray();
+        for(VisionFile file: this.files){
+            files.add(file.toJSon());
+        }
+        root.put("code", files);
+        return root.toJSONString();
     }
 
 

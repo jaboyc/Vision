@@ -11,7 +11,7 @@ import com.jlogical.vision.project.VisionFile;
 public class Compiler {
 
     /**
-     * Contains the different levels of detail to be produced in sysout.
+     * Contains the different levels of detail to be produced in the log.
      */
     public enum Detail {
         NONE, //No info
