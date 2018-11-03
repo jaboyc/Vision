@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 public class ProjectTest {
 
     @Test
-    public void testInvalidProject(){
+    public void testInvalidProject() throws Exception{
         assertNull(Project.fromFile(""));
         assertNull(Project.fromFile("res/invalid"));
         assertNull(Project.fromFile("res/invalid.vproj"));
@@ -18,7 +18,7 @@ public class ProjectTest {
     }
 
     @Test
-    public void testValidProject(){
+    public void testValidProject() throws Exception{
         assertNotNull(Project.fromFile("res/test.vproj"));
         assertNotNull(Project.fromFile(new File("res/test.vproj")));
     }

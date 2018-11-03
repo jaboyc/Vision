@@ -12,16 +12,12 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        Project project = Project.blank("test");
-        project.getFiles().add(new VisionFile("main", "when started\n\tprint [Hello World]\nend"));
         try {
-            project.save(new File("res/test.vproj"));
-        } catch (FileFormatException e) {
-            e.printStackTrace();
+            Project project = Project.fromFile("res/test.vproj");
+            System.out.println(project.getName());
+            System.out.println(project.getFiles());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Script script = Compiler.compile(project, Compiler.Detail.BASIC);
-        System.out.println(script.compileSuccess());
     }
 }

@@ -27,13 +27,34 @@ public class VisionFile {
     }
 
     /**
+     * @return the VisionFile from a JSon. Null if not compatible.
+     */
+    public static VisionFile fromJSon(JSONObject json){
+        Object oName = json.get("name");
+        if(oName == null){
+            return null;
+        }
+        String name = (String) oName;
+        Object oCode = json.get("code");
+        if(oCode == null){
+            return null;
+        }
+        String code = (String) oCode;
+        return new VisionFile(name, code);
+    }
+
+    /**
      * @return the VisionFile in JSON format.
      */
-    String toJSon(){
+    JSONObject toJSon(){
         JSONObject obj = new JSONObject();
         obj.put("name", name);
         obj.put("code", code);
-        return obj.toJSONString();
+        return obj;
+    }
+
+    public String toString(){
+        return "["+name+"]:\""+code+"\"";
     }
 
     public String getName() {

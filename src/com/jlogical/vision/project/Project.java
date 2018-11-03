@@ -3,10 +3,15 @@ package com.jlogical.vision.project;
 import com.jlogical.vision.compiler.exceptions.FileFormatException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -34,10 +39,11 @@ public class Project {
 
     /**
      * Returns a blank project.
+     *
      * @param name the name of the project.
      * @return the blank project.
      */
-    public static Project blank(String name){
+    public static Project blank(String name) {
         return new Project(name, new ArrayList<>());
     }
 
@@ -47,7 +53,7 @@ public class Project {
      * @param path the path of the file the Project is stored in.
      * @return the Project inside of the file. Null if the file is not found, in the wrong format, or was unsuccessful in retrieving a Project.
      */
-    public static Project fromFile(String path) {
+    public static Project fromFile(String path) throws IOException {
         if (path == null || path.isEmpty()) {
             return null;
         }
@@ -59,28 +65,84 @@ public class Project {
      *
      * @param file the file the Project is stored in.
      * @return the Project inside of the file. Null if the file is not found, in the wrong format, or was unsuccessful in retrieving a Project.
+     * @throws IOException if there was an error opening a ZIP.
      */
-    public static Project fromFile(File file) {
+    public static Project fromFile(File file) throws IOException {
         if (file == null || !file.exists() || !file.getPath().endsWith(".vproj")) {
             return null;
         }
-        return new Project(null, null);
+        JSONObject json = unzipJSon(new ZipFile(file));
+        return fromJSon(json);
     }
 
+    /**
+     * Unzips a ZipFile and unpacks the project.json file inside of it.
+     *
+     * @param zip the ZipFile to unpack.
+     * @return the json of project.json if found. Null if not found.
+     * @throws IOException           if there was an error opening up the ZIP or parsing.
+     * @throws FileNotFoundException if the file given was null.
+     */
+    private static JSONObject unzipJSon(ZipFile zip) throws IOException {
+        if (zip == null) {
+            throw new FileNotFoundException();
+        }
+        try {
+            ZipEntry entry = zip.getEntry("project.json");
+            if (entry == null) { //If project.json not found
+                return null;
+            }
+            InputStream stream = zip.getInputStream(entry);
+            byte[] bytes = stream.readAllBytes();
+            String s = new String(bytes);
+            JSONParser parse = new JSONParser();
+            JSONObject obj = (JSONObject) parse.parse(s);
+            return obj;
+        } catch (ParseException e) {
+            throw new IOException("Error parsing JSon");
+        }
+    }
+
+    /**
+     * Converts a JSon to a Project.
+     *
+     * @param json the JSON to convert.
+     * @return the Project. Null if not able to convert.
+     */
+    private static Project fromJSon(JSONObject json) {
+        try {
+            Object oName = json.get("name");
+            if(oName == null){
+                return null;
+            }
+            String name = (String) oName;
+            ArrayList<VisionFile> vFiles = new ArrayList<>();
+            JSONArray files = (JSONArray) json.get("code");
+            for (int i = 0; i < files.size(); i++) {
+                JSONObject file = (JSONObject) files.get(i);
+                VisionFile vfile = VisionFile.fromJSon(file);
+                vFiles.add(vfile);
+            }
+            return new Project(name, vFiles);
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     /**
      * Saves the Project in a File as a ZIP with an extension of .vproj.
      *
      * @param file the File to save the Project in.
-     * @throws FileFormatException if the File does not end with .vproj
+     * @throws FileFormatException   if the File does not end with .vproj
      * @throws FileNotFoundException if the File is null.
-     * @throws IOException if there is an error writing to the file.
+     * @throws IOException           if there is an error writing to the file.
      */
     public void save(File file) throws FileFormatException, IOException {
-        if(file == null){
+        if (file == null) {
             throw new FileNotFoundException();
         }
-        if(!file.getPath().endsWith(".vproj")){
+        if (!file.getPath().endsWith(".vproj")) {
             throw new FileFormatException("Needs to be .vproj format.");
         }
         zip(file);
@@ -88,13 +150,14 @@ public class Project {
 
     /**
      * Compresses the Project into a ZIP and stores it in the given file.
+     *
      * @param file the File to store the Project in.
      * @throws IOException if there is an error writing to the file.
      */
-    private void zip(File file) throws IOException{
+    private void zip(File file) throws IOException {
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(file));
         out.putNextEntry(new ZipEntry("project.json"));
-        out.write(toJSon().getBytes());
+        out.write(toJSon().toJSONString().getBytes());
         out.closeEntry();
         out.close();
     }
@@ -102,14 +165,15 @@ public class Project {
     /**
      * @return the JSON version of the Project.
      */
-    private String toJSon(){
+    private JSONObject toJSon() {
         JSONObject root = new JSONObject();
         JSONArray files = new JSONArray();
-        for(VisionFile file: this.files){
+        for (VisionFile file : this.files) {
             files.add(file.toJSon());
         }
         root.put("code", files);
-        return root.toJSONString();
+        root.put("name", name);
+        return root;
     }
 
 
