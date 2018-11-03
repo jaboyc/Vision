@@ -3,16 +3,24 @@ import org.junit.*;
 
 import java.io.File;
 
+import static org.junit.Assert.*;
+
 public class ProjectTest {
 
     @Test
     public void testInvalidProject(){
-        Assert.assertNull(Project.fromFile(""));
-        Assert.assertNull(Project.fromFile("invalid"));
-        Assert.assertNull(Project.fromFile("invalid.vproj"));
-        Assert.assertNull(Project.fromFile(new File("")));
-        Assert.assertNull(Project.fromFile(new File("invalid")));
-        Assert.assertNull(Project.fromFile(new File("invalid.vproj")));
+        assertNull(Project.fromFile(""));
+        assertNull(Project.fromFile("res/invalid"));
+        assertNull(Project.fromFile("res/invalid.vproj"));
+        assertNull(Project.fromFile(new File("")));
+        assertNull(Project.fromFile(new File("res/invalid")));
+        assertNull(Project.fromFile(new File("res/invalid.vproj")));
+    }
+
+    @Test
+    public void testValidProject(){
+        assertNotNull(Project.fromFile("res/test.vproj"));
+        assertNotNull(Project.fromFile(new File("res/test.vproj")));
     }
 
 }
