@@ -170,8 +170,7 @@ public class Project {
         JSONArray files = new JSONArray();
         for (VisionFile file : this.files) {
             files.add(file.toJSon());
-        }
-        root.put("code", files);
+        }root.put("code", files);
         root.put("name", name);
         return root;
     }
