@@ -4,6 +4,7 @@ import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.project.CodeLocation;
 import com.jlogical.vision.project.Project;
 import com.jlogical.vision.project.VisionFile;
+import com.jlogical.vision.util.Pair;
 
 import java.util.ArrayList;
 
@@ -135,7 +136,15 @@ public class Compiler {
         if(line == null){
             return null;
         }
-        return new Line(line, new CodeLocation(project, vfile, lineNum));
+        Pair<String, ArrayList<String>> split = splitElement(line);
+        return new Line(line, split.getFirst(), split.getSecond(), new CodeLocation(project, vfile, lineNum));
+    }
+
+    private Pair<String, ArrayList<String>> splitElement(String line){
+        String core = "";
+        ArrayList<String> inputs = new ArrayList<>();
+
+        return new Pair<>(core, inputs);
     }
 
     /**

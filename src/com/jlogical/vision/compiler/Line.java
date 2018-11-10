@@ -2,6 +2,8 @@ package com.jlogical.vision.compiler;
 
 import com.jlogical.vision.project.CodeLocation;
 
+import java.util.ArrayList;
+
 /**
  * Holds information for one line of code.
  */
@@ -18,9 +20,19 @@ public class Line {
     private CodeLocation location;
 
     /**
-     * Creates a new Line with the given code and location.
+     * The core of the command. The part of the command without inputs.
      */
-    public Line(String code, CodeLocation location){
+    private String core;
+
+    /**
+     * The inputs of the command.
+     */
+    private ArrayList<String> inputs;
+
+    /**
+     * Creates a new Line with the given code and location. Core and inputs must be given.
+     */
+    public Line(String code, String core, ArrayList<String> inputs, CodeLocation location){
         if(location == null){
             throw new NullPointerException("Location of a line cannot be null.");
         }
@@ -28,6 +40,8 @@ public class Line {
             throw new NullPointerException("Code location needs to be referencing a specific line in a specific file.");
         }
         this.code = code != null ? code : "";
+        this.core = core != null ? core : "";
+        this.inputs = inputs != null ? inputs : new ArrayList<>();
         this.location = location;
     }
 
