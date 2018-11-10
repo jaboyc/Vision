@@ -76,6 +76,33 @@ public class Project {
     }
 
     /**
+     * Converts a JSon to a Project.
+     *
+     * @param json the JSON to convert.
+     * @return the Project. Null if not able to convert.
+     */
+    private static Project fromJSon(JSONObject json) {
+        try {
+            Object oName = json.get("name");
+            if(oName == null){
+                return null;
+            }
+            String name = (String) oName;
+            ArrayList<VisionFile> vFiles = new ArrayList<>();
+            JSONArray files = (JSONArray) json.get("code");
+            for (int i = 0; i < files.size(); i++) {
+                JSONObject file = (JSONObject) files.get(i);
+                VisionFile vfile = VisionFile.fromJSon(file);
+                vFiles.add(vfile);
+            }
+            return new Project(name, vFiles);
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
      * Unzips a ZipFile and unpacks the project.json file inside of it.
      *
      * @param zip the ZipFile to unpack.
@@ -100,33 +127,6 @@ public class Project {
             return obj;
         } catch (ParseException e) {
             throw new IOException("Error parsing JSon");
-        }
-    }
-
-    /**
-     * Converts a JSon to a Project.
-     *
-     * @param json the JSON to convert.
-     * @return the Project. Null if not able to convert.
-     */
-    private static Project fromJSon(JSONObject json) {
-        try {
-            Object oName = json.get("name");
-            if(oName == null){
-                return null;
-            }
-            String name = (String) oName;
-            ArrayList<VisionFile> vFiles = new ArrayList<>();
-            JSONArray files = (JSONArray) json.get("code");
-            for (int i = 0; i < files.size(); i++) {
-                JSONObject file = (JSONObject) files.get(i);
-                VisionFile vfile = VisionFile.fromJSon(file);
-                vFiles.add(vfile);
-            }
-            return new Project(name, vFiles);
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-            return null;
         }
     }
 

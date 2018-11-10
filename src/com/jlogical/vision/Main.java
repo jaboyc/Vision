@@ -14,8 +14,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             Project project = Project.fromFile("res/test.vproj");
-            System.out.println(project.getName());
-            System.out.println(project.getFiles());
+            Compiler.compile(project);
         } catch (IOException e) {
             e.printStackTrace();
         }

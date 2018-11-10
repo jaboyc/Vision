@@ -5,6 +5,8 @@ import com.jlogical.vision.project.CodeLocation;
 import com.jlogical.vision.project.Project;
 import com.jlogical.vision.project.VisionFile;
 
+import java.util.ArrayList;
+
 /**
  * Compiles a Project into a Script.
  */
@@ -73,7 +75,67 @@ public class Compiler {
         if (project.getFiles().isEmpty()) {
             return Script.failedScript(logAppendCompilerException("The Project provided did not have any code.", "empty project", new CodeLocation(project)));
         }
+        ArrayList<Line> lines = new ArrayList<>();
+        for(VisionFile vfile : project.getFiles()){
+            lines.addAll(toLines(vfile));
+        }
         return null;
+    }
+
+    /**
+     * Converts the given Project into an ArrayList of Lines.
+     *
+     * @param vfile the VisionFile to convert to lines.
+     * @return the converted ArrayList. Null if text is null.
+     */
+    private ArrayList<Line> toLines(VisionFile vfile){
+        if(vfile == null){
+            return null;
+        }
+        ArrayList<Line> output = new ArrayList<>();
+        ArrayList<String> split = splitFile(vfile);
+        for(int i=0;i<split.size();i++){
+            String line = split.get(i);
+            output.add(toLine(line, i, vfile));
+        }
+        return output;
+    }
+
+    /**
+     * Splits the vfile's code by new lines and returns it as an ArrayList of Strings.
+     * @param vfile the VisionFile whose code to split. Null if vfile is null.
+     */
+    private ArrayList<String> splitFile(VisionFile vfile){
+        if(vfile == null){
+            return null;
+        }
+        ArrayList<String> output = new ArrayList<>();
+        String currLine = "";
+        for(int i=0;i<vfile.getCode().length();i++){
+            char c = vfile.getCode().charAt(i);
+            if(c=='\n' || c=='\r'){
+                output.add(currLine);
+                currLine = "";
+            }else{
+                currLine += vfile.getCode().charAt(i);
+            }
+        }
+        output.add(currLine);
+        return output;
+    }
+
+    /**
+     * Converts the given String and linenum into a Line for the given VisionFile.
+     * @param line the line to convert.
+     * @param lineNum the line number of the given line.
+     * @param vfile the VisionFile the line is found in.
+     * @return the Line. Null if line is null.
+     */
+    private Line toLine(String line, int lineNum, VisionFile vfile){
+        if(line == null){
+            return null;
+        }
+        return new Line(line, new CodeLocation(project, vfile, lineNum));
     }
 
     /**
