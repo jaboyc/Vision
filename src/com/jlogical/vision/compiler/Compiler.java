@@ -50,8 +50,9 @@ public class Compiler {
      * Compiles a Project.
      *
      * @return the Script when fully compiled. Will never be null. If it cannot be compiled, an exception is thrown.
+     * @throws CompilerException if an exception with compiling has occurred.
      */
-    public static Script compile(Project project, Detail outputDetail) {
+    public static Script compile(Project project, Detail outputDetail) throws CompilerException {
         return new Compiler(project, outputDetail).compile();
     }
 
@@ -59,8 +60,9 @@ public class Compiler {
      * Compiles a Project.
      *
      * @return the Script when fully compiled. Will never be null. If it cannot be compiled, an exception is thrown.
+     * @throws CompilerException if an exception with compiling has occurred.
      */
-    public static Script compile(Project project) {
+    public static Script compile(Project project) throws CompilerException {
         return new Compiler(project, Detail.BASIC).compile();
     }
 
@@ -68,8 +70,9 @@ public class Compiler {
      * Compiles a Project.
      *
      * @return the Script when fully compiled. Will never be null. If it cannot be compiled, an exception is thrown.
+     * @throws CompilerException if an exception with compiling has occurred.
      */
-    private Script compile() {
+    private Script compile() throws CompilerException {
         if (project == null) {
             return Script.failedScript(logAppendCompilerException("The Project provided was null.", "null project", new CodeLocation(null)));
         }
@@ -77,7 +80,7 @@ public class Compiler {
             return Script.failedScript(logAppendCompilerException("The Project provided did not have any code.", "empty project", new CodeLocation(project)));
         }
         ArrayList<Line> lines = new ArrayList<>();
-        for(VisionFile vfile : project.getFiles()){
+        for (VisionFile vfile : project.getFiles()) {
             lines.addAll(toLines(vfile));
         }
         return null;
@@ -88,14 +91,15 @@ public class Compiler {
      *
      * @param vfile the VisionFile to convert to lines.
      * @return the converted ArrayList. Null if text is null.
+     * @throws CompilerException if a Line is off balance.
      */
-    private ArrayList<Line> toLines(VisionFile vfile){
-        if(vfile == null){
+    private ArrayList<Line> toLines(VisionFile vfile) throws CompilerException {
+        if (vfile == null) {
             return null;
         }
         ArrayList<Line> output = new ArrayList<>();
         ArrayList<String> split = splitFile(vfile);
-        for(int i=0;i<split.size();i++){
+        for (int i = 0; i < split.size(); i++) {
             String line = split.get(i);
             output.add(toLine(line, i, vfile));
         }
@@ -104,20 +108,21 @@ public class Compiler {
 
     /**
      * Splits the vfile's code by new lines and returns it as an ArrayList of Strings.
+     *
      * @param vfile the VisionFile whose code to split. Null if vfile is null.
      */
-    private ArrayList<String> splitFile(VisionFile vfile){
-        if(vfile == null){
+    private ArrayList<String> splitFile(VisionFile vfile) {
+        if (vfile == null) {
             return null;
         }
         ArrayList<String> output = new ArrayList<>();
         String currLine = "";
-        for(int i=0;i<vfile.getCode().length();i++){
+        for (int i = 0; i < vfile.getCode().length(); i++) {
             char c = vfile.getCode().charAt(i);
-            if(c=='\n' || c=='\r'){
+            if (c == '\n' || c == '\r') {
                 output.add(currLine);
                 currLine = "";
-            }else{
+            } else {
                 currLine += vfile.getCode().charAt(i);
             }
         }
@@ -127,23 +132,57 @@ public class Compiler {
 
     /**
      * Converts the given String and linenum into a Line for the given VisionFile.
-     * @param line the line to convert.
+     *
+     * @param line    the line to convert.
      * @param lineNum the line number of the given line.
-     * @param vfile the VisionFile the line is found in.
+     * @param vfile   the VisionFile the line is found in.
      * @return the Line. Null if line is null.
+     * @throws CompilerException if a Line is off balance.
      */
-    private Line toLine(String line, int lineNum, VisionFile vfile){
-        if(line == null){
+    private Line toLine(String line, int lineNum, VisionFile vfile) throws CompilerException {
+        if (line == null) {
             return null;
         }
         Pair<String, ArrayList<String>> split = splitElement(line);
         return new Line(line, split.getFirst(), split.getSecond(), new CodeLocation(project, vfile, lineNum));
     }
 
-    private Pair<String, ArrayList<String>> splitElement(String line){
+    /**
+     * Splits an element into its imperfect core and inputs.
+     *
+     * @param element the element whose text to split.
+     * @return a Pair of its core (first) and an ArrayList of its inputs in String format (second).
+     * @throws CompilerException if it is off balance.
+     */
+    private Pair<String, ArrayList<String>> splitElement(String element) throws CompilerException {
         String core = "";
         ArrayList<String> inputs = new ArrayList<>();
+        String currInput = null;
+        int index = 0;
+        for (int i = 0; i < element.length(); i++) {
+            char c = element.charAt(i);
+            if(c==']' || c=='}' || c==')'){
+                index--;
+                if(index == 0){
+                    inputs.add(currInput);
+                    currInput = null;
+                }
+            }
+            if(index == 0){
+                core += c;
+            }else{
+                currInput += c;
+            }
+            if(c=='[' || c=='{' || c=='('){
+                index++;
+                if(currInput == null){
+                    currInput = "";
+                }
+            }
+        }
+        if(index < 0){
 
+        }
         return new Pair<>(core, inputs);
     }
 
@@ -167,7 +206,7 @@ public class Compiler {
      * @return the log.
      */
     private String logAppendCompilerException(String message, String type, CodeLocation location) {
-        if(outputDetail == Detail.BASIC || outputDetail == Detail.DEBUG) {
+        if (outputDetail == Detail.BASIC || outputDetail == Detail.DEBUG) {
             log += "Compile Exception (" + type + "): (" + location + ")";
             log += "\n\t" + message;
         }

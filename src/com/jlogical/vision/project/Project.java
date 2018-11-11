@@ -8,10 +8,8 @@ import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -84,7 +82,7 @@ public class Project {
     private static Project fromJSon(JSONObject json) {
         try {
             Object oName = json.get("name");
-            if(oName == null){
+            if (oName == null) {
                 return null;
             }
             String name = (String) oName;
@@ -170,7 +168,8 @@ public class Project {
         JSONArray files = new JSONArray();
         for (VisionFile file : this.files) {
             files.add(file.toJSon());
-        }root.put("code", files);
+        }
+        root.put("code", files);
         root.put("name", name);
         return root;
     }
