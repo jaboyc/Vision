@@ -50,40 +50,71 @@ public class Compiler {
      * Compiles a Project.
      *
      * @return the Script when fully compiled. Will never be null. If it cannot be compiled, an exception is thrown.
-     * @throws CompilerException if an exception with compiling has occurred.
      */
-    public static Script compile(Project project, Detail outputDetail) throws CompilerException {
+    public static Script compile(Project project, Detail outputDetail) {
         return new Compiler(project, outputDetail).compile();
     }
 
     /**
      * Compiles a Project.
      *
-     * @return the Script when fully compiled. Will never be null. If it cannot be compiled, an exception is thrown.
-     * @throws CompilerException if an exception with compiling has occurred.
+     * @return the Script when fully compiled. Returns a failed script (script.succeeded() == false) if there was an error.
      */
-    public static Script compile(Project project) throws CompilerException {
+    public static Script compile(Project project) {
         return new Compiler(project, Detail.BASIC).compile();
     }
 
     /**
      * Compiles a Project.
      *
-     * @return the Script when fully compiled. Will never be null. If it cannot be compiled, an exception is thrown.
-     * @throws CompilerException if an exception with compiling has occurred.
+     * @return the Script when fully compiled. Returns a failed script (script.succeeded() == false) if there was an error.
      */
-    private Script compile() throws CompilerException {
+    private Script compile() {
         if (project == null) {
             return Script.failedScript(logAppendCompilerException("The Project provided was null.", "null project", new CodeLocation(null)));
         }
         if (project.getFiles().isEmpty()) {
             return Script.failedScript(logAppendCompilerException("The Project provided did not have any code.", "empty project", new CodeLocation(project)));
         }
+        try {
+            ArrayList<Line> lines = precompile();
+            compileFiles(lines);
+            postCompile();
+        } catch (CompilerException e) {
+            e.printStackTrace();
+            return Script.failedScript(logAppendCompilerException(e));
+        }
+        return null;
+    }
+
+    /**
+     * Does everything necessary for the actual compilation.
+     * Converts all the VisionFiles into Lines, and merges them together.
+     *
+     * @throws CompilerException if there was an imbalance in one of the lines.
+     */
+    private ArrayList<Line> precompile() throws CompilerException {
         ArrayList<Line> lines = new ArrayList<>();
         for (VisionFile vfile : project.getFiles()) {
             lines.addAll(toLines(vfile));
         }
-        return null;
+        return lines;
+    }
+
+    /**
+     * Converts all the Lines into a Script.
+     *
+     * @param lines the ArrayList of Lines for where to compile from.
+     */
+    private void compileFiles(ArrayList<Line> lines) {
+
+    }
+
+    /**
+     * Does everything post compilation related.
+     */
+    private void postCompile() {
+
     }
 
     /**
@@ -143,45 +174,91 @@ public class Compiler {
         if (line == null) {
             return null;
         }
-        Pair<String, ArrayList<String>> split = splitElement(line);
-        return new Line(line, split.getFirst(), split.getSecond(), new CodeLocation(project, vfile, lineNum));
+        CodeLocation location = new CodeLocation(project, vfile, lineNum);
+        Pair<String, ArrayList<Pair<String, CodeLocation>>> split = splitElement(line, location);
+        return new Line(line, split.getFirst(), split.getSecond(), location);
     }
 
     /**
      * Splits an element into its imperfect core and inputs.
      *
-     * @param element the element whose text to split.
-     * @return a Pair of its core (first) and an ArrayList of its inputs in String format (second).
+     * @param element  the element whose text to split.
+     * @param location the beginning location of this element.
+     * @return a Pair of its core (first) and an ArrayList of its inputs in Pairs (the first is the input itself, second is the CodeLocation for that input). (second).
      * @throws CompilerException if it is off balance.
      */
-    private Pair<String, ArrayList<String>> splitElement(String element) throws CompilerException {
+    private Pair<String, ArrayList<Pair<String, CodeLocation>>> splitElement(String element, CodeLocation location) throws CompilerException {
         String core = "";
-        ArrayList<String> inputs = new ArrayList<>();
+        ArrayList<Pair<String, CodeLocation>> inputs = new ArrayList<>();
         String currInput = null;
+
         int index = 0;
+        int pIndex = 0; //Index for ()
+        int bIndex = 0; //Index for []
+        int cIndex = 0; //Index for {}
         for (int i = 0; i < element.length(); i++) {
             char c = element.charAt(i);
-            if(c==']' || c=='}' || c==')'){
+            if (c == ']' || c == '}' || c == ')') {
+                switch (c) {
+                    case ']':
+                        bIndex--;
+                        break;
+                    case '}':
+                        cIndex--;
+                        break;
+                    case ')':
+                        pIndex--;
+                        break;
+                }
                 index--;
-                if(index == 0){
-                    inputs.add(currInput);
+                if (index == 0) {
+                    inputs.add(new Pair<>(currInput, CodeLocation.copyLine(location, i)));
                     currInput = null;
                 }
             }
-            if(index == 0){
+            if (index == 0) {
                 core += c;
-            }else{
+            } else {
                 currInput += c;
             }
-            if(c=='[' || c=='{' || c=='('){
+            if (c == '[' || c == '{' || c == '(') {
+                switch (c) {
+                    case '[':
+                        bIndex++;
+                        break;
+                    case '{':
+                        cIndex++;
+                        break;
+                    case '(':
+                        pIndex++;
+                        break;
+                }
                 index++;
-                if(currInput == null){
+                if (currInput == null) {
                     currInput = "";
                 }
             }
         }
-        if(index < 0){
-
+        if (index == 0 && !(pIndex == 0 && bIndex == 0 && cIndex == 0)) {
+            throw new CompilerException("Something strange happened with the index of this line.", "line imbalance", location);
+        }
+        if (pIndex < 0) {
+            throw new CompilerException("There are more ')' than '(' in this line.", "line imbalance", location);
+        }
+        if (bIndex < 0) {
+            throw new CompilerException("There are more ']' than '[' in this line.", "line imbalance", location);
+        }
+        if (cIndex < 0) {
+            throw new CompilerException("There are more '}' than '{' in this line.", "line imbalance", location);
+        }
+        if (pIndex > 0) {
+            throw new CompilerException("There are more '(' than ')' in this line.", "line imbalance", location);
+        }
+        if (bIndex > 0) {
+            throw new CompilerException("There are more '[' than ']' in this line.", "line imbalance", location);
+        }
+        if (cIndex > 0) {
+            throw new CompilerException("There are more '{' than '}' in this line.", "line imbalance", location);
         }
         return new Pair<>(core, inputs);
     }
@@ -211,5 +288,18 @@ public class Compiler {
             log += "\n\t" + message;
         }
         return log;
+    }
+
+    /**
+     * Adds a CompilerMessage to the log of the Compiler.
+     *
+     * @param ce the exception to add.
+     * @return the log.
+     */
+    private String logAppendCompilerException(CompilerException ce) {
+        if (ce == null) {
+            return log;
+        }
+        return logAppendCompilerException(ce.getMessage(), ce.getType(), ce.getLocation());
     }
 }

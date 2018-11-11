@@ -1,6 +1,7 @@
 package com.jlogical.vision.compiler;
 
 import com.jlogical.vision.project.CodeLocation;
+import com.jlogical.vision.util.Pair;
 
 import java.util.ArrayList;
 
@@ -25,18 +26,18 @@ public class Line {
     private String core;
 
     /**
-     * The inputs of the command.
+     * The inputs of the command. First is the input itself, second is the absolute location of that input.
      */
-    private ArrayList<String> inputs;
+    private ArrayList<Pair<String, CodeLocation>> inputs;
 
     /**
      * Creates a new Line with the given code and location. Core and inputs must be given.
      */
-    public Line(String code, String core, ArrayList<String> inputs, CodeLocation location){
-        if(location == null){
+    public Line(String code, String core, ArrayList<Pair<String, CodeLocation>> inputs, CodeLocation location) {
+        if (location == null) {
             throw new NullPointerException("Location of a line cannot be null.");
         }
-        if(location.getFile() == null || location.getProject() == null || location.getLineNum() == -1){
+        if (location.getFile() == null || location.getProject() == null || location.getLineNum() == -1) {
             throw new NullPointerException("Code location needs to be referencing a specific line in a specific file.");
         }
         this.code = code != null ? code : "";
@@ -45,8 +46,8 @@ public class Line {
         this.location = location;
     }
 
-    public String toString(){
-        return "Line " + location.getLineNum() + ": "+code;
+    public String toString() {
+        return "Line " + location.getLineNum() + ": " + code;
     }
 
     public String getCode() {

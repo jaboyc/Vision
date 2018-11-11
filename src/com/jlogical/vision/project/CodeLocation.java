@@ -57,6 +57,34 @@ public class CodeLocation {
     }
 
     /**
+     * Returns a copy of the given CodeLocation.
+     * @param origin the CodeLocation to copy.
+     * @return the CodeLocation. Null if the origin is null.
+     */
+    public static CodeLocation copy(CodeLocation origin){
+        if(origin == null){
+            return null;
+        }
+        return new CodeLocation(origin.project, origin.file, origin.lineNum, origin.charNum);
+    }
+
+    /**
+     * Returns a copy of the given CodeLocation, but the charNum can be changed.
+     * @param origin the CodeLocation to copy.
+     * @param charNum the character index of this CodeLocation.
+     * @return the CodeLocation. Null if the origin is null or charNum < 0.
+     */
+    public static CodeLocation copyLine(CodeLocation origin, int charNum){
+        if(origin == null){
+            return null;
+        }
+        if(charNum < 0){
+            return null;
+        }
+        return new CodeLocation(origin.project, origin.file, origin.lineNum, charNum);
+    }
+
+    /**
      * @return whether the CodeLocation references an exact location in code with no ambiguouty.
      */
     public boolean isAbsolute() {

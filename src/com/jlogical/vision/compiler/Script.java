@@ -7,7 +7,12 @@ public class Script {
     /**
      * The compilation log associated with compiling this Script.
      */
-    String compileLog;
+    private String compileLog;
+
+    /**
+     * Whether this Script was successfully compiled.
+     */
+    private boolean succeeded;
 
     /**
      * Creates a new Script.
@@ -21,13 +26,16 @@ public class Script {
      * @return the Script.
      */
     public static Script failedScript(String compileLog){
-        return new Script(compileLog);
+        Script script =  new Script(compileLog);
+        script.succeeded = false;
+        return script;
     }
 
-    /**
-     * @return the Script was successfully compiled.
-     */
-    public boolean compileSuccess(){
-        return true;
+    public String getCompileLog() {
+        return compileLog;
+    }
+
+    public boolean succeeded() {
+        return succeeded;
     }
 }
