@@ -2,6 +2,7 @@ package com.jlogical.vision.compiler;
 
 import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.project.CodeLocation;
+import com.jlogical.vision.project.CodeRange;
 import com.jlogical.vision.project.Project;
 import com.jlogical.vision.project.VisionFile;
 import com.jlogical.vision.util.Pair;
@@ -138,7 +139,7 @@ public class Compiler {
     }
 
     /**
-     * Splits the vfile's code by new lines and returns it as an ArrayList of Strings.
+     * Splits the vfile's code by new lines and returns it as an ArrayList of Strings. Automatically trims the lines when split.
      *
      * @param vfile the VisionFile whose code to split. Null if vfile is null.
      */
@@ -151,7 +152,7 @@ public class Compiler {
         for (int i = 0; i < vfile.getCode().length(); i++) {
             char c = vfile.getCode().charAt(i);
             if (c == '\n' || c == '\r') {
-                output.add(currLine);
+                output.add(currLine.trim());
                 currLine = "";
             } else {
                 currLine += vfile.getCode().charAt(i);
@@ -175,7 +176,8 @@ public class Compiler {
             return null;
         }
         CodeLocation location = new CodeLocation(project, vfile, lineNum);
-        Pair<String, ArrayList<Pair<String, CodeLocation>>> split = splitElement(line, location);
+        Pair<String, ArrayList<Pair<String, CodeRange>>> split = splitElement(line, location);
+        System.out.println(split);
         return new Line(line, split.getFirst(), split.getSecond(), location);
     }
 
@@ -184,12 +186,12 @@ public class Compiler {
      *
      * @param element  the element whose text to split.
      * @param location the beginning location of this element.
-     * @return a Pair of its core (first) and an ArrayList of its inputs in Pairs (the first is the input itself, second is the CodeLocation for that input). (second).
+     * @return a Pair of its core (first) and an ArrayList of its inputs in Pairs (the first is the input itself, second is the CodeRange for that input). (second).
      * @throws CompilerException if it is off balance.
      */
-    private Pair<String, ArrayList<Pair<String, CodeLocation>>> splitElement(String element, CodeLocation location) throws CompilerException {
+    private Pair<String, ArrayList<Pair<String, CodeRange>>> splitElement(String element, CodeLocation location) throws CompilerException {
         String core = "";
-        ArrayList<Pair<String, CodeLocation>> inputs = new ArrayList<>();
+        ArrayList<Pair<String, CodeRange>> inputs = new ArrayList<>();
         String currInput = null;
 
         int index = 0;
@@ -212,7 +214,7 @@ public class Compiler {
                 }
                 index--;
                 if (index == 0) {
-                    inputs.add(new Pair<>(currInput, CodeLocation.copyLine(location, i)));
+                    inputs.add(new Pair<>(currInput, new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i-currInput.length(), location.getLineNum(), i-1)));
                     currInput = null;
                 }
             }

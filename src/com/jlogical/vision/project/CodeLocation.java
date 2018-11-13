@@ -92,6 +92,49 @@ public class CodeLocation {
     }
 
     /**
+     * Returns whether it is equal to another CodeLocation.
+     * @param o the Object to test it with.
+     * @return false if o is not a CodeLocation. True if both reference the exact same position.
+     */
+    public boolean equals(Object o){
+        if(o instanceof CodeLocation){
+            CodeLocation cl = (CodeLocation) o;
+            return project == cl.project && file == cl.file && lineNum == cl.lineNum && charNum == cl.charNum;
+        }
+        return false;
+    }
+
+    /**
+     * Returns the comparison of the code location between this CodeLocation and the given CodeLocation. Both must be absolute and referencing the same Project and VisionFile.
+     * @param loc the CodeLocation to compare this to.
+     * @return 0 if they are equal, 1 if this one is greater than the given one, or -1 if this one is less than the given one.
+     * @throws IllegalArgumentException if either is not absolute or do not reference the same Project and VisionFile.
+     */
+    public int compareTo(CodeLocation loc) throws IllegalArgumentException{
+        if(!isAbsolute() || !loc.isAbsolute()){
+            throw new IllegalArgumentException("Both CodeLocations must be absolute in order to compare them.");
+        }
+        if(project != loc.project){
+            throw new IllegalArgumentException("Both CodeLocations must be referencing the same Project to compare them.");
+        }
+        if(file != loc.file){
+            throw new IllegalArgumentException("Both CodeLocations must be referencing the same File to compare them.");
+        }
+        if(equals(loc)){
+            return 0;
+        }else if(lineNum > loc.lineNum){
+            return 1;
+        }else if(lineNum < loc.lineNum){
+            return -1;
+        }else if(charNum > loc.charNum){
+            return 1;
+        }else if (charNum < loc.charNum){
+            return -1;
+        }
+        throw new UnsupportedOperationException("Error with compareTo method.");
+    }
+
+    /**
      * Returns a String representation of the CodeLocation.
      */
     public String toString() {
@@ -109,6 +152,8 @@ public class CodeLocation {
         }
         return project.getName() + "=>" + file.getName() + ":" + lineNum + ":" + charNum;
     }
+
+
 
     public Project getProject() {
         return project;

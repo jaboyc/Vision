@@ -15,6 +15,10 @@ public class Pair<A, B> {
         this.second = second;
     }
 
+    public String toString(){
+        return "{"+first+","+second+"}";
+    }
+
     public A getFirst() {
         return first;
     }

@@ -1,6 +1,7 @@
 package com.jlogical.vision.compiler;
 
 import com.jlogical.vision.project.CodeLocation;
+import com.jlogical.vision.project.CodeRange;
 import com.jlogical.vision.util.Pair;
 
 import java.util.ArrayList;
@@ -28,12 +29,12 @@ public class Line {
     /**
      * The inputs of the command. First is the input itself, second is the absolute location of that input.
      */
-    private ArrayList<Pair<String, CodeLocation>> inputs;
+    private ArrayList<Pair<String, CodeRange>> inputs;
 
     /**
      * Creates a new Line with the given code and location. Core and inputs must be given.
      */
-    public Line(String code, String core, ArrayList<Pair<String, CodeLocation>> inputs, CodeLocation location) {
+    public Line(String code, String core, ArrayList<Pair<String, CodeRange>> inputs, CodeLocation location) {
         if (location == null) {
             throw new NullPointerException("Location of a line cannot be null.");
         }

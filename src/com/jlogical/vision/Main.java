@@ -12,7 +12,7 @@ public class Main {
         try {
             Project project = Project.fromFile("res/test.vproj");
             Script script = Compiler.compile(project);
-            System.out.println(script.succeeded());
+            //System.out.println(script.succeeded());
         } catch (IOException e) {
             e.printStackTrace();
         }
