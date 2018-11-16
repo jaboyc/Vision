@@ -1,4 +1,4 @@
-package com.jlogical.vision.compiler;
+package com.jlogical.vision.compiler.script;
 
 /**
  * Stores the compiled information for a Project. Cannot be back-compiled. Stored as a .vis file.

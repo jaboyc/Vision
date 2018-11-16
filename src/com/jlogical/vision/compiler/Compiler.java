@@ -1,6 +1,7 @@
 package com.jlogical.vision.compiler;
 
 import com.jlogical.vision.compiler.exceptions.CompilerException;
+import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.project.CodeLocation;
 import com.jlogical.vision.project.CodeRange;
 import com.jlogical.vision.project.Project;
@@ -79,7 +80,7 @@ public class Compiler {
         }
         try {
             ArrayList<Line> lines = precompile();
-            compileFiles(lines);
+            Script script = compileLines(lines);
             postCompile();
         } catch (CompilerException e) {
             e.printStackTrace();
@@ -106,9 +107,12 @@ public class Compiler {
      * Converts all the Lines into a Script.
      *
      * @param lines the ArrayList of Lines for where to compile from.
+     * @return the Script.
+     * @throws CompilerException if an exception has occured.
      */
-    private void compileFiles(ArrayList<Line> lines) {
+    private Script compileLines(ArrayList<Line> lines) throws CompilerException {
 
+        return null;
     }
 
     /**
@@ -177,7 +181,6 @@ public class Compiler {
         }
         CodeLocation location = new CodeLocation(project, vfile, lineNum);
         Pair<String, ArrayList<Pair<String, CodeRange>>> split = splitElement(line, location);
-        System.out.println(split);
         return new Line(line, split.getFirst(), split.getSecond(), location);
     }
 

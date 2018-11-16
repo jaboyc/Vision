@@ -47,6 +47,14 @@ public class Line {
         this.location = location;
     }
 
+    /**
+     * @return the CodeRange this Line is in.
+     */
+    public CodeRange getRange(){
+        return new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), 0, location.getLineNum(), code.length());
+    }
+
+    @Override
     public String toString() {
         return "Line " + location.getLineNum() + ": " + code;
     }

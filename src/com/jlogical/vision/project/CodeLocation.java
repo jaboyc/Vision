@@ -134,9 +134,7 @@ public class CodeLocation {
         throw new UnsupportedOperationException("Error with compareTo method.");
     }
 
-    /**
-     * Returns a String representation of the CodeLocation.
-     */
+    @Override
     public String toString() {
         if (project == null) {
             return "nowhere";

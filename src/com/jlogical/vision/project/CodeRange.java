@@ -96,6 +96,7 @@ public class CodeRange {
         throw new UnsupportedOperationException("Error with between method.");
     }
 
+    @Override
     public String toString(){
         return "beg: ("+lineStart+","+charStart+") end: ("+lineEnd+","+charEnd+")";
     }

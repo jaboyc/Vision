@@ -1,8 +1,7 @@
 package com.jlogical.vision;
 
 import com.jlogical.vision.compiler.Compiler;
-import com.jlogical.vision.compiler.Script;
-import com.jlogical.vision.compiler.exceptions.CompilerException;
+import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.project.Project;
 
 import java.io.IOException;

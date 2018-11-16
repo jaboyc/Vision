@@ -187,6 +187,7 @@ public class Project {
         return files;
     }
 
+    @Override
     public String toString() {
         return "Project[" + name + "]=file size:" + files.size();
     }
