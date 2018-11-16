@@ -1,6 +1,4 @@
-package com.jlogical.vision.compiler.script.values;
-
-import java.util.ArrayList;
+package com.jlogical.vision.compiler.values;
 
 /**
  * Holder for a value that is evaluated at runtime.

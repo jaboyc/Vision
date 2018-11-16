@@ -1,4 +1,4 @@
-package com.jlogical.vision.compiler.script.values;
+package com.jlogical.vision.compiler.values;
 
 /**
  * Value that holds a String.

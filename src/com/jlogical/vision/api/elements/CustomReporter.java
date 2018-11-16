@@ -2,7 +2,7 @@ package com.jlogical.vision.api.elements;
 
 import com.jlogical.vision.api.API;
 import com.jlogical.vision.api.runnables.ReporterRunnable;
-import com.jlogical.vision.compiler.script.values.Value;
+import com.jlogical.vision.compiler.values.Value;
 
 public class CustomReporter extends CustomElement implements Value {
 

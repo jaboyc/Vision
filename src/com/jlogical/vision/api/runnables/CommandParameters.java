@@ -1,7 +1,7 @@
 package com.jlogical.vision.api.runnables;
 
 import com.jlogical.vision.compiler.script.elements.Hat;
-import com.jlogical.vision.compiler.script.values.Value;
+import com.jlogical.vision.compiler.values.Value;
 
 import java.util.ArrayList;
 

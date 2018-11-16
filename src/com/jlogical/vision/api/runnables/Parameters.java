@@ -1,9 +1,8 @@
 package com.jlogical.vision.api.runnables;
 
 
-import com.jlogical.vision.compiler.script.values.Value;
+import com.jlogical.vision.compiler.values.Value;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 
 /**
