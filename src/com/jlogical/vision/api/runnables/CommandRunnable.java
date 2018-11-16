@@ -8,5 +8,5 @@ public interface CommandRunnable {
      * Action to run the Command with.
      * @param p the Parameters of the Command.
      */
-    void run(Parameters p);
+    void run(CommandParameters p);
 }

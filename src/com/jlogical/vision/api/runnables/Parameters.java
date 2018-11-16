@@ -3,6 +3,7 @@ package com.jlogical.vision.api.runnables;
 
 import com.jlogical.vision.compiler.script.values.Value;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 /**
@@ -20,6 +21,86 @@ public abstract class Parameters {
      */
     public Parameters(ArrayList<Value> values){
         this.values = values != null ? values : new ArrayList<Value>();
+    }
+
+    /**
+     * Returns the value of the Value at the given index in the values List.
+     * @param index the index of which Value to get the value from.
+     * @return the value of the Value.
+     */
+    public Object get(int index){
+        if(index < 0){
+            throw new IllegalArgumentException("Index cannot be null!");
+        }
+        if(index >= values.size()){
+            throw new IllegalArgumentException("Index cannot be out of range of values!");
+        }
+        return values.get(index).getValue();
+    }
+
+    /**
+     * Returns the String value of the Value at the given index.
+     * @param index the index of the Value.
+     * @return the String representation of the value.
+     */
+    public String str(int index){
+        return get(index).toString();
+    }
+
+    /**
+     * Returns the int value of the Value at the given index.
+     * @param index the index of the Value.
+     * @return the int representatino of the Value.
+     */
+    public int numInt(int index) throws NumberFormatException {
+        Object val = get(index);
+        if(val instanceof Integer){
+            return (int) val;
+        }else if (val instanceof Double){
+            return (int) val;
+        }else if (val instanceof Boolean){
+            return ((boolean) val) ? 1 : 0;
+        }
+        return (int) Double.parseDouble(get(index).toString());
+    }
+
+    /**
+     * Returns the double value of the Value at the given index.
+     * @param index the index of the Value.
+     * @return the double representatino of the Value.
+     */
+    public double num(int index) throws NumberFormatException{
+        Object val = get(index);
+        if(val instanceof Integer){
+            return (double) val;
+        }else if (val instanceof Double){
+            return (double) val;
+        }else if (val instanceof Boolean){
+            return ((boolean) val) ? 1: 0;
+        }
+        return Double.parseDouble(val.toString());
+    }
+
+    /**
+     * Returns the boolean value of the Value at the given index.
+     * @param index the index of the Value.
+     * @return the boolean representatino of the Value.
+     */
+    public boolean bool(int index){
+        Object val = get(index);
+        if(val instanceof Boolean){
+            return (boolean) val;
+        } else if(val instanceof Integer || val instanceof Double){
+            return ((int) val) != 0;
+        }else if (val instanceof String){
+            String sVal = (String) val;
+            if(sVal.equalsIgnoreCase("true")){
+                return true;
+            }else if(sVal.equalsIgnoreCase(("false"))){
+                return false;
+            }
+        }
+        throw new ClassCastException("Could not convert " + val + " to boolean!");
     }
 
     public ArrayList<Value> getValues() {
