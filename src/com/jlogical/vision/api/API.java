@@ -73,6 +73,19 @@ public abstract class API {
         reporters.add(new CustomReporter(core != null ? core : "", runnable, this));
     }
 
+    public Project getProject() {
+        return project;
+    }
 
+    public ArrayList<CustomCommand> getCommands() {
+        return commands;
+    }
 
+    public ArrayList<CustomHat> getHats() {
+        return hats;
+    }
+
+    public ArrayList<CustomReporter> getReporters() {
+        return reporters;
+    }
 }

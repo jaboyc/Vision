@@ -1,7 +1,7 @@
 package com.jlogical.vision.compiler.script.elements;
 
 import com.jlogical.vision.api.elements.CustomElement;
-import com.jlogical.vision.runtime.values.Value;
+import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeRange;
 
 import java.util.ArrayList;

@@ -1,5 +1,10 @@
 package com.jlogical.vision.project;
 
+import com.jlogical.vision.api.API;
+import com.jlogical.vision.api.elements.CustomCommand;
+import com.jlogical.vision.api.elements.CustomHat;
+import com.jlogical.vision.api.elements.CustomReporter;
+import com.jlogical.vision.api.system.CoreAPI;
 import com.jlogical.vision.compiler.exceptions.FileFormatException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -8,6 +13,9 @@ import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -18,21 +26,48 @@ import java.util.zip.ZipOutputStream;
 public class Project {
 
     /**
-     * The name of the Project.
+     * Name of the Project.
      */
     private String name;
 
     /**
-     * A list of code files for this project.
+     * List of code files for this project.
      */
     private ArrayList<VisionFile> files;
 
     /**
+     * List of APIs in the Project.
+     */
+    private ArrayList<API> apis;
+
+    /**
+     * List of the sorted CustomCommands of all the APIs combined.
+     */
+    private ArrayList<CustomCommand> commands;
+
+    /**
+     * List of the sorted CustomReporters of all the APIs combined.
+     */
+    private ArrayList<CustomReporter> reporters;
+
+    /**
+     * List of the sorted CustomHat of all the APIs combined.
+     */
+    private ArrayList<CustomHat> hats;
+
+    /**
      * Can only be instantiated from the factory static methods. Creates a Project with a given name and files.
      */
-    private Project(String name, ArrayList<VisionFile> files) {
+    private Project(String name, ArrayList<VisionFile> files, ArrayList<API> apis) {
         this.name = name != null ? name : "empty";
         this.files = files != null ? files : new ArrayList<>();
+        this.apis = apis != null ? apis : new ArrayList<>(Arrays.asList(new CoreAPI(this)));
+        commands = new ArrayList<>();
+        reporters = new ArrayList<>();
+        hats = new ArrayList<>();
+        for (API api : this.apis) {
+            indexCustomElements(api);
+        }
     }
 
     /**
@@ -42,7 +77,7 @@ public class Project {
      * @return the blank project.
      */
     public static Project blank(String name) {
-        return new Project(name, new ArrayList<>());
+        return new Project(name, null, null);
     }
 
     /**
@@ -93,7 +128,7 @@ public class Project {
                 VisionFile vfile = VisionFile.fromJSon(file);
                 vFiles.add(vfile);
             }
-            return new Project(name, vFiles);
+            return new Project(name, vFiles, null); //TODO Implement APIs stored in files and imported into Projects.
         } catch (ClassCastException e) {
             e.printStackTrace();
             return null;
@@ -149,7 +184,7 @@ public class Project {
     /**
      * Compresses the Project into a ZIP and stores it in the given file.
      *
-     * @param file the File to store the Project in.
+     * @param file the File to store the Project in. Must be valid.
      * @throws IOException if there is an error writing to the file.
      */
     private void zip(File file) throws IOException {
@@ -174,6 +209,36 @@ public class Project {
         return root;
     }
 
+    /**
+     * Adds an API to the Projects APIs and sorts it.
+     * @param api the API to add.
+     */
+    public void addAPI(API api) {
+        if (api == null) {
+            return;
+        }
+        apis.add(api);
+        indexCustomElements(api);
+    }
+
+    /**
+     * Gets all the CustomElements of the API
+     *
+     * @param api
+     */
+    private void indexCustomElements(API api) {
+        commands.addAll(api.getCommands());
+        Collections.sort(commands, Comparator.comparing(CustomCommand::getCore));
+        reporters.addAll(api.getReporters());
+        Collections.sort(reporters, Comparator.comparing(CustomReporter::getCore));
+        hats.addAll(api.getHats());
+        Collections.sort(hats, Comparator.comparing(CustomHat::getCore));
+    }
+
+    @Override
+    public String toString() {
+        return "Project[" + name + "]=file size:" + files.size();
+    }
 
     public String getName() {
         return name;
@@ -187,8 +252,23 @@ public class Project {
         return files;
     }
 
-    @Override
-    public String toString() {
-        return "Project[" + name + "]=file size:" + files.size();
+    /**
+     * Returns the APIs. Do not use this to add APIs. Use .addAPI() instead in order to sort the CustomElements into the Project.
+     * @return the APIs.
+     */
+    public ArrayList<API> getApis() {
+        return apis;
+    }
+
+    public ArrayList<CustomCommand> getCommands() {
+        return commands;
+    }
+
+    public ArrayList<CustomReporter> getReporters() {
+        return reporters;
+    }
+
+    public ArrayList<CustomHat> getHats() {
+        return hats;
     }
 }

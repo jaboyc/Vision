@@ -1,5 +1,6 @@
 package com.jlogical.vision.compiler;
 
+import com.jlogical.vision.api.elements.CustomElement;
 import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.project.CodeLocation;
@@ -9,11 +10,15 @@ import com.jlogical.vision.project.VisionFile;
 import com.jlogical.vision.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Compiles a Project into a Script.
  */
 public class Compiler {
+
+    public static final String[] KEYWORDS = {"define", "with", "as", "for", "new"};
 
     /**
      * Contains the different levels of detail to be produced in the log.
@@ -111,8 +116,40 @@ public class Compiler {
      * @throws CompilerException if an exception has occured.
      */
     private Script compileLines(ArrayList<Line> lines) throws CompilerException {
+        ArrayList<CustomElement> elements = new ArrayList<>();
+        for (Line line : lines) {
+            elements.add(toElement(line));
+        }
+        return null;
+    }
+
+    /**
+     * Compiles the Line and returns a CompileElement version of it.
+     *
+     * @param line the Line to compile.
+     * @return the CustomElement.
+     */
+    private CustomElement toElement(Line line) {
+        if(containsKeyword(line)){
+           //TODO
+        }else{
+
+        }
 
         return null;
+    }
+
+    /**
+     * Returns whether the line has a keyword.
+     *
+     * @param line the Line to check.
+     * @return true if the Line has a keyword.
+     */
+    private boolean containsKeyword(Line line) {
+        String[] split = line.getCore().split(" "); //Splits up the line's code into separate words.
+        List<String> splitList = new ArrayList<>(Arrays.asList(split)); //Converts the array into a list.
+        splitList.retainAll(Arrays.asList(KEYWORDS)); //Intersects the first list with the keywords list.
+        return !splitList.isEmpty(); //Returns if the splitList has anything inside it, meaning there was a match.
     }
 
     /**
@@ -217,7 +254,7 @@ public class Compiler {
                 }
                 index--;
                 if (index == 0) {
-                    inputs.add(new Pair<>(currInput, new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i-currInput.length(), location.getLineNum(), i-1)));
+                    inputs.add(new Pair<>(currInput, new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1)));
                     currInput = null;
                 }
             }

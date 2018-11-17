@@ -67,4 +67,11 @@ public class Line {
         return location;
     }
 
+    public String getCore() {
+        return core;
+    }
+
+    public ArrayList<Pair<String, CodeRange>> getInputs() {
+        return inputs;
+    }
 }

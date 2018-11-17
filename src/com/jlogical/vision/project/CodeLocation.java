@@ -57,6 +57,14 @@ public class CodeLocation {
     }
 
     /**
+     * Creates a blank CodeLocation that does not reference anything.
+     * @return the CodeLocation.
+     */
+    public static CodeLocation emptyReference(){
+        return new CodeLocation(Project.blank("empty"), new VisionFile("empty", ""), 1, 0);
+    }
+
+    /**
      * Returns a copy of the given CodeLocation.
      * @param origin the CodeLocation to copy.
      * @return the CodeLocation. Null if the origin is null.
