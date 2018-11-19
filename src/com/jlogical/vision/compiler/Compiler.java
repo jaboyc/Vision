@@ -154,7 +154,14 @@ public class Compiler {
         return new Script(log, hats);
     }
 
-    private Hat toHat(Line line) {
+    /**
+     * Converts the Line to a Hat.
+     *
+     * @param line the Line to convert.
+     * @return the Hat.
+     * @throws CompilerException if the Hat is not valid.
+     */
+    private Hat toHat(Line line) throws CompilerException {
         if (containsKeyword(line)) {
             //TODO
         } else {
@@ -164,17 +171,18 @@ public class Compiler {
                 }
             }
         }
-        return null;
+        throw new CompilerException(line.getCode() + " is not a valid Hat!", "invalid code", line.getLocation());
     }
 
     /**
      * Compiles the Line and returns a Command version of it.
      *
-     * @param line the Line to compile.
+     * @param line      the Line to compile.
      * @param hatHolder the Hat that will hold the Command.
      * @return the Command.
+     * @throws CompilerException if the Command is not valid.
      */
-    private Command toCommand(Line line, Hat hatHolder) {
+    private Command toCommand(Line line, Hat hatHolder) throws CompilerException{
         if (containsKeyword(line)) {
             if (line.getCode().equals("end")) {
                 return new End(line);
@@ -187,7 +195,7 @@ public class Compiler {
             }
         }
 
-        return null;
+        throw new CompilerException(line.getCode() + " is not a valid Command!", "invalid code", line.getLocation());
     }
 
     /**

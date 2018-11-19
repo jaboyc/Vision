@@ -42,8 +42,8 @@ public class Line {
         if (location.getFile() == null || location.getProject() == null || location.getLineNum() == -1) {
             throw new NullPointerException("Code location needs to be referencing a specific line in a specific file.");
         }
-        this.code = code != null ? code : "";
-        this.core = core != null ? core : "";
+        this.code = code != null ? code.trim() : "";
+        this.core = core != null ? core.trim() : "";
         this.inputs = inputs != null ? inputs : new ArrayList<>();
         this.location = location;
     }
@@ -61,7 +61,7 @@ public class Line {
     }
 
     public String getCode() {
-        return code.trim();
+        return code;
     }
 
     public CodeLocation getLocation() {
@@ -69,7 +69,7 @@ public class Line {
     }
 
     public String getCore() {
-        return core.trim();
+        return core;
     }
 
     public ArrayList<Triplet<String, CodeRange, Character>> getInputs() {
