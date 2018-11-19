@@ -17,11 +17,23 @@ public class Hat extends CompiledElement<CustomHat> {
     ArrayList<Command> commands;
 
     /**
-     * Creates a new CompiledElement with a core and values.
+     * Creates a new Hat with a core and a List of Commands.
      */
-    public Hat(CustomHat hat, ArrayList<Value> values, ArrayList<Command> commands) {
-        super(hat, values);
+    public Hat(CustomHat hat, ArrayList<Command> commands) {
+        super(hat, null);
         this.commands = commands != null ? commands : new ArrayList<>();
+    }
+
+    /**
+     * Adds a Command to the Hat.
+     * @param command the Command to add.
+     */
+    public void addCommand(Command command){
+        commands.add(command);
+    }
+
+    public ArrayList<Command> getCommands() {
+        return commands;
     }
 
     @Override

@@ -3,10 +3,12 @@ package com.jlogical.vision.compiler;
 import com.jlogical.vision.api.elements.CustomCommand;
 import com.jlogical.vision.api.elements.CustomElement;
 import com.jlogical.vision.api.elements.CustomHat;
+import com.jlogical.vision.api.system.CoreAPI;
 import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.compiler.script.elements.Command;
 import com.jlogical.vision.compiler.script.elements.CompiledElement;
+import com.jlogical.vision.compiler.script.elements.End;
 import com.jlogical.vision.compiler.script.elements.Hat;
 import com.jlogical.vision.compiler.values.TextValue;
 import com.jlogical.vision.compiler.values.Value;
@@ -27,7 +29,7 @@ import java.util.List;
  */
 public class Compiler {
 
-    private static final String[] KEYWORDS = {"define", "with", "as", "for", "new"};
+    private static final String[] KEYWORDS = {"end", "define", "with", "as", "for", "new"};
 
     /**
      * Contains the different levels of detail to be produced in the log.
@@ -125,39 +127,58 @@ public class Compiler {
      * @throws CompilerException if an exception has occurred.
      */
     private Script compileLines(ArrayList<Line> lines) throws CompilerException {
-        ArrayList<CompiledElement> elements = new ArrayList<>();
+        ArrayList<Hat> hats = new ArrayList<>();
+        Hat currHat = null;
+        int index = 0;
         for (Line line : lines) {
-            elements.add(toElement(line));
+            if (index == 0) {
+                currHat = toHat(line);
+                hats.add(currHat);
+                index++;
+            } else if (index > 0) {
+                Command command = toCommand(line);
+                if (currHat == null) {
+                    throw new CompilerException("Cannot compile a Command without a Hat!", "error", line.getLocation());
+                }
+                currHat.addCommand(command);
+                if (command instanceof End) {
+                    index--;
+                }
+            } else {
+                throw new CompilerException("There are more 'end's than Hats or CBlocks!", "end imbalance", line.getLocation());
+            }
         }
-        ArrayList<Hat> hats = toHats(elements);
+        if (index > 0) {
+            throw new CompilerException("There are not enough 'end's!", "end imbalance", lines.get(lines.size() - 1).getLocation());
+        }
         return new Script(log, hats);
     }
 
-    /**
-     * Returns the Hat representations of the CompiledElements.
-     *
-     * @param elements the List of Elements to convert.
-     * @return a List of Hats.
-     */
-    private ArrayList<Hat> toHats(ArrayList<CompiledElement> elements) {
-        return null;
-    }
-
-    /**
-     * Compiles the Line and returns a CompiledElement version of it.
-     *
-     * @param line the Line to compile.
-     * @return the CustomElement.
-     */
-    private CompiledElement toElement(Line line) {
+    private Hat toHat(Line line) {
         if (containsKeyword(line)) {
             //TODO
         } else {
             for (CustomHat hat : project.getHats()) {
                 if (coreEquals(hat.getCore(), line.getCore())) {
-                    return new Hat(hat, toValues(line.getInputs()), null);
+                    return new Hat(hat, null);
                 }
             }
+        }
+        return null;
+    }
+
+    /**
+     * Compiles the Line and returns a Command version of it.
+     *
+     * @param line the Line to compile.
+     * @return the Command.
+     */
+    private Command toCommand(Line line) {
+        if (containsKeyword(line)) {
+            if (line.getCode().equals("end")) {
+                return new End(line);
+            }
+        } else {
             for (CustomCommand command : project.getCommands()) {
                 if (coreEquals(command.getCore(), line.getCore())) {
                     return new Command(command, toValues(line.getInputs()), line);
@@ -368,7 +389,7 @@ public class Compiler {
                 }
                 index--;
                 if (index == 0) {
-                    inputs.add(new Triplet<>(currInput, new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), lastInputType));
+                    inputs.add(new Triplet<>(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), lastInputType));
                     currInput = null;
                 } else if (index < 0) {
                     throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without a start parameter ('[', '(', or '{') first.", "line imbalance", location);

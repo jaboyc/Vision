@@ -51,26 +51,35 @@ public abstract class API {
      *
      * @param core the core of the Command.
      * @param runnable the action that runs when the command is called.
+     * @return the CustomCommand that was created.
      */
-    public void addCommand(String core, CommandRunnable runnable){
-        commands.add(new CustomCommand(core != null ? core : "", runnable, this));
+    protected CustomCommand addCommand(String core, CommandRunnable runnable){
+        CustomCommand command = new CustomCommand(core != null ? core : "", runnable != null ? runnable : p->{}, this);
+        commands.add(command);
+        return command;
     }
 
     /**
      * Adds a new CustomHat to this API.
      * @param core the core of the Hat.
+     * @return the CustomHat that was created.
      */
-    public void addHat(String core){
-        hats.add(new CustomHat(core != null ? core : "", this));
+    protected CustomHat addHat(String core){
+        CustomHat hat = new CustomHat(core != null ? core : "", this);
+        hats.add(hat);
+        return hat;
     }
 
     /**
      * Adds a new CustomReporter to this API.
      * @param core the core of the Reporter.
      * @param runnable the action that runs when the reporter is called.
+     * @return the CustomReporter that was created.
      */
-    public void addReporter(String core, ReporterRunnable runnable){
-        reporters.add(new CustomReporter(core != null ? core : "", runnable, this));
+    protected CustomReporter addReporter(String core, ReporterRunnable runnable){
+        CustomReporter reporter = new CustomReporter(core != null ? core : "", runnable, this);
+        reporters.add(reporter);
+        return reporter;
     }
 
     public Project getProject() {

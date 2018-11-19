@@ -61,7 +61,7 @@ public class Line {
     }
 
     public String getCode() {
-        return code;
+        return code.trim();
     }
 
     public CodeLocation getLocation() {
@@ -69,7 +69,7 @@ public class Line {
     }
 
     public String getCore() {
-        return core;
+        return core.trim();
     }
 
     public ArrayList<Triplet<String, CodeRange, Character>> getInputs() {

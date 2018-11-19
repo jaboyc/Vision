@@ -1,6 +1,7 @@
 package com.jlogical.vision.api.system;
 
 import com.jlogical.vision.api.API;
+import com.jlogical.vision.api.elements.CustomCommand;
 import com.jlogical.vision.api.elements.CustomHat;
 import com.jlogical.vision.project.Project;
 
