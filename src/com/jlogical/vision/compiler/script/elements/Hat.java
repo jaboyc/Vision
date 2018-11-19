@@ -25,6 +25,15 @@ public class Hat extends CompiledElement<CustomHat> {
     }
 
     /**
+     * Runs the Hat.
+     */
+    public void run(){
+        for(Command command:commands){
+            command.run();
+        }
+    }
+
+    /**
      * Adds a Command to the Hat.
      * @param command the Command to add.
      */

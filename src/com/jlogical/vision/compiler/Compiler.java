@@ -98,11 +98,11 @@ public class Compiler {
             ArrayList<Line> lines = precompile();
             Script script = compileLines(lines);
             postCompile();
+            return script;
         } catch (CompilerException e) {
             e.printStackTrace();
             return Script.failedScript(logAppendCompilerException(e));
         }
-        return null;
     }
 
     /**
@@ -136,7 +136,7 @@ public class Compiler {
                 hats.add(currHat);
                 index++;
             } else if (index > 0) {
-                Command command = toCommand(line);
+                Command command = toCommand(line, currHat);
                 if (currHat == null) {
                     throw new CompilerException("Cannot compile a Command without a Hat!", "error", line.getLocation());
                 }
@@ -171,9 +171,10 @@ public class Compiler {
      * Compiles the Line and returns a Command version of it.
      *
      * @param line the Line to compile.
+     * @param hatHolder the Hat that will hold the Command.
      * @return the Command.
      */
-    private Command toCommand(Line line) {
+    private Command toCommand(Line line, Hat hatHolder) {
         if (containsKeyword(line)) {
             if (line.getCode().equals("end")) {
                 return new End(line);
@@ -181,7 +182,7 @@ public class Compiler {
         } else {
             for (CustomCommand command : project.getCommands()) {
                 if (coreEquals(command.getCore(), line.getCore())) {
-                    return new Command(command, toValues(line.getInputs()), line);
+                    return new Command(command, toValues(line.getInputs()), line, hatHolder);
                 }
             }
         }
@@ -392,7 +393,7 @@ public class Compiler {
                     inputs.add(new Triplet<>(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), lastInputType));
                     currInput = null;
                 } else if (index < 0) {
-                    throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without a start parameter ('[', '(', or '{') first.", "line imbalance", location);
+                    throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without a run parameter ('[', '(', or '{') first.", "line imbalance", location);
                 }
             }
             if (index == 0) {

@@ -43,6 +43,25 @@ public class Script {
         return script;
     }
 
+    /**
+     * Starts a Hat with the given core.
+     * @param core the core of the Hat to run.
+     */
+    public void start(String core){
+        for(Hat hat: hats){
+            if(hat.getCore().equals(core)){
+                hat.run();
+            }
+        }
+    }
+
+    /**
+     * Starts the Script with the 'when started' Hat.
+     */
+    public void start(){
+        start("when started");
+    }
+
     public String getCompileLog() {
         return compileLog;
     }

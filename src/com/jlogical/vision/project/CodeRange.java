@@ -35,7 +35,7 @@ public class CodeRange {
     private int charEnd;
 
     /**
-     * Creates a new CodeRange with a specified project, file, start position, and end position.
+     * Creates a new CodeRange with a specified project, file, run position, and end position.
      * @throws IllegalArgumentException if any of the parameters are null or not valid.
      */
     public CodeRange(Project project, VisionFile file, int lineStart, int charStart, int lineEnd, int charEnd) throws IllegalArgumentException{
@@ -66,7 +66,7 @@ public class CodeRange {
     }
 
     /**
-     * Creates a CodeRange between the given CodeLocations (inclusive). The order of the start/end locations does not matter.
+     * Creates a CodeRange between the given CodeLocations (inclusive). The order of the run/end locations does not matter.
      * @param loc1 the first location.
      * @param loc2 the second location.
      * @return the CodeRange between the two locations (inclusive).
@@ -97,7 +97,7 @@ public class CodeRange {
     }
 
     /**
-     * @return the CodeLocation for the start of the range.
+     * @return the CodeLocation for the run of the range.
      */
     public CodeLocation startLocation(){
         return new CodeLocation(project, file, lineStart, charStart);

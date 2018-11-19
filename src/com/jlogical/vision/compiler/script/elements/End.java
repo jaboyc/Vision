@@ -17,6 +17,6 @@ public class End extends Command{
      * Creates a new End in the given line.
      */
     public End(Line line) {
-        super(endTemplate, null, line);
+        super(endTemplate, null, line, null);
     }
 }

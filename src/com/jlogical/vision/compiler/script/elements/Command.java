@@ -1,6 +1,8 @@
 package com.jlogical.vision.compiler.script.elements;
 
 import com.jlogical.vision.api.elements.CustomCommand;
+import com.jlogical.vision.api.runnables.CommandParameters;
+import com.jlogical.vision.api.runnables.CommandRunnable;
 import com.jlogical.vision.compiler.Line;
 import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeRange;
@@ -18,18 +20,27 @@ public class Command extends CompiledElement<CustomCommand> {
     private Line line;
 
     /**
+     * The Hat that is holding this Command.
+     */
+    private Hat hatHolder;
+
+    /**
      * Creates a new CompiledElement with a core, template, values, and line.
      */
-    public Command(CustomCommand template, ArrayList<Value> values, Line line) {
+    public Command(CustomCommand template, ArrayList<Value> values, Line line, Hat hatHolder) {
         super(template, values);
         this.line = line;
+        this.hatHolder = hatHolder;
     }
 
     /**
      * Runs the Command.
      */
     public void run() {
-
+        CommandRunnable runnable = getTemplate().getRunnable();
+        if(runnable != null){
+            runnable.run(new CommandParameters(getValues(),  hatHolder));
+        }
     }
 
     @Override
@@ -39,5 +50,9 @@ public class Command extends CompiledElement<CustomCommand> {
 
     public Line getLine() {
         return line;
+    }
+
+    public Hat getHatHolder() {
+        return hatHolder;
     }
 }

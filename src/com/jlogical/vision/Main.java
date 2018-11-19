@@ -11,7 +11,7 @@ public class Main {
         try {
             Project project = Project.fromFile("res/test.vproj");
             Script script = Compiler.compile(project);
-            //System.out.println(script.succeeded());
+            script.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
