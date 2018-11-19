@@ -1,6 +1,7 @@
 package com.jlogical.vision.compiler.script.elements;
 
 import com.jlogical.vision.api.elements.CustomElement;
+import com.jlogical.vision.compiler.Line;
 import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeRange;
 
@@ -10,11 +11,6 @@ import java.util.ArrayList;
  * A piece of code that was compiled.
  */
 public abstract class CompiledElement<T extends CustomElement> {
-
-    /**
-     * The core of the compiled element.
-     */
-    private String core;
 
     /**
      * The CustomElement this CompiledElement is based on.
@@ -27,10 +23,10 @@ public abstract class CompiledElement<T extends CustomElement> {
     private ArrayList<Value> values;
 
     /**
-     * Creates a new CompiledElement with a core and values.
+     * Creates a new CompiledElement based on a template, line, and values.
      */
-    public CompiledElement(String core, ArrayList<Value> values){
-        this.core = core != null ? core : "";
+    public CompiledElement(T template, ArrayList<Value> values){
+        this.template = template;
         this.values = values != null ? values : new ArrayList<>();
     }
 
@@ -39,8 +35,15 @@ public abstract class CompiledElement<T extends CustomElement> {
      */
     public abstract CodeRange getRange();
 
+    /**
+     * @return the core of the template.
+     */
     public String getCore() {
-        return core;
+        return template.getCore();
+    }
+
+    public T getTemplate() {
+        return template;
     }
 
     public ArrayList<Value> getValues() {

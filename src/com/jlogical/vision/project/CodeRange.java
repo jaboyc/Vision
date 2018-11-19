@@ -66,7 +66,7 @@ public class CodeRange {
     }
 
     /**
-     * Creates a CodeRange between the given CodeLocations. The order of the start/end locations does not matter.
+     * Creates a CodeRange between the given CodeLocations (inclusive). The order of the start/end locations does not matter.
      * @param loc1 the first location.
      * @param loc2 the second location.
      * @return the CodeRange between the two locations (inclusive).
@@ -94,6 +94,20 @@ public class CodeRange {
             return new CodeRange(loc1.getProject(), loc1.getFile(), loc2.getLineNum(), loc2.getCharNum(), loc1.getLineNum(), loc1.getCharNum());
         }
         throw new UnsupportedOperationException("Error with between method.");
+    }
+
+    /**
+     * @return the CodeLocation for the start of the range.
+     */
+    public CodeLocation startLocation(){
+        return new CodeLocation(project, file, lineStart, charStart);
+    }
+
+    /**
+     * @return the CodeLocation for the end of the range.
+     */
+    public CodeLocation endLocation(){
+        return new CodeLocation(project, file, lineEnd, charEnd);
     }
 
     @Override

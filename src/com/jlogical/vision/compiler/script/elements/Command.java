@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * Contains information for a compiled command which can be executed later.
  */
-public class Command extends CompiledElement {
+public class Command extends CompiledElement<CustomCommand> {
 
     /**
      * The line that this Command was found in.
@@ -18,16 +18,10 @@ public class Command extends CompiledElement {
     private Line line;
 
     /**
-     * The CustomCommand this Command is based off of.
-     */
-    private CustomCommand template;
-
-    /**
      * Creates a new CompiledElement with a core, template, values, and line.
      */
-    public Command(String core, CustomCommand template, ArrayList<Value> values, Line line) {
-        super(core, values);
-        this.template = template;
+    public Command(CustomCommand template, ArrayList<Value> values, Line line) {
+        super(template, values);
         this.line = line;
     }
 
@@ -45,9 +39,5 @@ public class Command extends CompiledElement {
 
     public Line getLine() {
         return line;
-    }
-
-    public CustomCommand getTemplate() {
-        return template;
     }
 }

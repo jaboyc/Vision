@@ -1,5 +1,7 @@
 package com.jlogical.vision.compiler.script;
 
+import com.jlogical.vision.compiler.script.elements.Hat;
+
 import java.util.ArrayList;
 
 /**
@@ -12,6 +14,11 @@ public class Script {
     private String compileLog;
 
     /**
+     * List of Hats in the Script.
+     */
+    private ArrayList<Hat> hats;
+
+    /**
      * Whether this Script was successfully compiled.
      */
     private boolean succeeded;
@@ -19,8 +26,10 @@ public class Script {
     /**
      * Creates a new Script.
      */
-    private Script(String compileLog) {
+    public Script(String compileLog, ArrayList<Hat> hats) {
         this.compileLog = compileLog != null ? compileLog : "";
+        this.hats = hats != null ? hats : new ArrayList<>();
+        succeeded = true;
     }
 
     /**
@@ -29,7 +38,7 @@ public class Script {
      * @return the Script.
      */
     public static Script failedScript(String compileLog) {
-        Script script = new Script(compileLog);
+        Script script = new Script(compileLog, null);
         script.succeeded = false;
         return script;
     }
@@ -40,5 +49,9 @@ public class Script {
 
     public boolean succeeded() {
         return succeeded;
+    }
+
+    public ArrayList<Hat> getHats() {
+        return hats;
     }
 }

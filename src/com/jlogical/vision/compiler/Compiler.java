@@ -1,8 +1,14 @@
 package com.jlogical.vision.compiler;
 
+import com.jlogical.vision.api.elements.CustomCommand;
 import com.jlogical.vision.api.elements.CustomElement;
+import com.jlogical.vision.api.elements.CustomHat;
 import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.script.Script;
+import com.jlogical.vision.compiler.script.elements.Command;
+import com.jlogical.vision.compiler.script.elements.CompiledElement;
+import com.jlogical.vision.compiler.script.elements.Hat;
+import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeLocation;
 import com.jlogical.vision.project.CodeRange;
 import com.jlogical.vision.project.Project;
@@ -11,6 +17,7 @@ import com.jlogical.vision.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -113,29 +120,59 @@ public class Compiler {
      *
      * @param lines the ArrayList of Lines for where to compile from.
      * @return the Script.
-     * @throws CompilerException if an exception has occured.
+     * @throws CompilerException if an exception has occurred.
      */
     private Script compileLines(ArrayList<Line> lines) throws CompilerException {
-        ArrayList<CustomElement> elements = new ArrayList<>();
+        ArrayList<CompiledElement> elements = new ArrayList<>();
         for (Line line : lines) {
             elements.add(toElement(line));
         }
+        ArrayList<Hat> hats = toHats(elements);
+        return new Script(log, hats);
+    }
+
+    /**
+     * Returns the Hat representations of the CompiledElements.
+     * @param elements the List of Elements to convert.
+     * @return a List of Hats.
+     */
+    private ArrayList<Hat> toHats(ArrayList<CompiledElement> elements){
         return null;
     }
 
     /**
-     * Compiles the Line and returns a CompileElement version of it.
+     * Compiles the Line and returns a CompiledElement version of it.
      *
      * @param line the Line to compile.
      * @return the CustomElement.
      */
-    private CustomElement toElement(Line line) {
+    private CompiledElement toElement(Line line) {
         if(containsKeyword(line)){
            //TODO
         }else{
-
+            for(CustomHat hat: project.getHats()){
+                if(coreEquals(hat.getCore(), line.getCore())){
+                    return new Hat(hat, toValues(line.getInputs()), null);
+                }
+            }
+            for(CustomCommand command: project.getCommands()){
+                if(coreEquals(command.getCore(), line.getCore())){
+                    return new Command(command, toValues(line.getInputs()), line);
+                }
+            }
         }
 
+        return null;
+    }
+
+    /**
+     * Converts the given inputs into Values.
+     *
+     * @param inputs the inputs to convert.
+     * @return a List of Values. Never will be null.
+     */
+    private ArrayList<Value> toValues(ArrayList<Pair<String, CodeRange>> inputs){
+        //TODO
         return null;
     }
 
@@ -150,6 +187,48 @@ public class Compiler {
         List<String> splitList = new ArrayList<>(Arrays.asList(split)); //Converts the array into a list.
         splitList.retainAll(Arrays.asList(KEYWORDS)); //Intersects the first list with the keywords list.
         return !splitList.isEmpty(); //Returns if the splitList has anything inside it, meaning there was a match.
+    }
+
+    /**
+     * Compares the cores of two elements and returns whether they are equal to each other.
+     * @param perfect the core you are using to test against.
+     * @param test the test core you are using to test with.
+     * @return whether the cores are equal.
+     */
+    private static boolean coreEquals(String perfect, String test){
+        int pIndex = 0; //Current index of perfect.
+        int tIndex = 0; //Current index of test.
+        while(pIndex < perfect.length() && tIndex < test.length()){
+            char pChar = perfect.charAt(pIndex);
+            char tChar = test.charAt(tIndex);
+
+            switch(pChar){
+                case '[':
+                    if(!(tChar == '[' || tChar == '(' || tChar == '{')){ //Can be any parameter.
+                        return false;
+                    }
+                    break;
+                case '(':
+                    if(tChar != '('){ //Can only be objects.
+                        return false;
+                    }
+                case '{':
+                    if(!(tChar == '{' || tChar == '(')){ //Can be statements or a reference to a statement.
+                        return false;
+                    }
+                case ']':
+                case ')':
+                case '}': break;
+                default:
+                    if(tChar != pChar){
+                        return false;
+                    }
+            }
+
+            pIndex++;
+            tIndex++;
+        }
+        return pIndex == perfect.length() && tIndex == test.length();
     }
 
     /**
