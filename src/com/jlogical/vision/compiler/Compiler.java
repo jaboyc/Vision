@@ -311,7 +311,8 @@ public class Compiler {
     private Pair<String, ArrayList<Pair<String, CodeRange>>> splitElement(String element, CodeLocation location) throws CompilerException {
         String core = "";
         ArrayList<Pair<String, CodeRange>> inputs = new ArrayList<>();
-        String currInput = null;
+        String currInput = null; //The current input.
+        char lastInputType = ' '; //The last type of parameter used.
 
         int index = 0;
         int pIndex = 0; //Index for ()
@@ -323,18 +324,29 @@ public class Compiler {
                 switch (c) {
                     case ']':
                         bIndex--;
+                        if(lastInputType != '['){
+                            throw new CompilerException("Parameters must match one another. Cannot have "+lastInputType+" matched with ]", "parameter mismatch", location);
+                        }
                         break;
                     case '}':
                         cIndex--;
+                        if(lastInputType != '{'){
+                            throw new CompilerException("Parameters must match one another. Cannot have "+lastInputType+" matched with }", "parameter mismatch", location);
+                        }
                         break;
                     case ')':
                         pIndex--;
+                        if(lastInputType != '('){
+                            throw new CompilerException("Parameters must match one another. Cannot have "+lastInputType+" matched with )", "parameter mismatch", location);
+                        }
                         break;
                 }
                 index--;
                 if (index == 0) {
                     inputs.add(new Pair<>(currInput, new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1)));
                     currInput = null;
+                } else if(index < 0){
+                    throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without a start parameter ('[', '(', or '{') first.", "line imbalance", location);
                 }
             }
             if (index == 0) {
@@ -354,6 +366,7 @@ public class Compiler {
                         pIndex++;
                         break;
                 }
+                lastInputType = c;
                 index++;
                 if (currInput == null) {
                     currInput = "";
