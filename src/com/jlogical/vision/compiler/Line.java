@@ -3,6 +3,7 @@ package com.jlogical.vision.compiler;
 import com.jlogical.vision.project.CodeLocation;
 import com.jlogical.vision.project.CodeRange;
 import com.jlogical.vision.util.Pair;
+import com.jlogical.vision.util.Triplet;
 
 import java.util.ArrayList;
 
@@ -27,14 +28,14 @@ public class Line {
     private String core;
 
     /**
-     * The inputs of the command. First is the input itself, second is the absolute location of that input.
+     * The inputs of the command. First is the input itself, second is the absolute location of that input, third is the type of input. [, (, or &#123;
      */
-    private ArrayList<Pair<String, CodeRange>> inputs;
+    private ArrayList<Triplet<String, CodeRange, Character>> inputs;
 
     /**
      * Creates a new Line with the given code and location. Core and inputs must be given.
      */
-    public Line(String code, String core, ArrayList<Pair<String, CodeRange>> inputs, CodeLocation location) {
+    public Line(String code, String core, ArrayList<Triplet<String, CodeRange, Character>> inputs, CodeLocation location) {
         if (location == null) {
             throw new NullPointerException("Location of a line cannot be null.");
         }
@@ -71,7 +72,7 @@ public class Line {
         return core;
     }
 
-    public ArrayList<Pair<String, CodeRange>> getInputs() {
+    public ArrayList<Triplet<String, CodeRange, Character>> getInputs() {
         return inputs;
     }
 }

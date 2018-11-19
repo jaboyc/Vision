@@ -8,12 +8,14 @@ import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.compiler.script.elements.Command;
 import com.jlogical.vision.compiler.script.elements.CompiledElement;
 import com.jlogical.vision.compiler.script.elements.Hat;
+import com.jlogical.vision.compiler.values.TextValue;
 import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeLocation;
 import com.jlogical.vision.project.CodeRange;
 import com.jlogical.vision.project.Project;
 import com.jlogical.vision.project.VisionFile;
 import com.jlogical.vision.util.Pair;
+import com.jlogical.vision.util.Triplet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +27,7 @@ import java.util.List;
  */
 public class Compiler {
 
-    public static final String[] KEYWORDS = {"define", "with", "as", "for", "new"};
+    private static final String[] KEYWORDS = {"define", "with", "as", "for", "new"};
 
     /**
      * Contains the different levels of detail to be produced in the log.
@@ -133,10 +135,11 @@ public class Compiler {
 
     /**
      * Returns the Hat representations of the CompiledElements.
+     *
      * @param elements the List of Elements to convert.
      * @return a List of Hats.
      */
-    private ArrayList<Hat> toHats(ArrayList<CompiledElement> elements){
+    private ArrayList<Hat> toHats(ArrayList<CompiledElement> elements) {
         return null;
     }
 
@@ -147,16 +150,16 @@ public class Compiler {
      * @return the CustomElement.
      */
     private CompiledElement toElement(Line line) {
-        if(containsKeyword(line)){
-           //TODO
-        }else{
-            for(CustomHat hat: project.getHats()){
-                if(coreEquals(hat.getCore(), line.getCore())){
+        if (containsKeyword(line)) {
+            //TODO
+        } else {
+            for (CustomHat hat : project.getHats()) {
+                if (coreEquals(hat.getCore(), line.getCore())) {
                     return new Hat(hat, toValues(line.getInputs()), null);
                 }
             }
-            for(CustomCommand command: project.getCommands()){
-                if(coreEquals(command.getCore(), line.getCore())){
+            for (CustomCommand command : project.getCommands()) {
+                if (coreEquals(command.getCore(), line.getCore())) {
                     return new Command(command, toValues(line.getInputs()), line);
                 }
             }
@@ -171,9 +174,29 @@ public class Compiler {
      * @param inputs the inputs to convert.
      * @return a List of Values. Never will be null.
      */
-    private ArrayList<Value> toValues(ArrayList<Pair<String, CodeRange>> inputs){
-        //TODO
-        return null;
+    private ArrayList<Value> toValues(ArrayList<Triplet<String, CodeRange, Character>> inputs) {
+        ArrayList<Value> values = new ArrayList<>();
+        for (Triplet<String, CodeRange, Character> input : inputs) {
+            values.add(toValue(input));
+        }
+        return values;
+    }
+
+    /**
+     * Converts the given input to a Value and returns it.
+     *
+     * @param input the input to convert.
+     * @return the Value.
+     */
+    private Value toValue(Triplet<String, CodeRange, Character> input) {
+        switch (input.getThird()) {
+            case '[':
+                return new TextValue(input.getFirst(), input.getSecond());
+            case '(': //TODO
+            case '{':
+            default:
+                return null;
+        }
     }
 
     /**
@@ -191,36 +214,38 @@ public class Compiler {
 
     /**
      * Compares the cores of two elements and returns whether they are equal to each other.
+     *
      * @param perfect the core you are using to test against.
-     * @param test the test core you are using to test with.
+     * @param test    the test core you are using to test with.
      * @return whether the cores are equal.
      */
-    private static boolean coreEquals(String perfect, String test){
+    private static boolean coreEquals(String perfect, String test) {
         int pIndex = 0; //Current index of perfect.
         int tIndex = 0; //Current index of test.
-        while(pIndex < perfect.length() && tIndex < test.length()){
+        while (pIndex < perfect.length() && tIndex < test.length()) {
             char pChar = perfect.charAt(pIndex);
             char tChar = test.charAt(tIndex);
 
-            switch(pChar){
+            switch (pChar) {
                 case '[':
-                    if(!(tChar == '[' || tChar == '(' || tChar == '{')){ //Can be any parameter.
+                    if (!(tChar == '[' || tChar == '(' || tChar == '{')) { //Can be any parameter.
                         return false;
                     }
                     break;
                 case '(':
-                    if(tChar != '('){ //Can only be objects.
+                    if (tChar != '(') { //Can only be objects.
                         return false;
                     }
                 case '{':
-                    if(!(tChar == '{' || tChar == '(')){ //Can be statements or a reference to a statement.
+                    if (!(tChar == '{' || tChar == '(')) { //Can be statements or a reference to a statement.
                         return false;
                     }
                 case ']':
                 case ')':
-                case '}': break;
+                case '}':
+                    break;
                 default:
-                    if(tChar != pChar){
+                    if (tChar != pChar) {
                         return false;
                     }
             }
@@ -296,7 +321,7 @@ public class Compiler {
             return null;
         }
         CodeLocation location = new CodeLocation(project, vfile, lineNum);
-        Pair<String, ArrayList<Pair<String, CodeRange>>> split = splitElement(line, location);
+        Pair<String, ArrayList<Triplet<String, CodeRange, Character>>> split = splitElement(line, location);
         return new Line(line, split.getFirst(), split.getSecond(), location);
     }
 
@@ -308,9 +333,9 @@ public class Compiler {
      * @return a Pair of its core (first) and an ArrayList of its inputs in Pairs (the first is the input itself, second is the CodeRange for that input). (second).
      * @throws CompilerException if it is off balance.
      */
-    private Pair<String, ArrayList<Pair<String, CodeRange>>> splitElement(String element, CodeLocation location) throws CompilerException {
+    private Pair<String, ArrayList<Triplet<String, CodeRange, Character>>> splitElement(String element, CodeLocation location) throws CompilerException {
         String core = "";
-        ArrayList<Pair<String, CodeRange>> inputs = new ArrayList<>();
+        ArrayList<Triplet<String, CodeRange, Character>> inputs = new ArrayList<>();
         String currInput = null; //The current input.
         char lastInputType = ' '; //The last type of parameter used.
 
@@ -324,28 +349,28 @@ public class Compiler {
                 switch (c) {
                     case ']':
                         bIndex--;
-                        if(lastInputType != '['){
-                            throw new CompilerException("Parameters must match one another. Cannot have "+lastInputType+" matched with ]", "parameter mismatch", location);
+                        if (lastInputType != '[') {
+                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with ]", "parameter mismatch", location);
                         }
                         break;
                     case '}':
                         cIndex--;
-                        if(lastInputType != '{'){
-                            throw new CompilerException("Parameters must match one another. Cannot have "+lastInputType+" matched with }", "parameter mismatch", location);
+                        if (lastInputType != '{') {
+                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with }", "parameter mismatch", location);
                         }
                         break;
                     case ')':
                         pIndex--;
-                        if(lastInputType != '('){
-                            throw new CompilerException("Parameters must match one another. Cannot have "+lastInputType+" matched with )", "parameter mismatch", location);
+                        if (lastInputType != '(') {
+                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with )", "parameter mismatch", location);
                         }
                         break;
                 }
                 index--;
                 if (index == 0) {
-                    inputs.add(new Pair<>(currInput, new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1)));
+                    inputs.add(new Triplet<>(currInput, new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), lastInputType));
                     currInput = null;
-                } else if(index < 0){
+                } else if (index < 0) {
                     throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without a start parameter ('[', '(', or '{') first.", "line imbalance", location);
                 }
             }

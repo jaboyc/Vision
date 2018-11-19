@@ -1,10 +1,9 @@
 package com.jlogical.vision.util;
 
 /**
- * Container that stores two Objects.
+ * Container that stores 3 values.
  */
-public class Pair<A, B> {
-
+public class Triplet<A, B, C> {
     /**
      * The first value.
      */
@@ -16,16 +15,18 @@ public class Pair<A, B> {
     private B second;
 
     /**
-     * Creates a new Pair with a given first and second object.
+     * The third value.
      */
-    public Pair(A first, B second){
+    private C third;
+
+    /**
+     * Creates a Triplet with all the given values.
+     *
+     */
+    public Triplet(A first, B second, C third){
         this.first = first;
         this.second = second;
-    }
-
-    @Override
-    public String toString(){
-        return "{"+first+","+second+"}";
+        this.third = third;
     }
 
     public A getFirst() {
@@ -42,5 +43,13 @@ public class Pair<A, B> {
 
     public void setSecond(B second) {
         this.second = second;
+    }
+
+    public C getThird() {
+        return third;
+    }
+
+    public void setThird(C third) {
+        this.third = third;
     }
 }
