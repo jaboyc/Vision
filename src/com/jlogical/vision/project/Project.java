@@ -109,6 +109,42 @@ public class Project {
     }
 
     /**
+     * Returns a single filed Project whose main code is in the given text file.
+     *
+     * @param file the .txt file the code is in.
+     * @param name the name of the Project.
+     * @return the Project. Null if the file is null, not found, or not in a .txt file.
+     * @throws IOException if there was an error opening the file.
+     */
+    public static Project fromTextFile(File file, String name) throws IOException{
+        if(file == null || !file.exists() || !file.getPath().endsWith(".txt")){
+            return null;
+        }
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        String code = "";
+        String line;
+        while((line = reader.readLine()) != null){
+            code += line + "\n";
+        }
+        return new Project(name, new ArrayList<>(Arrays.asList(new VisionFile("main", code))), null);
+    }
+
+    /**
+     * Returns a single-filed Project whose main code is in the given text file.
+     *
+     * @param path the path to the .txt file.
+     * @param name the name of the Project.
+     * @return the Project. Null if the path is null, not found, or not a .txt file.
+     * @throws IOException if there was an error opening the file.
+     */
+    public static Project fromTextFile(String path, String name) throws IOException{
+        if (path == null || path.isEmpty()) {
+            return null;
+        }
+        return fromTextFile(new File(path), name);
+    }
+
+    /**
      * Converts a JSon to a Project.
      *
      * @param json the JSON to convert.

@@ -1,0 +1,3 @@
+when started
+    print [Hello World]
+end
