@@ -49,4 +49,8 @@ public abstract class CompiledElement<T extends CustomElement> {
     public ArrayList<Value> getValues() {
         return values;
     }
+
+    public void setValues(ArrayList<Value> values) {
+        this.values = values;
+    }
 }

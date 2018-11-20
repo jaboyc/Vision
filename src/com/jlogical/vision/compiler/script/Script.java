@@ -24,6 +24,11 @@ public class Script {
     private ArrayList<Hat> hats;
 
     /**
+     * List of global Variables in the Script.
+     */
+    private ArrayList<Variable> variables;
+
+    /**
      * Whether this Script was successfully compiled.
      */
     private boolean succeeded;
@@ -34,6 +39,7 @@ public class Script {
     public Script(String compileLog, ArrayList<Hat> hats) {
         this.compileLog = compileLog != null ? compileLog : "";
         this.hats = hats != null ? hats : new ArrayList<>();
+        this.variables = new ArrayList<>();
         outputLog = "";
         succeeded = true;
     }
@@ -109,5 +115,9 @@ public class Script {
 
     public void setCompileLog(String compileLog) {
         this.compileLog = compileLog;
+    }
+
+    public ArrayList<Variable> getVariables() {
+        return variables;
     }
 }

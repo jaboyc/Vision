@@ -1,0 +1,6 @@
+when started
+    set [x] to (3)
+    set global [y] to (5)
+    set [x] to (y)
+    print (x)
+end

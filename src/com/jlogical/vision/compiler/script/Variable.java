@@ -1,5 +1,7 @@
 package com.jlogical.vision.compiler.script;
 
+import com.jlogical.vision.compiler.script.elements.Hat;
+
 /**
  * Container for a name and value.
  */
@@ -27,6 +29,42 @@ public class Variable {
      */
     public Variable(String name){
         this(name, 0);
+    }
+
+    /**
+     * Finds a Variable with the given name by searching through the Hat's local variables first then looking at the Scripts global variables.
+     * @param name the name of the Variable.
+     * @param hat the Hat to look at first.
+     * @param script the Script to look at next.
+     * @return the Variable if it is found. Null if not found.
+     */
+    public static Variable findVariable(String name, Hat hat, Script script){
+        for(Variable variable: hat.getVariables()){
+            if(name.equals(variable.getName())){
+                return variable;
+            }
+        }
+        for(Variable variable: script.getVariables()){
+            if(name.equals(variable.getName())){
+                return variable;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Finds a global Variable with the given name and returns it.
+     * @param name the name of the Variable.
+     * @param script the Script to look at.
+     * @return the Variable if it is found. Null if not found.
+     */
+    public static Variable findGlobalVariable(String name, Script script) {
+        for(Variable variable: script.getVariables()){
+            if(name.equals(variable.getName())){
+                return variable;
+            }
+        }
+        return null;
     }
 
     public String getName() {

@@ -19,4 +19,8 @@ public class CustomReporter extends CustomElement {
         super(core, api);
         this.runnable = runnable;
     }
+
+    public ReporterRunnable getRunnable() {
+        return runnable;
+    }
 }

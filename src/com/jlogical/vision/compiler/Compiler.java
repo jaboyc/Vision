@@ -3,15 +3,15 @@ package com.jlogical.vision.compiler;
 import com.jlogical.vision.api.elements.CustomCommand;
 import com.jlogical.vision.api.elements.CustomElement;
 import com.jlogical.vision.api.elements.CustomHat;
+import com.jlogical.vision.api.elements.CustomReporter;
 import com.jlogical.vision.api.system.CoreAPI;
 import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.script.Script;
-import com.jlogical.vision.compiler.script.elements.Command;
-import com.jlogical.vision.compiler.script.elements.CompiledElement;
-import com.jlogical.vision.compiler.script.elements.End;
-import com.jlogical.vision.compiler.script.elements.Hat;
+import com.jlogical.vision.compiler.script.elements.*;
+import com.jlogical.vision.compiler.values.NumValue;
 import com.jlogical.vision.compiler.values.TextValue;
 import com.jlogical.vision.compiler.values.Value;
+import com.jlogical.vision.compiler.values.VariableValue;
 import com.jlogical.vision.project.CodeLocation;
 import com.jlogical.vision.project.CodeRange;
 import com.jlogical.vision.project.Project;
@@ -19,10 +19,7 @@ import com.jlogical.vision.project.VisionFile;
 import com.jlogical.vision.util.Pair;
 import com.jlogical.vision.util.Triplet;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Compiles a Project into a Script.
@@ -170,8 +167,8 @@ public class Compiler {
      * @throws CompilerException if the Hat is not valid.
      */
     private Hat toHat(Line line) throws CompilerException {
-        if (containsKeyword(line)) {
-            //TODO
+        if (containsKeyword(line.getCore())) {
+            throw new IllegalArgumentException("Hat cannot contain a keyword!");
         } else {
             for (CustomHat hat : project.getHats()) {
                 if (coreEquals(hat.getCore(), line.getCore())) {
@@ -191,14 +188,17 @@ public class Compiler {
      * @throws CompilerException if the Command is not valid.
      */
     private Command toCommand(Line line, Hat hatHolder) throws CompilerException{
-        if (containsKeyword(line)) {
+        if (containsKeyword(line.getCore())) {
             if (line.getCode().equals("end")) {
                 return new End(line);
             }
+            throw new IllegalArgumentException("Command contained an incorrect keyword!");
         } else {
             for (CustomCommand command : project.getCommands()) {
                 if (coreEquals(command.getCore(), line.getCore())) {
-                    return new Command(command, toValues(line.getInputs()), line, hatHolder);
+                    Command c = new Command(command, null, line, hatHolder);
+                    c.setValues(toValues(line.getInputs(), c));
+                    return c;
                 }
             }
         }
@@ -210,12 +210,13 @@ public class Compiler {
      * Converts the given inputs into Values.
      *
      * @param inputs the inputs to convert.
+     * @param commandHolder the Command that is holding the Values.
      * @return a List of Values. Never will be null.
      */
-    private ArrayList<Value> toValues(ArrayList<Triplet<String, CodeRange, Character>> inputs) {
+    private ArrayList<Value> toValues(ArrayList<Triplet<String, CodeRange, Character>> inputs, Command commandHolder) {
         ArrayList<Value> values = new ArrayList<>();
         for (Triplet<String, CodeRange, Character> input : inputs) {
-            values.add(toValue(input));
+            values.add(toValue(input, commandHolder));
         }
         return values;
     }
@@ -224,13 +225,33 @@ public class Compiler {
      * Converts the given input to a Value and returns it.
      *
      * @param input the input to convert.
+     * @param commandHolder the Command that is holding the Value.
      * @return the Value.
      */
-    private Value toValue(Triplet<String, CodeRange, Character> input) {
+    private Value toValue(Triplet<String, CodeRange, Character> input, Command commandHolder) {
+        String val = input.getFirst();
         switch (input.getThird()) {
             case '[':
-                return new TextValue(input.getFirst(), input.getSecond());
-            case '(': //TODO
+                return new TextValue(val, input.getSecond());
+            case '(':
+                if(looksNumeric(val)) {
+                    try {
+                        double d = Double.parseDouble(val);
+                        return new NumValue(d, input.getSecond());
+                    } catch (Exception e) {}
+                }
+                try{
+                    Pair<String, ArrayList<Triplet<String, CodeRange, Character>>> split = splitElement(val, input.getSecond().startLocation());
+                    Reporter reporter = toReporter(split.getFirst(), split.getSecond(), commandHolder, input.getSecond());
+                    if(reporter != null){
+                        return reporter;
+                    }
+                    if(!split.getSecond().isEmpty()){
+                        throw new IllegalArgumentException("Could not find value for "+val);
+                    }
+                    return new VariableValue(val, input.getSecond(), commandHolder);
+                }catch(Exception e){}
+
             case '{':
             default:
                 return null;
@@ -238,13 +259,43 @@ public class Compiler {
     }
 
     /**
+     * Finds a CustomReporter and returns the Reporter version of the given core and inputs.
+     * @param core the core of the reporter to find.
+     * @param inputs the inputs of the reporter.
+     * @param commandHolder the Command that is holding the Reporter.
+     * @param range the Range of the Reporter.
+     * @return the Reporter if successfully able to find the CustomReporter. Null otherwise.
+     */
+    private Reporter toReporter(String core, ArrayList<Triplet<String, CodeRange, Character>> inputs, Command commandHolder, CodeRange range){
+        if(containsKeyword(core)){
+            throw new IllegalArgumentException("Reporter cannot contain a keyword!");
+        }else{
+            for (CustomReporter reporter : project.getReporters()) {
+                if (coreEquals(reporter.getCore(), core)) {
+                    return new Reporter(reporter, toValues(inputs, commandHolder), commandHolder, range);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Checks if the given value looks like a number based on a regular expression.
+     * @param val the value to check.
+     * @return whether the value looks like a number.
+     */
+    private boolean looksNumeric(String val){
+        return val.matches("-?\\d+(\\.\\d+)?");
+    }
+
+    /**
      * Returns whether the line has a keyword.
      *
-     * @param line the Line to check.
+     * @param core the core of the command or reporter to check.
      * @return true if the Line has a keyword.
      */
-    private boolean containsKeyword(Line line) {
-        String[] split = line.getCore().split(" "); //Splits up the line's code into separate words.
+    private boolean containsKeyword(String core) {
+        String[] split = core.split(" "); //Splits up the line's code into separate words.
         List<String> splitList = new ArrayList<>(Arrays.asList(split)); //Converts the array into a list.
         splitList.retainAll(Arrays.asList(KEYWORDS)); //Intersects the first list with the keywords list.
         return !splitList.isEmpty(); //Returns if the splitList has anything inside it, meaning there was a match.
@@ -378,7 +429,7 @@ public class Compiler {
         String core = "";
         ArrayList<Triplet<String, CodeRange, Character>> inputs = new ArrayList<>();
         String currInput = null; //The current input.
-        char lastInputType = ' '; //The last type of parameter used.
+        Stack<Character> inputTypes = new Stack<>(); //List of the types of parameters used.
 
         int index = 0;
         int pIndex = 0; //Index for ()
@@ -387,6 +438,7 @@ public class Compiler {
         for (int i = 0; i < element.length(); i++) {
             char c = element.charAt(i);
             if (c == ']' || c == '}' || c == ')') {
+                char lastInputType = inputTypes.pop();
                 switch (c) {
                     case ']':
                         bIndex--;
@@ -432,7 +484,7 @@ public class Compiler {
                         pIndex++;
                         break;
                 }
-                lastInputType = c;
+                inputTypes.push(c);
                 index++;
                 if (currInput == null) {
                     currInput = "";

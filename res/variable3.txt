@@ -1,0 +1,5 @@
+when started
+    set [x] to (5)
+    set global [x] to (3)
+    print (value of [x])
+end

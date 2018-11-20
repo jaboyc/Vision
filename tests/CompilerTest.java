@@ -44,12 +44,18 @@ public class CompilerTest {
     }
 
     @Test
-    public void testSuccess(){
+    public void testCompileSuccess(){
         assertTrue(compile("res/helloworld.txt"));
+        assertTrue(compile("res/variable1.txt"));
+        assertTrue(compile("res/variable2.txt"));
+        assertTrue(compile("res/variable3.txt"));
     }
 
     @Test
     public void testProjects(){
         assertEquals(compileAndRun("res/helloworld.txt"), "Hello World");
+        assertEquals(compileAndRun("res/variable1.txt"), "Hello World");
+        assertEquals(compileAndRun("res/variable2.txt"), "5.0");
+        assertEquals(compileAndRun("res/variable3.txt"), "5.0");
     }
 }

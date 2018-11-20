@@ -55,4 +55,6 @@ public class Command extends CompiledElement<CustomCommand> {
     public Hat getHatHolder() {
         return hatHolder;
     }
+
+
 }

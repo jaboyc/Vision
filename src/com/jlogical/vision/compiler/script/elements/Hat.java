@@ -2,6 +2,7 @@ package com.jlogical.vision.compiler.script.elements;
 
 import com.jlogical.vision.api.elements.CustomHat;
 import com.jlogical.vision.compiler.script.Script;
+import com.jlogical.vision.compiler.script.Variable;
 import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeRange;
 
@@ -15,12 +16,17 @@ public class Hat extends CompiledElement<CustomHat> {
     /**
      * List of Commands in this Hat.
      */
-    ArrayList<Command> commands;
+    private ArrayList<Command> commands;
 
     /**
      * The Script the Hat is in.
      */
-    Script script;
+    private Script script;
+
+    /**
+     * List of local Variables in the Hat.
+     */
+    private ArrayList<Variable> variables;
 
     /**
      * Creates a new Hat with a core and a List of Commands.
@@ -29,6 +35,7 @@ public class Hat extends CompiledElement<CustomHat> {
         super(hat, null);
         this.commands = commands != null ? commands : new ArrayList<>();
         this.script = script;
+        this.variables = new ArrayList<>();
     }
 
     /**
@@ -62,5 +69,9 @@ public class Hat extends CompiledElement<CustomHat> {
             return null;
         }
         return CodeRange.between(commands.get(0).getRange().startLocation(), commands.get(commands.size() - 1).getRange().endLocation());
+    }
+
+    public ArrayList<Variable> getVariables() {
+        return variables;
     }
 }
