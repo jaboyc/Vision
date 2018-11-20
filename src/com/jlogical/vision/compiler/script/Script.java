@@ -14,6 +14,11 @@ public class Script {
     private String compileLog;
 
     /**
+     * The output log from the project. Occurs when the 'print []' command is called.
+     */
+    private String outputLog;
+
+    /**
      * List of Hats in the Script.
      */
     private ArrayList<Hat> hats;
@@ -29,7 +34,15 @@ public class Script {
     public Script(String compileLog, ArrayList<Hat> hats) {
         this.compileLog = compileLog != null ? compileLog : "";
         this.hats = hats != null ? hats : new ArrayList<>();
+        outputLog = "";
         succeeded = true;
+    }
+
+    /**
+     * @return a blank Script.
+     */
+    public static Script blank(){
+        return new Script("", null);
     }
 
     /**
@@ -62,6 +75,18 @@ public class Script {
         start("when started");
     }
 
+    /**
+     * Appends the given log into the output log. Adds a new line at the end.
+     * @param log the log to append.
+     */
+    public void appendOutputLog(String log){
+        if(outputLog.equals("")){
+            outputLog += log;
+        }else{
+            outputLog += "\n" + log;
+        }
+    }
+
     public String getCompileLog() {
         return compileLog;
     }
@@ -72,5 +97,17 @@ public class Script {
 
     public ArrayList<Hat> getHats() {
         return hats;
+    }
+
+    public void setHats(ArrayList<Hat> hats) {
+        this.hats = hats;
+    }
+
+    public String getOutputLog() {
+        return outputLog;
+    }
+
+    public void setCompileLog(String compileLog) {
+        this.compileLog = compileLog;
     }
 }

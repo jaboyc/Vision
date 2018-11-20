@@ -1,6 +1,7 @@
 package com.jlogical.vision.compiler.script.elements;
 
 import com.jlogical.vision.api.elements.CustomHat;
+import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeRange;
 
@@ -17,11 +18,17 @@ public class Hat extends CompiledElement<CustomHat> {
     ArrayList<Command> commands;
 
     /**
+     * The Script the Hat is in.
+     */
+    Script script;
+
+    /**
      * Creates a new Hat with a core and a List of Commands.
      */
-    public Hat(CustomHat hat, ArrayList<Command> commands) {
+    public Hat(CustomHat hat, ArrayList<Command> commands, Script script) {
         super(hat, null);
         this.commands = commands != null ? commands : new ArrayList<>();
+        this.script = script;
     }
 
     /**
@@ -31,6 +38,10 @@ public class Hat extends CompiledElement<CustomHat> {
         for(Command command:commands){
             command.run();
         }
+    }
+
+    public Script getScript() {
+        return script;
     }
 
     /**

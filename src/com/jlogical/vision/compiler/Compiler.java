@@ -56,6 +56,11 @@ public class Compiler {
     private String log;
 
     /**
+     * The Script that the Compiler is working on.
+     */
+    private Script script;
+
+    /**
      * Private constructor.
      */
     private Compiler(Project project, Detail outputDetail) {
@@ -96,7 +101,7 @@ public class Compiler {
         }
         try {
             ArrayList<Line> lines = precompile();
-            Script script = compileLines(lines);
+            compileLines(lines);
             postCompile();
             return script;
         } catch (CompilerException e) {
@@ -127,6 +132,7 @@ public class Compiler {
      * @throws CompilerException if an exception has occurred.
      */
     private Script compileLines(ArrayList<Line> lines) throws CompilerException {
+        script = Script.blank();
         ArrayList<Hat> hats = new ArrayList<>();
         Hat currHat = null;
         int index = 0;
@@ -151,7 +157,9 @@ public class Compiler {
         if (index > 0) {
             throw new CompilerException("There are not enough 'end's!", "end imbalance", lines.get(lines.size() - 1).getLocation());
         }
-        return new Script(log, hats);
+        script.setHats(hats);
+        script.setCompileLog(log);
+        return script;
     }
 
     /**
@@ -167,7 +175,7 @@ public class Compiler {
         } else {
             for (CustomHat hat : project.getHats()) {
                 if (coreEquals(hat.getCore(), line.getCore())) {
-                    return new Hat(hat, null);
+                    return new Hat(hat, null, script);
                 }
             }
         }

@@ -1,8 +1,6 @@
 package com.jlogical.vision.api.system;
 
 import com.jlogical.vision.api.API;
-import com.jlogical.vision.api.elements.CustomCommand;
-import com.jlogical.vision.api.elements.CustomHat;
 import com.jlogical.vision.project.Project;
 
 /**
@@ -20,6 +18,10 @@ public class CoreAPI extends API {
         addHat("when started");
 
         //Commands
-        addCommand("print []", p->System.out.println(p.str(0)));
+        addCommand("print []", p -> {
+            String output = p.str(0);
+            System.out.println(output);
+            p.getScript().appendOutputLog(output);
+        });
     }
 }

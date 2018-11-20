@@ -1,6 +1,8 @@
 package com.jlogical.vision.api.runnables;
 
 
+import com.jlogical.vision.compiler.script.Script;
+import com.jlogical.vision.compiler.script.elements.Hat;
 import com.jlogical.vision.compiler.values.Value;
 
 import java.util.ArrayList;
@@ -16,10 +18,16 @@ public abstract class Parameters {
     ArrayList<Value> values;
 
     /**
+     * The Hat that the Parameters are in.
+     */
+    Hat hatHolder;
+
+    /**
      * Creates a Parameters with a given List of Values.
      */
-    public Parameters(ArrayList<Value> values){
+    public Parameters(ArrayList<Value> values, Hat hat){
         this.values = values != null ? values : new ArrayList<Value>();
+        this.hatHolder = hat;
     }
 
     /**
@@ -102,7 +110,15 @@ public abstract class Parameters {
         throw new ClassCastException("Could not convert " + val + " to boolean!");
     }
 
+    public Script getScript(){
+        return hatHolder.getScript();
+    }
+
     public ArrayList<Value> getValues() {
         return values;
+    }
+
+    public Hat getHatHolder() {
+        return hatHolder;
     }
 }
