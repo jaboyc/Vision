@@ -2,6 +2,7 @@ package com.jlogical.vision.compiler.script.elements;
 
 import com.jlogical.vision.api.elements.CustomReporter;
 import com.jlogical.vision.api.runnables.ReporterParameters;
+import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeRange;
 
@@ -32,8 +33,8 @@ public class Reporter extends CompiledElement<CustomReporter> implements Value {
     }
 
     @Override
-    public Object getValue() {
-        return getTemplate().getRunnable().getValue(new ReporterParameters(getValues(), commandHolder));
+    public Object getValue() throws VisionException {
+        return getTemplate().getRunnable().getValue(new ReporterParameters(getValues(), commandHolder, getRange()));
     }
 
     @Override

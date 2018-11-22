@@ -16,7 +16,7 @@ public class VisionException extends Exception{
      * Creates a new VisionException with a given message and range.
      */
     public VisionException(String message, CodeRange range){
-        super(message);
+        super(message + "(@ "+range+")");
         this.range = range;
     }
 

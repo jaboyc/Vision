@@ -1,5 +1,6 @@
 package com.jlogical.vision.compiler.values;
 
+import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.script.Variable;
 import com.jlogical.vision.compiler.script.elements.Command;
 import com.jlogical.vision.project.CodeRange;
@@ -37,10 +38,10 @@ public class VariableValue implements Value{
     }
 
     @Override
-    public Object getValue() {
+    public Object getValue() throws VisionException {
         Variable variable = Variable.findVariable(variableName, commandHolder.getHatHolder(), commandHolder.getHatHolder().getScript());
         if(variable == null){
-            throw new IllegalArgumentException("Variable '"+variableName+"' could not be found!");
+            throw new VisionException("Variable '"+variableName+"' could not be found!", getRange());
         }
         return variable.getValue();
     }

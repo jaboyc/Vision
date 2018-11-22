@@ -1,5 +1,6 @@
 package com.jlogical.vision.compiler.values;
 
+import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.project.CodeRange;
 
 /**
@@ -10,7 +11,7 @@ public interface Value {
     /**
      * @return the value of this Value.
      */
-    Object getValue();
+    Object getValue() throws VisionException;
 
     /**
      * @return the CodeRange this Value is in.
