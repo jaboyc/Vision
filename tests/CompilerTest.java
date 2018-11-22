@@ -1,4 +1,5 @@
 import com.jlogical.vision.compiler.Compiler;
+import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.project.Project;
 import org.junit.Test;
@@ -31,7 +32,7 @@ public class CompilerTest {
      * @param path the path to the file.
      * @return the log of the Script.
      */
-    private String compileAndRun(String path){
+    private String compileAndRun(String path) throws VisionException {
         try {
             Project project = Project.fromTextFile(path, "test");
             Script script = Compiler.compile(project);
@@ -52,7 +53,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void testProjects(){
+    public void testProjects() throws VisionException{
         assertEquals(compileAndRun("res/helloworld.txt"), "Hello World");
         assertEquals(compileAndRun("res/variable1.txt"), "Hello World");
         assertEquals(compileAndRun("res/variable2.txt"), "5.0");

@@ -1,6 +1,7 @@
 package com.jlogical.vision.compiler.script.elements;
 
 import com.jlogical.vision.api.elements.CustomHat;
+import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.compiler.script.Variable;
 import com.jlogical.vision.compiler.values.Value;
@@ -40,8 +41,10 @@ public class Hat extends CompiledElement<CustomHat> {
 
     /**
      * Runs the Hat.
+     *
+     * @throws VisionException if there is an error running any of the Commands in the Hat.
      */
-    public void run(){
+    public void run() throws VisionException {
         for(Command command:commands){
             command.run();
         }
