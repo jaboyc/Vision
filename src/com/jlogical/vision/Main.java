@@ -1,6 +1,7 @@
 package com.jlogical.vision;
 
 import com.jlogical.vision.compiler.Compiler;
+import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.project.Project;
 import com.jlogical.vision.project.VisionFile;
@@ -16,6 +17,9 @@ public class Main {
             script.start();
         } catch(IOException e) {
             e.printStackTrace();
+        } catch(VisionException e){
+            e.printStackTrace();
+            System.out.println(e.getRange());
         }
     }
 }

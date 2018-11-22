@@ -1,5 +1,6 @@
 package com.jlogical.vision.compiler.script;
 
+import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.script.elements.Hat;
 
 import java.util.ArrayList;
@@ -59,8 +60,10 @@ public class Script {
     /**
      * Starts a Hat with the given core.
      * @param core the core of the Hat to run.
+     *
+     * @throws VisionException if there is an error running any of the code in the Hat.
      */
-    public void start(String core){
+    public void start(String core) throws VisionException {
         for(Hat hat: hats){
             if(hat.getCore().equals(core)){
                 hat.run();
@@ -70,8 +73,10 @@ public class Script {
 
     /**
      * Starts the Script with the 'when started' Hat.
+     *
+     * @throws VisionException if there is an error running any of the code in the Hat.
      */
-    public void start(){
+    public void start() throws VisionException{
         start("when started");
     }
 

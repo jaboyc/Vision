@@ -2,6 +2,7 @@ package com.jlogical.vision.api.runnables;
 
 import com.jlogical.vision.compiler.script.elements.Hat;
 import com.jlogical.vision.compiler.values.Value;
+import com.jlogical.vision.project.CodeRange;
 
 import java.util.ArrayList;
 
@@ -16,7 +17,7 @@ public class CommandParameters extends Parameters{
     /**
      * Creates a Parameters with a given List of Values.
      */
-    public CommandParameters(ArrayList<Value> values, Hat hatHolder) {
-        super(values, hatHolder);
+    public CommandParameters(ArrayList<Value> values, Hat hatHolder, CodeRange range) {
+        super(values, hatHolder, range);
     }
 }

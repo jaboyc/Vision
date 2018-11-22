@@ -4,6 +4,7 @@ import com.jlogical.vision.api.elements.CustomCommand;
 import com.jlogical.vision.api.runnables.CommandParameters;
 import com.jlogical.vision.api.runnables.CommandRunnable;
 import com.jlogical.vision.compiler.Line;
+import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeRange;
 
@@ -35,11 +36,13 @@ public class Command extends CompiledElement<CustomCommand> {
 
     /**
      * Runs the Command.
+     *
+     * @throws VisionException if there was an error running the Command.
      */
-    public void run() {
+    public void run() throws VisionException {
         CommandRunnable runnable = getTemplate().getRunnable();
         if(runnable != null){
-            runnable.run(new CommandParameters(getValues(),  hatHolder));
+            runnable.run(new CommandParameters(getValues(),  hatHolder, getRange()));
         }
     }
 
