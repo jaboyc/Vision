@@ -1,6 +1,7 @@
 when started
     set [x] to (3)
-    set global [y] to (5)
+    set [y] to (2)
     set [x] to (y)
+    change [x] by (3)
     print (x)
 end

@@ -1,5 +1,6 @@
 when started
-    set [x] to (5)
+    set [x] to (2)
     set global [x] to (3)
-    print (value of [x])
+    set [x] to ((x) + (value of global [x]))
+    print (x)
 end
