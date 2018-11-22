@@ -52,7 +52,11 @@ public abstract class Parameters {
         if(index >= values.size()){
             throw new VisionException("Index cannot be out of range of values!", range);
         }
-        return values.get(index).getValue();
+        Value value = values.get(index);
+        if(value == null){
+            throw new VisionException("A Value cannot be null!", range);
+        }
+        return value.getValue();
     }
 
     /**
