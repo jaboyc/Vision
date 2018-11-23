@@ -91,10 +91,10 @@ public class Compiler {
      */
     private Script compile() {
         if (project == null) {
-            return Script.failedScript(logAppendCompilerException("The Project provided was null.", "null project", new CodeLocation(null)));
+            return Script.failedScript(logAppendCompilerException("The Project provided was null.", "null project", null));
         }
         if (project.getFiles().isEmpty()) {
-            return Script.failedScript(logAppendCompilerException("The Project provided did not have any code.", "empty project", new CodeLocation(project)));
+            return Script.failedScript(logAppendCompilerException("The Project provided did not have any code.", "empty project", null));
         }
         try {
             ArrayList<Line> lines = precompile();
@@ -141,18 +141,18 @@ public class Compiler {
             } else if (index > 0) {
                 Command command = toCommand(line, currHat);
                 if (currHat == null) {
-                    throw new CompilerException("Cannot compile a Command without a Hat!", "error", line.getLocation());
+                    throw new CompilerException("Cannot compile a Command without a Hat!", "error", line.getRange());
                 }
                 currHat.addCommand(command);
                 if (command instanceof End) {
                     index--;
                 }
             } else {
-                throw new CompilerException("There are more 'end's than Hats or CBlocks!", "end imbalance", line.getLocation());
+                throw new CompilerException("There are more 'end's than Hats or CBlocks!", "end imbalance", line.getRange());
             }
         }
         if (index > 0) {
-            throw new CompilerException("There are not enough 'end's!", "end imbalance", lines.get(lines.size() - 1).getLocation());
+            throw new CompilerException("There are not enough 'end's!", "end imbalance", lines.get(lines.size() - 1).getRange());
         }
         script.setHats(hats);
         script.setCompileLog(log);
@@ -176,7 +176,7 @@ public class Compiler {
                 }
             }
         }
-        throw new CompilerException(line.getCode() + " is not a valid Hat!", "invalid code", line.getLocation());
+        throw new CompilerException(line.getCode() + " is not a valid Hat!", "invalid code", line.getRange());
     }
 
     /**
@@ -203,7 +203,7 @@ public class Compiler {
             }
         }
 
-        throw new CompilerException(line.getCode() + " is not a valid Command!", "invalid code", line.getLocation());
+        throw new CompilerException(line.getCode() + " is not a valid Command!", "invalid code", line.getRange());
     }
 
     /**
@@ -212,8 +212,9 @@ public class Compiler {
      * @param inputs the inputs to convert.
      * @param commandHolder the Command that is holding the Values.
      * @return a List of Values. Never will be null.
+     * @throws CompilerException if any of the Values produce an error when compiling.
      */
-    private ArrayList<Value> toValues(ArrayList<Triplet<String, CodeRange, Character>> inputs, Command commandHolder) {
+    private ArrayList<Value> toValues(ArrayList<Triplet<String, CodeRange, Character>> inputs, Command commandHolder) throws CompilerException {
         ArrayList<Value> values = new ArrayList<>();
         for (Triplet<String, CodeRange, Character> input : inputs) {
             values.add(toValue(input, commandHolder));
@@ -227,8 +228,9 @@ public class Compiler {
      * @param input the input to convert.
      * @param commandHolder the Command that is holding the Value.
      * @return the Value.
+     * @throws CompilerException if the given input cannot be converted to any value.
      */
-    private Value toValue(Triplet<String, CodeRange, Character> input, Command commandHolder) {
+    private Value toValue(Triplet<String, CodeRange, Character> input, Command commandHolder) throws CompilerException {
         String val = input.getFirst();
         switch (input.getThird()) {
             case '[':
@@ -247,11 +249,11 @@ public class Compiler {
                         return reporter;
                     }
                     if(!split.getSecond().isEmpty()){
-                        throw new IllegalArgumentException("Could not find value for "+val);
+                        throw new CompilerException("Could not find value for "+val, "invalid value", input.getSecond());
                     }
                     return new VariableValue(val, input.getSecond(), commandHolder);
                 }catch(Exception e){}
-
+                throw new CompilerException("Value '"+input.getFirst()+" cannot be found!", "invalid value", input.getSecond());
             case '{':
             default:
                 return null;
@@ -265,8 +267,9 @@ public class Compiler {
      * @param commandHolder the Command that is holding the Reporter.
      * @param range the Range of the Reporter.
      * @return the Reporter if successfully able to find the CustomReporter. Null otherwise.
+     * @throws CompilerException if any of the inputs contain produce an error when compiling.
      */
-    private Reporter toReporter(String core, ArrayList<Triplet<String, CodeRange, Character>> inputs, Command commandHolder, CodeRange range){
+    private Reporter toReporter(String core, ArrayList<Triplet<String, CodeRange, Character>> inputs, Command commandHolder, CodeRange range) throws CompilerException{
         if(containsKeyword(core)){
             throw new IllegalArgumentException("Reporter cannot contain a keyword!");
         }else{
@@ -370,7 +373,7 @@ public class Compiler {
             if(line.trim().isEmpty()){
                 continue;
             }
-            output.add(toLine(line, i, vfile));
+            output.add(toLine(line, i+1, vfile));
         }
         return output;
     }
@@ -412,7 +415,7 @@ public class Compiler {
         if (line == null) {
             return null;
         }
-        CodeLocation location = new CodeLocation(project, vfile, lineNum);
+        CodeLocation location = new CodeLocation(project, vfile, lineNum, 0);
         Pair<String, ArrayList<Triplet<String, CodeRange, Character>>> split = splitElement(line, location);
         return new Line(line, split.getFirst(), split.getSecond(), location);
     }
@@ -438,24 +441,43 @@ public class Compiler {
         for (int i = 0; i < element.length(); i++) {
             char c = element.charAt(i);
             if (c == ']' || c == '}' || c == ')') {
+                if(inputTypes.isEmpty()){ //Error. Too many closing parameters.
+                    switch(c){
+                        case ']':
+                            bIndex--;
+                        case ')':
+                            pIndex--;
+                        case '}':
+                            cIndex--;
+                    }
+                    if (pIndex < 0) {
+                        throw new CompilerException("There are more ')' than '(' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                    }
+                    if (bIndex < 0) {
+                        throw new CompilerException("There are more ']' than '[' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                    }
+                    if (cIndex < 0) {
+                        throw new CompilerException("There are more '}' than '{' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                    }
+                }
                 char lastInputType = inputTypes.pop();
                 switch (c) {
                     case ']':
                         bIndex--;
                         if (lastInputType != '[') {
-                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with ]", "parameter mismatch", location);
+                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with ]", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                         }
                         break;
                     case '}':
                         cIndex--;
                         if (lastInputType != '{') {
-                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with }", "parameter mismatch", location);
+                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with }", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                         }
                         break;
                     case ')':
                         pIndex--;
                         if (lastInputType != '(') {
-                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with )", "parameter mismatch", location);
+                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with )", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                         }
                         break;
                 }
@@ -464,7 +486,7 @@ public class Compiler {
                     inputs.add(new Triplet<>(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), lastInputType));
                     currInput = null;
                 } else if (index < 0) {
-                    throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without a run parameter ('[', '(', or '{') first.", "line imbalance", location);
+                    throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without an opening parameter ('[', '(', or '{') first.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                 }
             }
             if (index == 0) {
@@ -492,25 +514,25 @@ public class Compiler {
             }
         }
         if (index == 0 && !(pIndex == 0 && bIndex == 0 && cIndex == 0)) {
-            throw new CompilerException("Something strange happened with the index of this line.", "line imbalance", location);
+            throw new CompilerException("Something strange happened with the index of this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()) );
         }
         if (pIndex < 0) {
-            throw new CompilerException("There are more ')' than '(' in this line.", "line imbalance", location);
+            throw new CompilerException("There are more ')' than '(' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (bIndex < 0) {
-            throw new CompilerException("There are more ']' than '[' in this line.", "line imbalance", location);
+            throw new CompilerException("There are more ']' than '[' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (cIndex < 0) {
-            throw new CompilerException("There are more '}' than '{' in this line.", "line imbalance", location);
+            throw new CompilerException("There are more '}' than '{' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (pIndex > 0) {
-            throw new CompilerException("There are more '(' than ')' in this line.", "line imbalance", location);
+            throw new CompilerException("There are more '(' than ')' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (bIndex > 0) {
-            throw new CompilerException("There are more '[' than ']' in this line.", "line imbalance", location);
+            throw new CompilerException("There are more '[' than ']' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (cIndex > 0) {
-            throw new CompilerException("There are more '{' than '}' in this line.", "line imbalance", location);
+            throw new CompilerException("There are more '{' than '}' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         return new Pair<>(core, inputs);
     }
@@ -531,12 +553,12 @@ public class Compiler {
      *
      * @param message  the message of the error.
      * @param type     the type of the error.
-     * @param location the CodeLocation of where the error is found.
+     * @param range the CodeLocation of where the error is found.
      * @return the log.
      */
-    private String logAppendCompilerException(String message, String type, CodeLocation location) {
+    private String logAppendCompilerException(String message, String type, CodeRange range) {
         if (outputDetail == Detail.BASIC || outputDetail == Detail.DEBUG) {
-            log += "Compile Exception (" + type + "): (" + location + ")";
+            log += "Compile Exception (" + type + "): (" + range + ")";
             log += "\n\t" + message;
         }
         return log;
@@ -552,6 +574,6 @@ public class Compiler {
         if (ce == null) {
             return log;
         }
-        return logAppendCompilerException(ce.getMessage(), ce.getType(), ce.getLocation());
+        return logAppendCompilerException(ce.getMessage(), ce.getType(), ce.getRange());
     }
 }

@@ -96,6 +96,10 @@ public class CodeRange {
         throw new UnsupportedOperationException("Error with between method.");
     }
 
+    public static CodeRange fromCodeLocation(CodeLocation location){
+        return CodeRange.between(location, location);
+    }
+
     /**
      * @return the CodeLocation for the run of the range.
      */

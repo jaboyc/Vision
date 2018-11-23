@@ -55,6 +55,13 @@ public class Line {
         return new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), 0, location.getLineNum(), code.length());
     }
 
+    /**
+     * @return the line number for this Line.
+     */
+    public int getLineNum(){
+        return location.getLineNum();
+    }
+
     @Override
     public String toString() {
         return "Line " + location.getLineNum() + ": " + code;

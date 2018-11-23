@@ -107,5 +107,55 @@ public class CoreAPI extends API {
         addReporter("[] * []", p -> p.num(0) * p.num(1));
         addReporter("[] / []", p->p.num(0) / p.num(1));
         addReporter("[] ^ []", p->Math.pow(p.num(0), p.num(1)));
+        addReporter("-[]", p->-p.num(0));
+        addReporter("[] mod []", p->p.num(0) % p.num(1));
+        addReporter("[] % []", p->p.num(0) % p.num(1));
+        addReporter("abs of []", p->Math.abs(p.num(0)));
+        addReporter("|[]|", p->Math.abs(p.num(0)));
+        addReporter("sqrt of []", p->Math.sqrt(p.num(0)));
+        addReporter("[] root of []", p->Math.pow(p.num(1), 1/p.num(0)));
+        addReporter("random from [] to []", p->{
+            double min = Math.min(p.num(0), p.num(1));
+            double max = Math.max(p.num(0), p.num(1));
+            return Math.random() * (max-min) + max;
+        });
+        addReporter("round []", p->Math.round(p.num(0)));
+        addReporter("floor []", p->Math.floor(p.num(0)));
+        addReporter("ceiling []", p->Math.ceil(p.num(0)));
+        addReporter("pi", p->Math.PI);
+        addReporter("e", p->Math.E);
+        addReporter("sin of []", p->Math.sin(p.num(0)));
+        addReporter("cos of []", p->Math.cos(p.num(0)));
+        addReporter("tan of []", p->Math.tan(p.num(0)));
+        addReporter("asin of []", p->Math.asin(p.num(0)));
+        addReporter("acos of []", p->Math.acos(p.num(0)));
+        addReporter("atan of []", p->Math.atan(p.num(0)));
+        addReporter("[] to degrees", p->Math.toDegrees(p.num(0)));
+        addReporter("[] to radians", p->Math.toRadians(p.num(0)));
+        addReporter("log of []", p->Math.log10(p.num(0)));
+        addReporter("log e of []", p->Math.log(p.num(0)));
+
+        addReporter("[] = []",p->{
+            try{
+                return p.num(0)==p.num(1);
+            }catch(Exception e){}
+            return p.str(0).equals(p.str(1));
+        });
+        addReporter("[] < []", p->p.num(0)<p.num(1));
+        addReporter("[] > []", p->p.num(0 )>p.num(1));
+        addReporter("[] <= []", p->p.num(0 )<=p.num(1));
+        addReporter("[] >= []", p->p.num(0)>=p.num(1));
+        addReporter("max of [] and []", p->Math.max(p.num(0), p.num(1)));
+        addReporter("min of [] and []", p->Math.min(p.num(0), p.num(1)));
+
+        addReporter("true", p->true);
+        addReporter("false", p->false);
+        addReporter("[] and []", p-> p.bool(0) && p.bool(1));
+        addReporter("[] or []", p->p.bool(0) || p.bool(1));
+        addReporter("not []", p->!p.bool(0));
+
+        addReporter("if [] then [] else []", p->p.bool(0)?p.get(1):p.get(2));
+        addReporter("nothing", p->null);
+
     }
 }

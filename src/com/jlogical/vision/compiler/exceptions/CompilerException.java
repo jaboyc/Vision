@@ -1,7 +1,6 @@
 package com.jlogical.vision.compiler.exceptions;
 
-import com.jlogical.vision.project.CodeLocation;
-import com.jlogical.vision.project.VisionFile;
+import com.jlogical.vision.project.CodeRange;
 
 /**
  * An exception created during compilation. Caught by Vision and depending on the IDE, an error is displayed.
@@ -14,25 +13,26 @@ public class CompilerException extends Exception {
     String type;
 
     /**
-     * The location of where the error occured.
+     * The range of where the error occured.
      */
-    CodeLocation location;
+    CodeRange range;
 
     /**
      * Creates a new CompilerException.
+     *
      * @param message the message of the exception.
      */
-    public CompilerException(String message, String type, CodeLocation location){
-        super(message);
+    public CompilerException(String message, String type, CodeRange range) {
+        super(message + "(@ " + range + ")");
         this.type = type;
-        this.location = location;
+        this.range = range;
     }
 
     public String getType() {
         return type;
     }
 
-    public CodeLocation getLocation() {
-        return location;
+    public CodeRange getRange() {
+        return range;
     }
 }

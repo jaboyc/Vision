@@ -1,0 +1,5 @@
+when started
+    print ((3) + (2))
+    print ((9) - ((2) ^ (2)))
+    print (((2) * (5)) / (2))
+end
