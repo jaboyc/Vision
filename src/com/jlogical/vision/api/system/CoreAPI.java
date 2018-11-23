@@ -17,6 +17,7 @@ public class CoreAPI extends API {
         super(project);
 
         coreCommands();
+        controlCommands();
         variableCommands();
         mathLogicCommands();
     }
@@ -36,6 +37,27 @@ public class CoreAPI extends API {
             p.getScript().appendOutputLog(output);
         });
 
+    }
+
+    /**
+     * Adds the commands related to controlling the flow of Vision.
+     */
+    private void controlCommands(){
+        addCBlock("if []", p->{
+            if(p.bool(0)){
+                p.runLoop();
+            }else if (p.getChain() != null){
+                p.getChain().run();
+            }
+        }, "else if []", "else");
+        addCBlock("else if []", p->{
+            if(p.bool(0)){
+                p.runLoop();
+            }else if(p.getChain() != null){
+                p.getChain().run();
+            }
+        }, "else if []", "else");
+        addCBlock("else", p->p.runLoop());
     }
 
     /**

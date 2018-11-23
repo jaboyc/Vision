@@ -12,14 +12,13 @@ public class Main {
     public static void main(String[] args) {
 
         try {
-            Project project = Project.fromTextFile("res/helloworld.txt", "test");
+            Project project = Project.fromTextFile("res/scratch.txt", "test");
             Script script = Compiler.compile(project);
             script.start();
         } catch(IOException e) {
             e.printStackTrace();
         } catch(VisionException e){
             e.printStackTrace();
-            System.out.println(e.getRange());
         }
     }
 }

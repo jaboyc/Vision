@@ -3,6 +3,7 @@ package com.jlogical.vision.api.runnables;
 
 import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.script.Script;
+import com.jlogical.vision.compiler.script.elements.CompiledElement;
 import com.jlogical.vision.compiler.script.elements.Hat;
 import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeRange;
@@ -12,28 +13,37 @@ import java.util.ArrayList;
 /**
  * Stores information regarding parameters of running a command. Needs to be concrete based on the type of Element running it.
  */
-public abstract class Parameters {
+public abstract class Parameters<T extends CompiledElement> {
+
+    /**
+     * The CompiledElement holding this Parameter.
+     */
+    private T element;
 
     /**
      * The List of Values in the Parameters. Cannot be null.
      */
-    ArrayList<Value> values;
+    private ArrayList<Value> values;
 
     /**
      * The Hat that the Parameters are in.
      */
-    Hat hatHolder;
+    private Hat hatHolder;
 
     /**
      * The range that this Parameter is covering. Used for exception throwing.
      */
-    CodeRange range;
+    private CodeRange range;
 
     /**
      * Creates a Parameters with a given List of Values.
      */
-    public Parameters(ArrayList<Value> values, Hat hat, CodeRange range) {
-        this.values = values != null ? values : new ArrayList<Value>();
+    public Parameters(T element, ArrayList<Value> values, Hat hat, CodeRange range) {
+        if(element == null){
+            throw new IllegalArgumentException("Element cannot be null!");
+        }
+        this.element = element;
+        this.values = values != null ? values : new ArrayList<>();
         this.hatHolder = hat;
         this.range = range;
     }
@@ -204,5 +214,9 @@ public abstract class Parameters {
 
     public CodeRange getRange() {
         return range;
+    }
+
+    T getElement() {
+        return element;
     }
 }

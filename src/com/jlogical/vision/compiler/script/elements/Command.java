@@ -13,7 +13,7 @@ import java.util.ArrayList;
 /**
  * Contains information for a compiled command which can be executed later.
  */
-public class Command extends CompiledElement<CustomCommand> {
+public class Command<T extends CustomCommand> extends CompiledElement<T> {
 
     /**
      * The line that this Command was found in.
@@ -26,12 +26,18 @@ public class Command extends CompiledElement<CustomCommand> {
     private Hat hatHolder;
 
     /**
+     * CBlock that is holding this Command. Null if none.
+     */
+    private CBlock cblockHolder;
+
+    /**
      * Creates a new CompiledElement with a core, template, values, and line.
      */
-    public Command(CustomCommand template, ArrayList<Value> values, Line line, Hat hatHolder) {
+    public Command(T template, ArrayList<Value> values, Line line, Hat hatHolder, CBlock cblockHolder) {
         super(template, values);
         this.line = line;
         this.hatHolder = hatHolder;
+        this.cblockHolder = cblockHolder;
     }
 
     /**
@@ -42,7 +48,7 @@ public class Command extends CompiledElement<CustomCommand> {
     public void run() throws VisionException {
         CommandRunnable runnable = getTemplate().getRunnable();
         if(runnable != null){
-            runnable.run(new CommandParameters(getValues(),  hatHolder, getRange()));
+            runnable.run(new CommandParameters(this, getValues(),  hatHolder, getRange(), cblockHolder));
         }
     }
 
