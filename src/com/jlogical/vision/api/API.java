@@ -119,4 +119,8 @@ public abstract class API {
     public ArrayList<CustomReporter> getReporters() {
         return reporters;
     }
+
+    public ArrayList<CustomCBlock> getCBlocks() {
+        return cblocks;
+    }
 }

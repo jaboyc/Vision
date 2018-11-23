@@ -11,7 +11,7 @@ import java.util.ArrayList;
 /**
  * Parameters for a Command.
  */
-public class CommandParameters extends Parameters<Command>{
+public class CommandParameters<T extends Command> extends Parameters<T>{
 
     /**
      * The CBlock that is holding this Command. Null if none.
@@ -21,7 +21,7 @@ public class CommandParameters extends Parameters<Command>{
     /**
      * Creates a Parameters with a given List of Values.
      */
-    public CommandParameters(Command command, ArrayList<Value> values, Hat hatHolder, CodeRange range, CBlock cblockHolder) {
+    public CommandParameters(T command, ArrayList<Value> values, Hat hatHolder, CodeRange range, CBlock cblockHolder) {
         super(command, values, hatHolder, range);
         this.cblockHolder = cblockHolder;
     }
@@ -29,4 +29,6 @@ public class CommandParameters extends Parameters<Command>{
     public CBlock getCBblockHolder() {
         return cblockHolder;
     }
+
+
 }

@@ -1,6 +1,7 @@
 package com.jlogical.vision.project;
 
 import com.jlogical.vision.api.API;
+import com.jlogical.vision.api.elements.CustomCBlock;
 import com.jlogical.vision.api.elements.CustomCommand;
 import com.jlogical.vision.api.elements.CustomHat;
 import com.jlogical.vision.api.elements.CustomReporter;
@@ -56,6 +57,11 @@ public class Project {
     private ArrayList<CustomHat> hats;
 
     /**
+     * List of the sorted CBlocks of all the APIs combined.
+     */
+    private ArrayList<CustomCBlock> cblocks;
+
+    /**
      * Can only be instantiated from the factory static methods. Creates a Project with a given name and files.
      */
     private Project(String name, ArrayList<VisionFile> files, ArrayList<API> apis) {
@@ -65,6 +71,7 @@ public class Project {
         commands = new ArrayList<>();
         reporters = new ArrayList<>();
         hats = new ArrayList<>();
+        cblocks = new ArrayList<>();
         for (API api : this.apis) {
             indexCustomElements(api);
         }
@@ -269,6 +276,8 @@ public class Project {
         Collections.sort(reporters, Comparator.comparing(CustomReporter::getCore));
         hats.addAll(api.getHats());
         Collections.sort(hats, Comparator.comparing(CustomHat::getCore));
+        cblocks.addAll(api.getCBlocks());
+        Collections.sort(cblocks, Comparator.comparing(CustomCBlock::getCore));
     }
 
     @Override
@@ -306,5 +315,9 @@ public class Project {
 
     public ArrayList<CustomHat> getHats() {
         return hats;
+    }
+
+    public ArrayList<CustomCBlock> getCBlocks() {
+        return cblocks;
     }
 }

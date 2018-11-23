@@ -10,10 +10,6 @@ import java.util.ArrayList;
  */
 public class CustomCBlock extends CustomCommand{
 
-    /**
-     * The lambda that runs the CBlock. Use .runLoop() to run the code inside of the cblock.
-     */
-    private CBlockRunnable runnable;
 
     /**
      * List of cores of the CBlocks that chain onto this CBlock.
@@ -25,12 +21,7 @@ public class CustomCBlock extends CustomCommand{
      */
     public CustomCBlock(String core, CBlockRunnable runnable, ArrayList<String> chains, API api) {
         super(core, runnable, api);
-        this.runnable = runnable;
         this.chains = chains != null ? chains : new ArrayList<>();
-    }
-
-    public CBlockRunnable getRunnable() {
-        return runnable;
     }
 
     public ArrayList<String> getChains() {

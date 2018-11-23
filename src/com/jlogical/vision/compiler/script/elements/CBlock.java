@@ -2,6 +2,7 @@ package com.jlogical.vision.compiler.script.elements;
 
 import com.jlogical.vision.api.elements.CustomCBlock;
 import com.jlogical.vision.api.elements.CustomCommand;
+import com.jlogical.vision.api.runnables.CBlockParameters;
 import com.jlogical.vision.compiler.Line;
 import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.values.Value;
@@ -35,8 +36,16 @@ public class CBlock extends Command<CustomCBlock> {
      * Runs the commands inside this CBlock.
      */
     public void run() throws VisionException {
+        getTemplate().getRunnable().run(new CBlockParameters(this, getValues(), getHatHolder(), getRange(), getCBlockHolder()));
+    }
 
-        for(Command command: commands){
+    /**
+     * Runs all the Commands in this CBlock.
+     *
+     * @throws VisionException if any of the Commands have an exception when running.
+     */
+    public void runLoop() throws VisionException{
+        for(Command command : getCommands()){
             command.run();
         }
     }

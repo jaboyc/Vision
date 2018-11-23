@@ -65,5 +65,7 @@ public class Command<T extends CustomCommand> extends CompiledElement<T> {
         return hatHolder;
     }
 
-
+    public CBlock getCBlockHolder() {
+        return cblockHolder;
+    }
 }

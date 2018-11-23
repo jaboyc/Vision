@@ -1,9 +1,6 @@
 package com.jlogical.vision.compiler;
 
-import com.jlogical.vision.api.elements.CustomCommand;
-import com.jlogical.vision.api.elements.CustomElement;
-import com.jlogical.vision.api.elements.CustomHat;
-import com.jlogical.vision.api.elements.CustomReporter;
+import com.jlogical.vision.api.elements.*;
 import com.jlogical.vision.api.system.CoreAPI;
 import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.script.Script;
@@ -132,6 +129,8 @@ public class Compiler {
         script = Script.blank();
         ArrayList<Hat> hats = new ArrayList<>();
         Hat currHat = null;
+        Stack<CBlock> cblocks = new Stack<>();
+        CBlock currCBlock = null;
         int index = 0;
         for (Line line : lines) {
             if (index == 0) {
@@ -139,13 +138,27 @@ public class Compiler {
                 hats.add(currHat);
                 index++;
             } else if (index > 0) {
-                Command command = toCommand(line, currHat);
+                Command command = toCommand(line, currHat, currCBlock);
                 if (currHat == null) {
                     throw new CompilerException("Cannot compile a Command without a Hat!", "error", line.getRange());
                 }
-                currHat.addCommand(command);
+                if(currCBlock != null){
+                    currCBlock.getCommands().add(command);
+                }else{
+                    currHat.addCommand(command);
+                }
                 if (command instanceof End) {
                     index--;
+                    if(!cblocks.isEmpty()){
+                        cblocks.pop();
+                        currCBlock = cblocks.isEmpty() ? null : cblocks.peek();
+                    }
+                }
+                if (command instanceof CBlock) {
+                    index++;
+                    CBlock cblock = (CBlock) command;
+                    cblocks.push(cblock);
+                    currCBlock = cblock;
                 }
             } else {
                 throw new CompilerException("There are more 'end's than Hats or CBlocks!", "end imbalance", line.getRange());
@@ -184,10 +197,11 @@ public class Compiler {
      *
      * @param line      the Line to compile.
      * @param hatHolder the Hat that will hold the Command.
+     * @param cblockHolder the CBlock that will hold the Command. Null if none.
      * @return the Command.
      * @throws CompilerException if the Command is not valid.
      */
-    private Command toCommand(Line line, Hat hatHolder) throws CompilerException{
+    private Command toCommand(Line line, Hat hatHolder, CBlock cblockHolder) throws CompilerException{
         if (containsKeyword(line.getCore())) {
             if (line.getCode().equals("end")) {
                 return new End(line);
@@ -196,7 +210,14 @@ public class Compiler {
         } else {
             for (CustomCommand command : project.getCommands()) {
                 if (coreEquals(command.getCore(), line.getCore())) {
-                    Command c = new Command(command, null, line, hatHolder);
+                    Command c = new Command(command, null, line, hatHolder, cblockHolder);
+                    c.setValues(toValues(line.getInputs(), c));
+                    return c;
+                }
+            }
+            for (CustomCBlock cblock : project.getCBlocks()) {
+                if (coreEquals(cblock.getCore(), line.getCore())) {
+                    CBlock c = new CBlock(cblock, null, line, hatHolder, null, cblockHolder, null);
                     c.setValues(toValues(line.getInputs(), c));
                     return c;
                 }

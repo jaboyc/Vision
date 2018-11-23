@@ -1,3 +1,9 @@
 when started
-
+    print [start]
+    if (true)
+        if (false)
+            print [true]
+        end
+    end
+    print [end]
 end

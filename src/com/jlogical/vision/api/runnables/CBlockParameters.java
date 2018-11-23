@@ -8,13 +8,13 @@ import com.jlogical.vision.project.CodeRange;
 
 import java.util.ArrayList;
 
-public class CBlockParameters extends Parameters<CBlock> {
+public class CBlockParameters extends CommandParameters<CBlock> {
 
     /**
      * Creates a Parameters with a given List of Values.
      */
-    public CBlockParameters(CBlock cblock, ArrayList<Value> values, Hat hat, CodeRange range) {
-        super(cblock, values, hat, range);
+    public CBlockParameters(CBlock cblock, ArrayList<Value> values, Hat hat, CodeRange range, CBlock cblockHolder) {
+        super(cblock, values, hat, range, cblockHolder);
     }
 
     /**
@@ -22,7 +22,7 @@ public class CBlockParameters extends Parameters<CBlock> {
      * @throws VisionException if there is an exception in the Commands the CBlock is running.
      */
     public void runLoop() throws VisionException {
-        getCBlock().run();
+        getCBlock().runLoop();
     }
 
     public CBlock getCBlock(){

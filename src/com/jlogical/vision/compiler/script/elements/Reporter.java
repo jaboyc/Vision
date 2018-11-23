@@ -34,7 +34,7 @@ public class Reporter extends CompiledElement<CustomReporter> implements Value {
 
     @Override
     public Object getValue() throws VisionException {
-        return getTemplate().getRunnable().getValue(new ReporterParameters(getValues(), commandHolder, getRange()));
+        return getTemplate().getRunnable().getValue(new ReporterParameters(this, getValues(), commandHolder, getRange()));
     }
 
     @Override
