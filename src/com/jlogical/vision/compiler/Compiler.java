@@ -20,6 +20,8 @@ import java.util.*;
 
 /**
  * Compiles a Project into a Script.
+ *
+ * //TODO During precompile, check for vertical line imbalance. We do not want an error saying 'print []' is not a valid Hat! Should instead say 'There are more 'end's than hats and CBlocks'!
  */
 public class Compiler {
 
@@ -155,8 +157,16 @@ public class Compiler {
                     }
                 }
                 if (command instanceof CBlock) {
-                    index++;
                     CBlock cblock = (CBlock) command;
+                    if(currCBlock != null && currCBlock.getTemplate().getChains().contains(command.getCore())){ //If the new CBlock is a chain...
+                        currCBlock.setChain(cblock);
+                        cblocks.pop();
+                        if(!currCBlock.getCommands().isEmpty()){
+                            currCBlock.getCommands().remove(currCBlock.getCommands().size()-1); //Remove the last Command because the new CBlock was added as a command, not as a chain...
+                        }
+                    }else{
+                        index++;
+                    }
                     cblocks.push(cblock);
                     currCBlock = cblock;
                 }
