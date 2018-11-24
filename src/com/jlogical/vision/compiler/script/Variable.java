@@ -1,5 +1,6 @@
 package com.jlogical.vision.compiler.script;
 
+import com.jlogical.vision.compiler.script.elements.CBlock;
 import com.jlogical.vision.compiler.script.elements.Hat;
 
 /**
@@ -34,17 +35,27 @@ public class Variable {
     /**
      * Finds a Variable with the given name by searching through the Hat's local variables first then looking at the Scripts global variables.
      * @param name the name of the Variable.
-     * @param hat the Hat to look at first.
-     * @param script the Script to look at next.
+     * @param cblock the CBlock to look at first. Looks at all CBlocks holding this one as well. Null if none.
+     * @param hat the Hat to look at next. Uses the Hat to find the Script for global variables as well.
      * @return the Variable if it is found. Null if not found.
      */
-    public static Variable findVariable(String name, Hat hat, Script script){
+    public static Variable findVariable(String name, CBlock cblock, Hat hat){
+        if(cblock != null){
+            CBlock look = cblock;
+            do{
+                for(Variable variable: look.getVariables()){
+                    if(name.equals(variable.getName())){
+                        return variable;
+                    }
+                }
+            }while((look = cblock.getCBlockHolder()) != null);
+        }
         for(Variable variable: hat.getVariables()){
             if(name.equals(variable.getName())){
                 return variable;
             }
         }
-        for(Variable variable: script.getVariables()){
+        for(Variable variable: hat.getScript().getVariables()){
             if(name.equals(variable.getName())){
                 return variable;
             }

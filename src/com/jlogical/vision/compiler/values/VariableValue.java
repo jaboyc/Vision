@@ -39,7 +39,7 @@ public class VariableValue implements Value{
 
     @Override
     public Object getValue() throws VisionException {
-        Variable variable = Variable.findVariable(variableName, commandHolder.getHatHolder(), commandHolder.getHatHolder().getScript());
+        Variable variable = Variable.findVariable(variableName, commandHolder.getCBlockHolder(), commandHolder.getHatHolder());
         if(variable == null){
             throw new VisionException("Variable '"+variableName+"' could not be found!", getRange());
         }

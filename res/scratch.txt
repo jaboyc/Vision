@@ -1,11 +1,7 @@
 when started
-    print [start]
-    if (false)
-        print [1]
-    else if (false)
-        print [2]
-    else
-        print [3]
+    repeat [x] (10) times
+        repeat [y] (10) times
+            print ((x) mod (y))
+        end
     end
-    print [end]
 end

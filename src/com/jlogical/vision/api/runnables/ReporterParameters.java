@@ -1,6 +1,8 @@
 package com.jlogical.vision.api.runnables;
 
+import com.jlogical.vision.compiler.script.elements.CBlock;
 import com.jlogical.vision.compiler.script.elements.Command;
+import com.jlogical.vision.compiler.script.elements.Hat;
 import com.jlogical.vision.compiler.script.elements.Reporter;
 import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeRange;
@@ -24,5 +26,13 @@ public class ReporterParameters extends Parameters<Reporter> {
 
     public Command getCommandHolder() {
         return commandHolder;
+    }
+
+    public CBlock getCBlockHolder(){
+        return commandHolder.getCBlockHolder();
+    }
+
+    public Hat getHatHolder(){
+        return commandHolder.getHatHolder();
     }
 }

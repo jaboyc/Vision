@@ -58,6 +58,32 @@ public class CoreAPI extends API {
             }
         }, "else if []", "else");
         addCBlock("else", p->p.runLoop());
+        addCBlock("repeat []", p->{
+            for(int i=0;i<p.numInt(0);i++){
+                p.runLoop();
+            }
+        });
+        addCBlock("repeat [] [] times", p->{
+            Variable variable = new Variable(p.str(0), 0);
+            p.getCBlock().getVariables().add(variable);
+            for(int i=1;i<=p.numInt(1);i++){
+                variable.setValue(i);
+                p.runLoop();
+            }
+            p.getCBlock().getVariables().remove(variable);
+        });
+        addCBlock("while []", p->{
+            while(p.bool(0)){
+                p.runLoop();
+            }
+        });
+        addCBlock("repeat until []", p->{
+            while(!p.bool(0)){
+                p.runLoop();
+            }
+        });
+
+
     }
 
     /**
@@ -68,7 +94,7 @@ public class CoreAPI extends API {
         //Commands
         addCommand("set [] to []", p -> {
             String name = p.str(0);
-            Variable variable = Variable.findVariable(name, p.getHatHolder(), p.getScript());
+            Variable variable = Variable.findVariable(name, p.getCBblockHolder(), p.getHatHolder());
             if (variable == null) {
                 p.getHatHolder().getVariables().add(new Variable(name, p.get(1)));
             } else {
@@ -77,7 +103,7 @@ public class CoreAPI extends API {
         });
         addCommand("change [] by []", p -> {
             String name = p.str(0);
-            Variable variable = Variable.findVariable(name, p.getHatHolder(), p.getScript());
+            Variable variable = Variable.findVariable(name, p.getCBblockHolder(), p.getHatHolder());
             if (variable == null) {
                 p.err("Cannot find variable named '" + name + "'");
             }
@@ -104,7 +130,7 @@ public class CoreAPI extends API {
         //Reporters
         addReporter("value of []", p -> {
             String name = p.str(0);
-            Variable variable = Variable.findVariable(name, p.getHatHolder(), p.getScript());
+            Variable variable = Variable.findVariable(name, p.getCBlockHolder(), p.getHatHolder());
             if (variable == null) {
                 p.err("Cannot find variable '" + name + "'");
             }

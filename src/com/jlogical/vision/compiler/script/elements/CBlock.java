@@ -5,6 +5,7 @@ import com.jlogical.vision.api.elements.CustomCommand;
 import com.jlogical.vision.api.runnables.CBlockParameters;
 import com.jlogical.vision.compiler.Line;
 import com.jlogical.vision.compiler.exceptions.VisionException;
+import com.jlogical.vision.compiler.script.Variable;
 import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeRange;
 
@@ -23,6 +24,11 @@ public class CBlock extends Command<CustomCBlock> {
     private CBlock chain;
 
     /**
+     * List of Variables in this CBlock.
+     */
+    private ArrayList<Variable> variables;
+
+    /**
      * Creates a new CompiledElement with a core, template, values, and line.
      *
      */
@@ -30,6 +36,7 @@ public class CBlock extends Command<CustomCBlock> {
         super(template, values, line, hatHolder, cblockHolder);
         this.commands = commands != null ? commands : new ArrayList<>();
         this.chain = chain;
+        this.variables = new ArrayList<>();
     }
 
     /**
@@ -64,6 +71,10 @@ public class CBlock extends Command<CustomCBlock> {
 
     public void setChain(CBlock chain) {
         this.chain = chain;
+    }
+
+    public ArrayList<Variable> getVariables() {
+        return variables;
     }
 
     @Override

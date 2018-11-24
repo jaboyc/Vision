@@ -122,7 +122,7 @@ public abstract class Parameters<T extends CompiledElement> {
         if (val instanceof Integer) {
             return (int) val;
         } else if (val instanceof Double) {
-            return (int) val;
+            return (int) ((double) val);
         } else if (val instanceof Boolean) {
             return ((boolean) val) ? 1 : 0;
         }
@@ -153,7 +153,7 @@ public abstract class Parameters<T extends CompiledElement> {
      */
     public double toNum(Object val) throws VisionException {
         if (val instanceof Integer) {
-            return (double) val;
+            return (double) ((int) val);
         } else if (val instanceof Double) {
             return (double) val;
         } else if (val instanceof Boolean) {
