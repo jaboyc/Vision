@@ -1,0 +1,5 @@
+when started
+    repeat [x] (3) times
+        print (x)
+    end
+end

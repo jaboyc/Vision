@@ -1,0 +1,9 @@
+when started
+    if (false)
+        print [1]
+    else if (false)
+        print [2]
+    else
+        print [3]
+    end
+end
