@@ -1,3 +1,8 @@
 when started
-    print [(((((1)]
+    set [fname] to [Jake]
+    set [lname] to [Boychenko]
+    set [name] to [#fname #lname]
+    set [rank] to [2]
+    set [empty] to []
+    print [Your name is #name. Your rank is #rank. Here is empty #empty]
 end

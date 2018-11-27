@@ -12,6 +12,11 @@ import com.jlogical.vision.project.CodeRange;
 public class TextValue implements Value {
 
     /**
+     * List of characters that break a string interpolation variable.
+     */
+    private static String varBreaks = " .!?~\"'[]{}()";
+
+    /**
      * The String holding the value of the text. Hashtags indicate interpolation.
      */
     private String value;
@@ -56,23 +61,23 @@ public class TextValue implements Value {
                 } else {
                     currVar = "";
                 }
-            }else if (currVar != null) { //Inside of interpolation.
-                if (c == ' ') { //Spaces indicate end of interpolation.
+            } else if (currVar != null) { //Inside of interpolation.
+                if (varBreaks.contains(c+"")) { //Spaces indicate end of interpolation.
                     Variable v = Variable.findVariable(currVar, cblock, hat);
                     if (v == null) {
                         throw new VisionException("Cannot find variable '" + currVar + "' used for text interpolation!", getRange());
                     }
-                    output += v.getValue().toString() + " ";
+                    output += v.getValue().toString() + c;
                     currVar = null;
                 } else {
                     currVar += c;
                 }
-            }else{
+            } else {
                 output += c;
             }
         }
 
-        if(currVar != null){ //If it ends with a Variable name.
+        if (currVar != null) { //If it ends with a Variable name.
             Variable v = Variable.findVariable(currVar, cblock, hat);
             if (v == null) {
                 throw new VisionException("Cannot find variable '" + currVar + "' used for text interpolation!", getRange());
