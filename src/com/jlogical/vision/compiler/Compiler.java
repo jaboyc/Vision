@@ -465,59 +465,69 @@ public class Compiler {
         String currInput = null; //The current input.
         Stack<Character> inputTypes = new Stack<>(); //List of the types of parameters used.
 
+        boolean inString = false;
         int index = 0;
         int pIndex = 0; //Index for ()
-        int bIndex = 0; //Index for []
         int cIndex = 0; //Index for {}
         for (int i = 0; i < element.length(); i++) {
             char c = element.charAt(i);
-            if (c == ']' || c == '}' || c == ')') {
-                if(inputTypes.isEmpty()){ //Error. Too many closing parameters.
-                    switch(c){
+            if(!inString){
+                if (c == ']' || c == '}' || c == ')') {
+                    if(inputTypes.isEmpty()){ //Error. Too many closing parameters.
+                        switch(c){
+                            case ']':
+                                throw new CompilerException("There are more ']' than '[' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                            case ')':
+                                pIndex--;
+                            case '}':
+                                cIndex--;
+                        }
+                        if (pIndex < 0) {
+                            throw new CompilerException("There are more ')' than '(' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                        }
+                        if (cIndex < 0) {
+                            throw new CompilerException("There are more '}' than '{' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                        }
+                    }
+                    char lastInputType = inputTypes.pop();
+                    switch (c) {
                         case ']':
-                            bIndex--;
-                        case ')':
-                            pIndex--;
+                            if (lastInputType != '[') {
+                                throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with ]", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                            }
+                            break;
                         case '}':
                             cIndex--;
+                            if (lastInputType != '{') {
+                                throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with }", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                            }
+                            break;
+                        case ')':
+                            pIndex--;
+                            if (lastInputType != '(') {
+                                throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with )", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                            }
+                            break;
                     }
-                    if (pIndex < 0) {
-                        throw new CompilerException("There are more ')' than '(' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
-                    }
-                    if (bIndex < 0) {
-                        throw new CompilerException("There are more ']' than '[' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
-                    }
-                    if (cIndex < 0) {
-                        throw new CompilerException("There are more '}' than '{' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                    index--;
+                    if (index == 0) {
+                        inputs.add(new Triplet<>(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), lastInputType));
+                        currInput = null;
+                    } else if (index < 0) {
+                        throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without an opening parameter ('[', '(', or '{') first.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                     }
                 }
-                char lastInputType = inputTypes.pop();
-                switch (c) {
-                    case ']':
-                        bIndex--;
-                        if (lastInputType != '[') {
-                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with ]", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
-                        }
-                        break;
-                    case '}':
-                        cIndex--;
-                        if (lastInputType != '{') {
-                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with }", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
-                        }
-                        break;
-                    case ')':
-                        pIndex--;
-                        if (lastInputType != '(') {
-                            throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with )", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
-                        }
-                        break;
-                }
-                index--;
-                if (index == 0) {
-                    inputs.add(new Triplet<>(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), lastInputType));
-                    currInput = null;
-                } else if (index < 0) {
-                    throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without an opening parameter ('[', '(', or '{') first.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+            }else{
+                if(c==']'){
+                    inString = false;
+                    index--;
+                    inputTypes.pop();
+                    if (index == 0) {
+                        inputs.add(new Triplet<>(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), '['));
+                        currInput = null;
+                    } else if (index < 0) {
+                        throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without an opening parameter ('[', '(', or '{') first.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                    }
                 }
             }
             if (index == 0) {
@@ -525,10 +535,10 @@ public class Compiler {
             } else {
                 currInput += c;
             }
-            if (c == '[' || c == '{' || c == '(') {
+            if (!inString && (c == '[' || c == '{' || c == '(')) {
                 switch (c) {
                     case '[':
-                        bIndex++;
+                        inString = true;
                         break;
                     case '{':
                         cIndex++;
@@ -544,23 +554,17 @@ public class Compiler {
                 }
             }
         }
-        if (index == 0 && !(pIndex == 0 && bIndex == 0 && cIndex == 0)) {
+        if (index == 0 && !(pIndex == 0 && cIndex == 0)) {
             throw new CompilerException("Something strange happened with the index of this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()) );
         }
         if (pIndex < 0) {
             throw new CompilerException("There are more ')' than '(' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
-        }
-        if (bIndex < 0) {
-            throw new CompilerException("There are more ']' than '[' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (cIndex < 0) {
             throw new CompilerException("There are more '}' than '{' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (pIndex > 0) {
             throw new CompilerException("There are more '(' than ')' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
-        }
-        if (bIndex > 0) {
-            throw new CompilerException("There are more '[' than ']' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (cIndex > 0) {
             throw new CompilerException("There are more '{' than '}' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));

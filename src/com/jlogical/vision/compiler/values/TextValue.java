@@ -45,18 +45,19 @@ public class TextValue implements Value {
     public Object getValue() throws VisionException {
         String output = ""; //The current output text.
         String currVar = null; //The current variable name. Null if not inside a variable now.
+        boolean complex = false; //Whether the interpolation is inside of brackets or not.
 
         for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);
-            if (c == '#') {
-                if (currVar != null) {
+            if (c == '#') { //Text interpolation has started.
+                if (currVar != null) { //Double hashtag, escape sequence for one hashtag.
                     output += "#";
                     currVar = null;
                 } else {
                     currVar = "";
                 }
-            } else if (currVar != null) {
-                if (c == ' ') {
+            }else if (currVar != null) { //Inside of interpolation.
+                if (c == ' ') { //Spaces indicate end of interpolation.
                     Variable v = Variable.findVariable(currVar, cblock, hat);
                     if (v == null) {
                         throw new VisionException("Cannot find variable '" + currVar + "' used for text interpolation!", getRange());
