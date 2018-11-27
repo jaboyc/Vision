@@ -30,12 +30,12 @@ public class Line {
     /**
      * The inputs of the command. First is the input itself, second is the absolute location of that input, third is the type of input. [, (, or &#123;
      */
-    private ArrayList<Triplet<String, CodeRange, Character>> inputs;
+    private ArrayList<Input> inputs;
 
     /**
      * Creates a new Line with the given code and location. Core and inputs must be given.
      */
-    public Line(String code, String core, ArrayList<Triplet<String, CodeRange, Character>> inputs, CodeLocation location) {
+    public Line(String code, String core, ArrayList<Input> inputs, CodeLocation location) {
         if (location == null) {
             throw new NullPointerException("Location of a line cannot be null.");
         }
@@ -79,7 +79,7 @@ public class Line {
         return core;
     }
 
-    public ArrayList<Triplet<String, CodeRange, Character>> getInputs() {
+    public ArrayList<Input> getInputs() {
         return inputs;
     }
 }

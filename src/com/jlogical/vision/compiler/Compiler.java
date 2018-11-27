@@ -245,9 +245,9 @@ public class Compiler {
      * @return a List of Values. Never will be null.
      * @throws CompilerException if any of the Values produce an error when compiling.
      */
-    private ArrayList<Value> toValues(ArrayList<Triplet<String, CodeRange, Character>> inputs, Command commandHolder) throws CompilerException {
+    private ArrayList<Value> toValues(ArrayList<Input> inputs, Command commandHolder) throws CompilerException {
         ArrayList<Value> values = new ArrayList<>();
-        for (Triplet<String, CodeRange, Character> input : inputs) {
+        for (Input input : inputs) {
             values.add(toValue(input, commandHolder));
         }
         return values;
@@ -261,30 +261,30 @@ public class Compiler {
      * @return the Value.
      * @throws CompilerException if the given input cannot be converted to any value.
      */
-    private Value toValue(Triplet<String, CodeRange, Character> input, Command commandHolder) throws CompilerException {
-        String val = input.getFirst();
-        switch (input.getThird()) {
+    private Value toValue(Input input, Command commandHolder) throws CompilerException {
+        String val = input.getText();
+        switch (input.getType()) {
             case '[':
-                return new TextValue(val, input.getSecond(), commandHolder.getCBlockHolder(), commandHolder.getHatHolder());
+                return new TextValue(val, input.getRange(), commandHolder.getCBlockHolder(), commandHolder.getHatHolder());
             case '(':
                 if(looksNumeric(val)) {
                     try {
                         double d = Double.parseDouble(val);
-                        return new NumValue(d, input.getSecond());
+                        return new NumValue(d, input.getRange());
                     } catch (Exception e) {}
                 }
                 try{
-                    Pair<String, ArrayList<Triplet<String, CodeRange, Character>>> split = splitElement(val, input.getSecond().startLocation());
-                    Reporter reporter = toReporter(split.getFirst(), split.getSecond(), commandHolder, input.getSecond());
+                    Pair<String, ArrayList<Input>> split = splitElement(val, input.getRange().startLocation());
+                    Reporter reporter = toReporter(split.getFirst(), split.getSecond(), commandHolder, input.getRange());
                     if(reporter != null){
                         return reporter;
                     }
                     if(!split.getSecond().isEmpty()){
-                        throw new CompilerException("Could not find value for "+val, "invalid value", input.getSecond());
+                        throw new CompilerException("Could not find value for "+val, "invalid value", input.getRange());
                     }
-                    return new VariableValue(val, input.getSecond(), commandHolder);
+                    return new VariableValue(val, input.getRange(), commandHolder);
                 }catch(Exception e){}
-                throw new CompilerException("Value '"+input.getFirst()+" cannot be found!", "invalid value", input.getSecond());
+                throw new CompilerException("Value '"+input.getText()+" cannot be found!", "invalid value", input.getRange());
             case '{':
             default:
                 return null;
@@ -300,7 +300,7 @@ public class Compiler {
      * @return the Reporter if successfully able to find the CustomReporter. Null otherwise.
      * @throws CompilerException if any of the inputs contain produce an error when compiling.
      */
-    private Reporter toReporter(String core, ArrayList<Triplet<String, CodeRange, Character>> inputs, Command commandHolder, CodeRange range) throws CompilerException{
+    private Reporter toReporter(String core, ArrayList<Input> inputs, Command commandHolder, CodeRange range) throws CompilerException{
         if(containsKeyword(core)){
             throw new IllegalArgumentException("Reporter cannot contain a keyword!");
         }else{
@@ -447,7 +447,7 @@ public class Compiler {
             return null;
         }
         CodeLocation location = new CodeLocation(project, vfile, lineNum, 0);
-        Pair<String, ArrayList<Triplet<String, CodeRange, Character>>> split = splitElement(line, location);
+        Pair<String, ArrayList<Input>> split = splitElement(line, location);
         return new Line(line, split.getFirst(), split.getSecond(), location);
     }
 
@@ -459,9 +459,9 @@ public class Compiler {
      * @return a Pair of its core (first) and an ArrayList of its inputs in Pairs (the first is the input itself, second is the CodeRange for that input). (second).
      * @throws CompilerException if it is off balance.
      */
-    private Pair<String, ArrayList<Triplet<String, CodeRange, Character>>> splitElement(String element, CodeLocation location) throws CompilerException {
+    private Pair<String, ArrayList<Input>> splitElement(String element, CodeLocation location) throws CompilerException {
         String core = "";
-        ArrayList<Triplet<String, CodeRange, Character>> inputs = new ArrayList<>();
+        ArrayList<Input> inputs = new ArrayList<>();
         String currInput = null; //The current input.
         Stack<Character> inputTypes = new Stack<>(); //List of the types of parameters used.
 
@@ -511,7 +511,7 @@ public class Compiler {
                     }
                     index--;
                     if (index == 0) {
-                        inputs.add(new Triplet<>(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), lastInputType));
+                        inputs.add(new Input(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), lastInputType));
                         currInput = null;
                     } else if (index < 0) {
                         throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without an opening parameter ('[', '(', or '{') first.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
@@ -523,7 +523,7 @@ public class Compiler {
                     index--;
                     inputTypes.pop();
                     if (index == 0) {
-                        inputs.add(new Triplet<>(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), '['));
+                        inputs.add(new Input(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), '['));
                         currInput = null;
                     } else if (index < 0) {
                         throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without an opening parameter ('[', '(', or '{') first.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
