@@ -1,7 +1,6 @@
 when started
-    repeat [x] (10) times
-        repeat [y] (10) times
-            print ((x) mod (y))
-        end
-    end
+    set [x] to (3)
+    set [y] to (5)
+    set [sum] to ((x) + (y))
+    print [x=#x y=#y x+y=#sum]
 end

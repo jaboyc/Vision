@@ -265,7 +265,7 @@ public class Compiler {
         String val = input.getFirst();
         switch (input.getThird()) {
             case '[':
-                return new TextValue(val, input.getSecond());
+                return new TextValue(val, input.getSecond(), commandHolder.getCBlockHolder(), commandHolder.getHatHolder());
             case '(':
                 if(looksNumeric(val)) {
                     try {
