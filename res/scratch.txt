@@ -1,8 +1,3 @@
 when started
-    set [fname] to [Jake]
-    set [lname] to [Boychenko]
-    set [name] to [#fname #lname]
-    set [rank] to [2]
-    set [empty] to []
-    print [Your name is #name. Your rank is #rank. Here is empty #empty]
+    print [e=#e]
 end

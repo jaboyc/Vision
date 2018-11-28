@@ -216,7 +216,7 @@ public class Compiler {
         String val = input.getText();
         switch (input.getType()) {
             case '[':
-                return new TextValue(val, input.getRange(), commandHolder.getCBlockHolder(), commandHolder.getHatHolder());
+                return new TextValue(val, input.getRange(), commandHolder, project);
             case '(':
                 if (looksNumeric(val)) {
                     try {
@@ -232,12 +232,14 @@ public class Compiler {
                         return reporter;
                     }
                     if (!split.getSecond().isEmpty()) {
-                        throw new CompilerException("Could not find value for " + val, "invalid value", input.getRange());
+                        throw new CompilerException("Could not find value for '" + val+"'", "invalid value", input.getRange());
                     }
                     return new VariableValue(val, input.getRange(), commandHolder);
-                } catch (Exception e) {
+                } catch (CompilerException e) {
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-                throw new CompilerException("Value '" + input.getText() + " cannot be found!", "invalid value", input.getRange());
+                throw new CompilerException("Value '" + input.getText() + "' cannot be found!", "invalid value", input.getRange());
             case '{':
             default:
                 return null;

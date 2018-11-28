@@ -1,10 +1,12 @@
 package com.jlogical.vision.compiler.values;
 
+import com.jlogical.vision.compiler.Compiler;
+import com.jlogical.vision.compiler.Input;
+import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.exceptions.VisionException;
-import com.jlogical.vision.compiler.script.Variable;
-import com.jlogical.vision.compiler.script.elements.CBlock;
-import com.jlogical.vision.compiler.script.elements.Hat;
+import com.jlogical.vision.compiler.script.elements.Command;
 import com.jlogical.vision.project.CodeRange;
+import com.jlogical.vision.project.Project;
 
 /**
  * Value that holds a String.
@@ -27,23 +29,23 @@ public class TextValue implements Value {
     private CodeRange range;
 
     /**
-     * CBlock the TextValue is in. Used to find local variables. Null if none.
+     * Command the TextValue is in. Used to get values in text interpolation.
      */
-    private CBlock cblock;
+    private Command commandHolder;
 
     /**
-     * Hat the TextValue is in. Used to find global variables.
+     * The Project the TextValue is in.
      */
-    private Hat hat;
+    private Project project;
 
     /**
-     * Creates a new TextValue with a given value, range, cblock, and hat.
+     * Creates a new TextValue with a given value, range, command.
      */
-    public TextValue(String value, CodeRange range, CBlock cblock, Hat hat) {
+    public TextValue(String value, CodeRange range, Command commandHolder, Project project) {
         this.value = value != null ? value : "";
         this.range = range;
-        this.cblock = cblock;
-        this.hat = hat;
+        this.commandHolder = commandHolder;
+        this.project = project;
     }
 
     @Override
@@ -62,12 +64,13 @@ public class TextValue implements Value {
                     currVar = "";
                 }
             } else if (currVar != null) { //Inside of interpolation.
-                if (varBreaks.contains(c+"")) { //Spaces indicate end of interpolation.
-                    Variable v = Variable.findVariable(currVar, cblock, hat);
-                    if (v == null) {
-                        throw new VisionException("Cannot find variable '" + currVar + "' used for text interpolation!", getRange());
+                if (varBreaks.contains(c + "")) { //Spaces indicate end of interpolation.
+                    try {
+                        Value v = Compiler.toValue(new Input(currVar, getRange(), '('), commandHolder, project);
+                        output += v.getValue().toString() + c;
+                    } catch (CompilerException e) {
+                        throw new VisionException(e.getMessage(), getRange());
                     }
-                    output += v.getValue().toString() + c;
                     currVar = null;
                 } else {
                     currVar += c;
@@ -78,11 +81,12 @@ public class TextValue implements Value {
         }
 
         if (currVar != null) { //If it ends with a Variable name.
-            Variable v = Variable.findVariable(currVar, cblock, hat);
-            if (v == null) {
-                throw new VisionException("Cannot find variable '" + currVar + "' used for text interpolation!", getRange());
+            try {
+                Value v = Compiler.toValue(new Input(currVar, getRange(), '('), commandHolder, project);
+                output += v.getValue().toString();
+            } catch (CompilerException e) {
+                throw new VisionException(e.getMessage(), getRange());
             }
-            output += v.getValue().toString();
         }
 
         return output;
