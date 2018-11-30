@@ -1,0 +1,4 @@
+when started
+    set [msg] to [World]
+    print [Hello #msg]
+end
