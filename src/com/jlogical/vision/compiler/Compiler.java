@@ -165,21 +165,19 @@ public class Compiler {
             if (line.getCode().equals("end")) {
                 return new End(line);
             }
-            throw new IllegalArgumentException("Command contained an incorrect keyword!");
-        } else {
-            for (CustomCommand command : project.getCommands()) {
-                if (coreEquals(command.getCore(), line.getCore())) {
-                    Command c = new Command(command, null, line, hatHolder, cblockHolder);
-                    c.setValues(toValues(line.getInputs(), c, project));
-                    return c;
-                }
+        }
+        for (CustomCommand command : project.getCommands()) {
+            if (coreEquals(command.getCore(), line.getCore())) {
+                Command c = new Command(command, null, line, hatHolder, cblockHolder);
+                c.setValues(toValues(line.getInputs(), c, project));
+                return c;
             }
-            for (CustomCBlock cblock : project.getCBlocks()) {
-                if (coreEquals(cblock.getCore(), line.getCore())) {
-                    CBlock c = new CBlock(cblock, null, line, hatHolder, null, cblockHolder, null);
-                    c.setValues(toValues(line.getInputs(), c, project));
-                    return c;
-                }
+        }
+        for (CustomCBlock cblock : project.getCBlocks()) {
+            if (coreEquals(cblock.getCore(), line.getCore())) {
+                CBlock c = new CBlock(cblock, null, line, hatHolder, null, cblockHolder, null);
+                c.setValues(toValues(line.getInputs(), c, project));
+                return c;
             }
         }
 
@@ -257,12 +255,11 @@ public class Compiler {
      */
     private static Reporter toReporter(String core, ArrayList<Input> inputs, Command commandHolder, CodeRange range, Project project) throws CompilerException {
         if (containsKeyword(core)) {
-            throw new IllegalArgumentException("Reporter cannot contain a keyword!");
-        } else {
-            for (CustomReporter reporter : project.getReporters()) {
-                if (coreEquals(reporter.getCore(), core)) {
-                    return new Reporter(reporter, toValues(inputs, commandHolder, project), commandHolder, range);
-                }
+
+        }
+        for (CustomReporter reporter : project.getReporters()) {
+            if (coreEquals(reporter.getCore(), core)) {
+                return new Reporter(reporter, toValues(inputs, commandHolder, project), commandHolder, range);
             }
         }
         return null;
