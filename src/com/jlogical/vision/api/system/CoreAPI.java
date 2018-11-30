@@ -63,7 +63,7 @@ public class CoreAPI extends API {
                 p.runLoop();
             }
         });
-        addCBlock("repeat [] [] times", p->{
+        addCBlock("for every [] up to []", p->{
             Variable variable = new Variable(p.str(0), 0);
             p.getCBlock().getVariables().add(variable);
             for(int i=1;i<=p.numInt(1);i++){
