@@ -1,0 +1,3 @@
+when started
+    print [print pi=#pi. e=#e]
+end

@@ -1,5 +1,5 @@
 when started
-    repeat [x] (3) times
+    for every [x] up to (3)
         print (x)
     end
 end
