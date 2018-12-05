@@ -1,7 +1,9 @@
 package com.jlogical.vision.compiler;
 
-import com.jlogical.vision.api.elements.*;
-import com.jlogical.vision.api.system.CoreAPI;
+import com.jlogical.vision.api.elements.CustomCBlock;
+import com.jlogical.vision.api.elements.CustomCommand;
+import com.jlogical.vision.api.elements.CustomHat;
+import com.jlogical.vision.api.elements.CustomReporter;
 import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.compiler.script.elements.*;
@@ -14,9 +16,11 @@ import com.jlogical.vision.project.CodeRange;
 import com.jlogical.vision.project.Project;
 import com.jlogical.vision.project.VisionFile;
 import com.jlogical.vision.util.Pair;
-import com.jlogical.vision.util.Triplet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Compiles a Project into a Script.
@@ -230,11 +234,11 @@ public class Compiler {
                         return reporter;
                     }
                     if (!split.getSecond().isEmpty()) {
-                        throw new CompilerException("Could not find value for '" + val+"'", "invalid value", input.getRange());
+                        throw new CompilerException("Could not find value for '" + val + "'", "invalid value", input.getRange());
                     }
                     return new VariableValue(val, input.getRange(), commandHolder);
                 } catch (CompilerException e) {
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 throw new CompilerException("Value '" + input.getText() + "' cannot be found!", "invalid value", input.getRange());
@@ -422,12 +426,23 @@ public class Compiler {
         String currInput = null; //The current input.
         Stack<Character> inputTypes = new Stack<>(); //List of the types of parameters used.
 
-        boolean inString = false;
         int index = 0;
         int pIndex = 0; //Index for ()
         int cIndex = 0; //Index for {}
+
+        boolean inString = false;
+        boolean inSimpleInterpolation = false; //The type of the current interpolation.
+        boolean interpolationStart = false; //Whether the last character was a # and inside a text.
+        boolean hadInterpolation = false; //Whether this element had interpolation. If so, make the input type '#' instead of '['.
         for (int i = 0; i < element.length(); i++) {
             char c = element.charAt(i);
+            if (inString) {
+                if (c == ']') { //If ending the text.
+                    inString = false;
+                } else {
+                    currInput += c;
+                }
+            }
             if (!inString) {
                 if (c == ']' || c == '}' || c == ')') {
                     if (inputTypes.isEmpty()) { //Error. Too many closing parameters.
@@ -468,48 +483,37 @@ public class Compiler {
                     }
                     index--;
                     if (index == 0) {
-                        inputs.add(new Input(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), lastInputType));
+                        inputs.add(new Input(currInput, new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), hadInterpolation ? '#' : lastInputType));
                         currInput = null;
                     } else if (index < 0) {
                         throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without an opening parameter ('[', '(', or '{') first.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                     }
                 }
-            } else {
-                if (c == ']') {
-                    inString = false;
-                    index--;
-                    inputTypes.pop();
-                    if (index == 0) {
-                        inputs.add(new Input(currInput.trim(), new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), '['));
-                        currInput = null;
-                    } else if (index < 0) {
-                        throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without an opening parameter ('[', '(', or '{') first.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                if (index == 0) {
+                    core += c;
+                } else {
+                    currInput += c;
+                }
+                if (c == '[' || c == '{' || c == '(') {
+                    switch (c) {
+                        case '[':
+                            inString = true;
+                            break;
+                        case '{':
+                            cIndex++;
+                            break;
+                        case '(':
+                            pIndex++;
+                            break;
+                    }
+                    inputTypes.push(c);
+                    index++;
+                    if (currInput == null) {
+                        currInput = "";
                     }
                 }
             }
-            if (index == 0) {
-                core += c;
-            } else {
-                currInput += c;
-            }
-            if (!inString && (c == '[' || c == '{' || c == '(')) {
-                switch (c) {
-                    case '[':
-                        inString = true;
-                        break;
-                    case '{':
-                        cIndex++;
-                        break;
-                    case '(':
-                        pIndex++;
-                        break;
-                }
-                inputTypes.push(c);
-                index++;
-                if (currInput == null) {
-                    currInput = "";
-                }
-            }
+
         }
         if (index == 0 && !(pIndex == 0 && cIndex == 0)) {
             throw new CompilerException("Something strange happened with the index of this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));

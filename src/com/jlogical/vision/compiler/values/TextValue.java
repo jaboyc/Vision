@@ -16,7 +16,7 @@ public class TextValue implements Value {
     /**
      * List of characters that break a string interpolation variable.
      */
-    private static String varBreaks = " .!?~\"'[]{}()";
+    private static String varBreaks = " +-*/=#.!?~\"'[]{}()";
 
     /**
      * The String holding the value of the text. Hashtags indicate interpolation.
@@ -52,7 +52,6 @@ public class TextValue implements Value {
     public Object getValue() throws VisionException {
         String output = ""; //The current output text.
         String currVar = null; //The current variable name. Null if not inside a variable now.
-        boolean complex = false; //Whether the interpolation is inside of brackets or not.
 
         for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);
@@ -65,6 +64,9 @@ public class TextValue implements Value {
                 }
             } else if (currVar != null) { //Inside of interpolation.
                 if (varBreaks.contains(c + "")) { //Spaces indicate end of interpolation.
+                    if(currVar.isBlank()){
+                        throw new VisionException("Value in text interpolation cannot be blank!", getRange());
+                    }
                     try {
                         Value v = Compiler.toValue(new Input(currVar, getRange(), '('), commandHolder, project);
                         output += v.getValue().toString() + c;
@@ -81,6 +83,9 @@ public class TextValue implements Value {
         }
 
         if (currVar != null) { //If it ends with a Variable name.
+            if(currVar.isBlank()){
+                throw new VisionException("Value in text interpolation cannot be blank!", getRange());
+            }
             try {
                 Value v = Compiler.toValue(new Input(currVar, getRange(), '('), commandHolder, project);
                 output += v.getValue().toString();

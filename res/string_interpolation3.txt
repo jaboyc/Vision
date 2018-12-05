@@ -1,5 +1,5 @@
 when started
-    set [num1] to (3)
-    set [num2] to (2)
-    print [3+2=#((num1) + (num2))]
+    set [num1] to [3]
+    set [num2] to [2]
+    print [###num1+#num2=5##]
 end
