@@ -51,7 +51,11 @@ public class ExpressionValue implements Value {
 
     @Override
     public Object getValue() throws VisionException {
-        return Calc.calc(text);
+        String newText = text;
+        for(Value value : values){
+            newText = newText.substring(0, value.getRange().getCharStart()) + value.getValue() + newText.substring(value.getRange().getCharEnd());
+        }
+        return Calc.calc(newText, range);
     }
 
     @Override

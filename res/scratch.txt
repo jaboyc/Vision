@@ -1,4 +1,4 @@
 when started
     set [x] to (3+2)
-    print (x-(sin of (x)))
+    print (x*3)
 end

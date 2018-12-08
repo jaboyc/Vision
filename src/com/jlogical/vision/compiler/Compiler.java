@@ -230,8 +230,8 @@ public class Compiler {
                     if (reporter != null) {
                         return reporter;
                     }
-                    if (!split.getSecond().isEmpty() || split.getFirst().matches(".*[+\\-*/<>=].*")) {
-                        return new ExpressionValue(split.getFirst(), toValues(split.getSecond(), commandHolder, project), input.getRange(), commandHolder, project);
+                    if (!split.getSecond().isEmpty() || split.getFirst().matches(".*[+\\-*/^<>=].*")) {
+                        return new ExpressionValue(input.getText(), toValues(split.getSecond(), commandHolder, project), input.getRange(), commandHolder, project);
                     }
                     return new VariableValue(val, input.getRange(), commandHolder);
                 } catch (CompilerException e) {
