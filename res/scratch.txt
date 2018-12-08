@@ -1,4 +1,9 @@
 when started
-    set [x] to ( -2 * -(4))
+    set [x] to ( -2 * -4)
     print (x)
+    if (x >= 2^4)
+        print [1]
+    else
+        print [2]
+    end
 end

@@ -138,6 +138,10 @@ public class ExpressionValue implements Value {
                 elements.set(i+1, "-"+elements.get(i+2).toString().trim());
                 elements.remove(i+2);
             }
+            if("<>".contains(s) && elements.get(i+1).toString().trim().equals("=")){
+                elements.set(i, s+"=");
+                elements.remove(i+1);
+            }
         }
     }
 
@@ -182,7 +186,34 @@ public class ExpressionValue implements Value {
                     elements.remove(index);
                 }
             }else if ((index = indexOf(elements, "<", ">", "<=", ">=", "=")) != -1){
-
+                String s = elements.get(index).toString();
+                checkNum(elements, index, -1, 1);
+                if(s.equals("<")){
+                    ArrayList<Double> nums = checkNum(elements, index, -1, 1);
+                    elements.set(index-1, nums.get(0) < nums.get(1));
+                    elements.remove(index);
+                    elements.remove(index);
+                }else if(s.equals(">")){
+                    ArrayList<Double> nums = checkNum(elements, index, -1, 1);
+                    elements.set(index-1, nums.get(0) > nums.get(1));
+                    elements.remove(index);
+                    elements.remove(index);
+                }else if(s.equals("<=")){
+                    ArrayList<Double> nums = checkNum(elements, index, -1, 1);
+                    elements.set(index-1, nums.get(0) <= nums.get(1));
+                    elements.remove(index);
+                    elements.remove(index);
+                }else if(s.equals(">=")){
+                    ArrayList<Double> nums = checkNum(elements, index, -1, 1);
+                    elements.set(index-1, nums.get(0) >= nums.get(1));
+                    elements.remove(index);
+                    elements.remove(index);
+                }else if(s.equals("=")){
+                    ArrayList<Double> nums = checkNum(elements, index, -1, 1);
+                    elements.set(index-1, nums.get(0).equals(nums.get(1)));
+                    elements.remove(index);
+                    elements.remove(index);
+                }
             }
         }
         return elements.get(0);
