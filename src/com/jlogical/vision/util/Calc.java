@@ -31,17 +31,28 @@ public class Calc {
         String currInput = "";
         for(int i=0;i<text.length();i++){
             char c = text.charAt(i);
-            if("+-/*=<>()".contains(""+c)){
+            if("+-/*=<>".contains(""+c)){
                 if(!currInput.isBlank()){
                     try{
                         elements.add(Double.parseDouble(currInput));
                     }catch(Exception e){
                         elements.add(currInput);
                     }
+                    currInput = "";
                 }
                 elements.add(c);
+            }else{
+                currInput += c;
             }
         }
+        if(!currInput.isBlank()){
+            try{
+                elements.add(Double.parseDouble(currInput));
+            }catch(Exception e){
+                elements.add(currInput);
+            }
+        }
+        System.out.println(elements);
         return elements;
     }
 
@@ -52,9 +63,7 @@ public class Calc {
      * @throws VisionException if there was an error solving the text.
      */
     private static Object solve(ArrayList<Object> elements) throws VisionException{
-        while(elements.size() > 1){
-
-        }
+        //TODO
         return elements.get(0);
     }
 }

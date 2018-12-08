@@ -6,6 +6,8 @@ import com.jlogical.vision.project.CodeRange;
 import com.jlogical.vision.project.Project;
 import com.jlogical.vision.util.Calc;
 
+import java.util.ArrayList;
+
 /**
  * Value that holds either a math expression or logic expression.
  */
@@ -32,10 +34,16 @@ public class ExpressionValue implements Value {
     private Project project;
 
     /**
+     * List of Values in this ExpressionValue.
+     */
+    private ArrayList<Value> values;
+
+    /**
      * Creates a new ExpressionValue with the given text, range, commandHolder, and project.
      */
-    public ExpressionValue(String text, CodeRange range, Command commandHolder, Project project){
+    public ExpressionValue(String text, ArrayList<Value> values, CodeRange range, Command commandHolder, Project project){
         this.text = text;
+        this.values = values;
         this.range = range;
         this.commandHolder = commandHolder;
         this.project = project;

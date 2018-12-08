@@ -7,10 +7,7 @@ import com.jlogical.vision.api.elements.CustomReporter;
 import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.compiler.script.elements.*;
-import com.jlogical.vision.compiler.values.NumValue;
-import com.jlogical.vision.compiler.values.TextValue;
-import com.jlogical.vision.compiler.values.Value;
-import com.jlogical.vision.compiler.values.VariableValue;
+import com.jlogical.vision.compiler.values.*;
 import com.jlogical.vision.project.CodeLocation;
 import com.jlogical.vision.project.CodeRange;
 import com.jlogical.vision.project.Project;
@@ -233,8 +230,8 @@ public class Compiler {
                     if (reporter != null) {
                         return reporter;
                     }
-                    if (!split.getSecond().isEmpty()) {
-                        throw new CompilerException("Could not find value for '" + val + "'", "invalid value", input.getRange());
+                    if (!split.getSecond().isEmpty() || split.getFirst().matches(".*[+\\-*/<>=].*")) {
+                        return new ExpressionValue(split.getFirst(), toValues(split.getSecond(), commandHolder, project), input.getRange(), commandHolder, project);
                     }
                     return new VariableValue(val, input.getRange(), commandHolder);
                 } catch (CompilerException e) {
