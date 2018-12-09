@@ -230,7 +230,7 @@ public class Compiler {
                     if (reporter != null) {
                         return reporter;
                     }
-                    if (!split.getSecond().isEmpty() || split.getFirst().matches(".*[+\\-*/^<>=].*")) {
+                    if (!split.getSecond().isEmpty() || split.getFirst().matches(".*[+\\-*/^<>=|&].*")) {
                         return new ExpressionValue(input.getText(), input.getRange(), commandHolder, project);
                     }
                     return new VariableValue(val, input.getRange(), commandHolder);

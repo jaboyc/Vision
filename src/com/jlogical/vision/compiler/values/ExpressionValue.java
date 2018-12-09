@@ -75,7 +75,7 @@ public class ExpressionValue implements Value {
             } else if (c == ')'){
                 pIndex --;
                 currInput += c;
-            }else if(pIndex == 0 && "+-/*^=<>".contains(""+c)){
+            }else if(pIndex == 0 && "+-/*^=<>|&".contains(""+c)){
                 if(!currInput.isBlank()){
                     try{
                         elements.add(Double.parseDouble(currInput.trim()));
@@ -174,12 +174,12 @@ public class ExpressionValue implements Value {
                 }
             }else if((index = indexOf(elements, "+", "-")) != -1){
                 String s = elements.get(index).toString();
-                if(s.equals("+")){ //Multiply
+                if(s.equals("+")){ //Add
                     ArrayList<Double> nums = checkNum(elements, index, -1, 1);
                     elements.set(index-1, nums.get(0) + nums.get(1));
                     elements.remove(index);
                     elements.remove(index);
-                } else if (s.equals("-")) { //Divide
+                } else if (s.equals("-")) { //Subtract
                     ArrayList<Double> nums = checkNum(elements, index, -1, 1);
                     elements.set(index-1, nums.get(0) - nums.get(1));
                     elements.remove(index);
@@ -211,6 +211,19 @@ public class ExpressionValue implements Value {
                 }else if(s.equals("=")){
                     ArrayList<Double> nums = checkNum(elements, index, -1, 1);
                     elements.set(index-1, nums.get(0).equals(nums.get(1)));
+                    elements.remove(index);
+                    elements.remove(index);
+                }
+            }else if((index = indexOf(elements, "&", "|")) != -1){
+                String s = elements.get(index).toString();
+                if(s.equals("&")){ //And
+                    ArrayList<Boolean> bools = checkBools(elements, index, -1, 1);
+                    elements.set(index-1, bools.get(0) && bools.get(1));
+                    elements.remove(index);
+                    elements.remove(index);
+                } else if (s.equals("|")) { //Or
+                    ArrayList<Boolean> bools = checkBools(elements, index, -1, 1);
+                    elements.set(index-1, bools.get(0) || bools.get(1));
                     elements.remove(index);
                     elements.remove(index);
                 }
@@ -250,7 +263,7 @@ public class ExpressionValue implements Value {
         for(int i=0;i<relative.length;i++){
             int ri = index + relative[i];
             if(ri< 0){
-                throw new VisionException(elements.get(index) + " needs to be after by a number.", range);
+                throw new VisionException(elements.get(index) + " needs to be after a number.", range);
             }
             if(ri > elements.size()){
                 throw new VisionException(elements.get(index) + " needs to be before a number.", range);
@@ -273,6 +286,57 @@ public class ExpressionValue implements Value {
             }
         }
         return nums;
+    }
+
+    /**
+     * Checks if any of the elements relative to the index are booleans. If not, throws an exception.
+     * @param elements the elements of the current calculation.
+     * @param index the initial index to check.
+     * @param relative all the relative indices to check.
+     * @return List of booleans of the values it just checked.
+     * @throws VisionException if the relative elements are not booleans.
+     */
+    private ArrayList<Boolean> checkBools(ArrayList<Object> elements, int index, int... relative) throws VisionException {
+        ArrayList<Boolean> bools = new ArrayList<>();
+        for(int i=0;i<relative.length;i++){
+            int ri = index + relative[i];
+            if(ri< 0){
+                throw new VisionException(elements.get(index) + " needs to be after a boolean.", range);
+            }
+            if(ri > elements.size()){
+                throw new VisionException(elements.get(index) + " needs to be before a boolean.", range);
+            }
+            try{
+                bools.add(toBool(elements.get(ri)));
+            }catch(Exception e){
+                try {
+                    if(elements.get(ri).toString().trim().startsWith("(") && elements.get(ri).toString().trim().endsWith(")")){
+                        Value value = Compiler.toValue(new Input(elements.get(ri).toString().trim().substring(1, elements.get(ri).toString().trim().length()-1), new CodeRange(project, range.getFile(), range.getLineStart(), range.getCharStart() + i, range.getLineStart(), range.getCharStart() + i + elements.get(ri).toString().length()), '('), commandHolder, project);
+                        bools.add(toBool(value.getValue().toString()));
+                    }else{
+                        Value value = Compiler.toValue(new Input(elements.get(ri).toString().trim(), new CodeRange(project, range.getFile(), range.getLineStart(), range.getCharStart() + i, range.getLineStart(), range.getCharStart() + i + elements.get(ri).toString().length()), '('), commandHolder, project);
+                        bools.add(toBool(value.getValue().toString()));
+                    }
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                    throw new VisionException(elements.get(ri) + " must be a boolean or valid boolean value next to " + elements.get(index), range);
+                }
+            }
+        }
+        return bools;
+    }
+
+    /**
+     * Returns the boolean version of the object. Throws an exception if not a boolean.
+     * @param o the object to convert.
+     * @return the boolean version of the object.
+     * @throws VisionException if it is not a boolean.
+     */
+    private static boolean toBool(Object o) throws VisionException{
+        if(o.toString().equals("true") || o.toString().equals("false")){
+            return o.toString().equals("true");
+        }
+        throw new IllegalArgumentException("Cannot convert " + o + " to a boolean!");
     }
 
     @Override
