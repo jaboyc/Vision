@@ -4,6 +4,7 @@ import com.jlogical.vision.compiler.Compiler;
 import com.jlogical.vision.compiler.Input;
 import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.exceptions.VisionException;
+import com.jlogical.vision.compiler.script.Variable;
 import com.jlogical.vision.compiler.script.elements.Command;
 import com.jlogical.vision.project.CodeRange;
 import com.jlogical.vision.project.Project;
@@ -341,6 +342,10 @@ public class ExpressionValue implements Value {
 
     @Override
     public Object getValue() throws VisionException {
+        Variable variable = Variable.findVariable(text, commandHolder.getCBlockHolder(), commandHolder.getHatHolder());
+        if(variable != null){
+            return variable.getValue();
+        }
         return calc(text);
     }
 

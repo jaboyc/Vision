@@ -1,9 +1,5 @@
 when started
-    set [x] to ( -2 * 2)
-    print (x)
-    if (x < 0 & sin of (x) < 10)
-        print [if]
-    else
-        print [else]
-    end
+    set [angle-r] to (pi/4)
+    set [angle-d] to ((angle-r) to degrees)
+    print (angle-d)
 end
