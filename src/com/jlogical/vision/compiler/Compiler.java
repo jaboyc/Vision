@@ -217,6 +217,7 @@ public class Compiler {
             case '[':
                 return new TextValue(val, input.getRange(), commandHolder, project);
             case '(':
+                val = val.trim();
                 if (looksNumeric(val)) {
                     try {
                         double d = Double.parseDouble(val);
@@ -240,6 +241,7 @@ public class Compiler {
                 }
                 throw new CompilerException("Value '" + input.getText() + "' cannot be found!", "invalid value", input.getRange());
             case '{':
+                val = val.trim();
             default:
                 return null;
         }
@@ -358,7 +360,7 @@ public class Compiler {
         ArrayList<String> split = splitFile(vfile);
         for (int i = 0; i < split.size(); i++) {
             String line = split.get(i);
-            if (line.trim().isEmpty() || line.startsWith("#")) {
+            if (line.trim().isEmpty() || line.trim().startsWith("#")) {
                 continue;
             }
             output.add(toLine(line, i + 1, vfile, project));
@@ -378,9 +380,13 @@ public class Compiler {
         ArrayList<String> output = new ArrayList<>();
         String currLine = "";
         for (int i = 0; i < vfile.getCode().length(); i++) {
-            char c = vfile.getCode().charAt(i);
-            if (c == '\n' || c == '\r') {
-                output.add(currLine.trim());
+            char curr = vfile.getCode().charAt(i);
+            char next = i + 1 == vfile.getCode().length() ? '_' : vfile.getCode().charAt(i + 1);
+
+            if (curr == '\\' && (next == '\n' || next == '\r')) { // Multi-lined command.
+                i += 2;
+            } else if ((curr == '\n' || curr == '\r')) {
+                output.add(currLine);
                 currLine = "";
             } else {
                 currLine += vfile.getCode().charAt(i);
@@ -428,8 +434,6 @@ public class Compiler {
         int cIndex = 0; //Index for {}
 
         boolean inString = false;
-        boolean inSimpleInterpolation = false; //The type of the current interpolation.
-        boolean interpolationStart = false; //Whether the last character was a # and inside a text.
         boolean hadInterpolation = false; //Whether this element had interpolation. If so, make the input type '#' instead of '['.
         for (int i = 0; i < element.length(); i++) {
             char c = element.charAt(i);
@@ -527,6 +531,8 @@ public class Compiler {
         if (cIndex > 0) {
             throw new CompilerException("There are more '{' than '}' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
+
+        core = core.trim().replaceAll(" +", " ");
         return new Pair<>(core, inputs);
     }
 }

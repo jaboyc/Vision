@@ -5,5 +5,17 @@ when started
     set [x] to (3 * -2)
 
     # We then print the value of 'x' to the console.
+    print ( x )
+
+    # Change the value of 'x', and print it again.
+    set [x] to ( \
+        1+2-3+ \
+        4-5+6 \
+    )
     print (x)
+
+    print \
+        ( \
+          3 \
+          )
 end

@@ -1,0 +1,7 @@
+when started
+    #print [Nothing!]
+    print \
+    ( \
+      3 \
+      )
+end
