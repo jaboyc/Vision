@@ -96,6 +96,11 @@ public class CodeRange {
         throw new UnsupportedOperationException("Error with between method.");
     }
 
+    /**
+     * Creates a code range that only includes the given code location.
+     * @param location the CodeLocation to model the CodeRange from.
+     * @return the CodeRange.
+     */
     public static CodeRange fromCodeLocation(CodeLocation location){
         return CodeRange.between(location, location);
     }

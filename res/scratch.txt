@@ -1,4 +1,4 @@
 when started
-    set [x] to (3+2)
-    print (x*3)
+    set [x] to (3*-2)
+    print (-3*- x)
 end

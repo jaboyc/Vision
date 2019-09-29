@@ -29,11 +29,6 @@ public class ExpressionValue implements Value {
     private Command commandHolder;
 
     /**
-     * The Project this value is in.
-     */
-    private Project project;
-
-    /**
      * List of Values in this ExpressionValue.
      */
     private ArrayList<Value> values;
@@ -41,12 +36,11 @@ public class ExpressionValue implements Value {
     /**
      * Creates a new ExpressionValue with the given text, range, commandHolder, and project.
      */
-    public ExpressionValue(String text, ArrayList<Value> values, CodeRange range, Command commandHolder, Project project){
+    public ExpressionValue(String text, ArrayList<Value> values, CodeRange range, Command commandHolder){
         this.text = text;
         this.values = values;
         this.range = range;
         this.commandHolder = commandHolder;
-        this.project = project;
     }
 
     @Override
@@ -55,11 +49,15 @@ public class ExpressionValue implements Value {
         for(Value value : values){
             newText = newText.substring(0, value.getRange().getCharStart()) + value.getValue() + newText.substring(value.getRange().getCharEnd());
         }
-        return Calc.calc(newText, range);
+        return Calc.calc(newText, this);
     }
 
     @Override
     public CodeRange getRange() {
         return range;
+    }
+
+    public Command getCommandHolder() {
+        return commandHolder;
     }
 }

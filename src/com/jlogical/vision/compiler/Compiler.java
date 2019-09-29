@@ -231,7 +231,7 @@ public class Compiler {
                         return reporter;
                     }
                     if (!split.getSecond().isEmpty() || split.getFirst().matches(".*[+\\-*/^<>=].*")) {
-                        return new ExpressionValue(input.getText(), toValues(split.getSecond(), commandHolder, project), input.getRange(), commandHolder, project);
+                        return new ExpressionValue(input.getText(), toValues(split.getSecond(), commandHolder, project), input.getRange(), commandHolder);
                     }
                     return new VariableValue(val, input.getRange(), commandHolder);
                 } catch (CompilerException e) {

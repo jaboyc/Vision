@@ -65,9 +65,9 @@ public class CompilerTest {
         assertEquals(compileAndRun("res/helloworld.txt"), "Hello World");
         assertEquals(compileAndRun("res/variable1.txt"),  "Hello World");
         assertEquals(compileAndRun("res/variable2.txt"),  "5.0");
-        assertEquals(compileAndRun("res/variable3.txt"),  "5.0");
+        assertEquals(compileAndRun("res/variable3.txt"),  "5.0\n14.0");
         assertEquals(compileAndRun("res/operators1.txt"), "5.0\n5.0\n5.0");
-        assertEquals(compileAndRun("res/operators2.txt"), "false\ntrue\n5.0");
+        assertEquals(compileAndRun("res/operators2.txt"), "false\ntrue\n5.0\n5.0\n5.0");
         assertEquals(compileAndRun("res/control1.txt"),   "3");
         assertEquals(compileAndRun("res/control2.txt"), "1\n2\n3");
         assertEquals(compileAndRun("res/string_interpolation1.txt"), "Hello World");

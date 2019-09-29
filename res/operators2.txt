@@ -2,4 +2,6 @@ when started
     print (((45) < (4)) and ((5) > (3)))
     print ((not ((5) >= (5))) or ((5.0000) = (5)))
     print (if ([test] = [test]) then (5) else (3))
+    print (1+2*2)
+    print (-2*4 + 13+-0)
 end

@@ -3,4 +3,6 @@ when started
     set global [x] to (3)
     set [x] to ((x) + (value of global [x]))
     print (x)
+
+    print (2*x+4)
 end
