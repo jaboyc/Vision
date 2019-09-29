@@ -89,12 +89,12 @@ public class Calc {
                 }
             }else if((index = indexOf(elements, "+", "-")) != -1){
                 String s = elements.get(index).toString();
-                if(s.equals("+")){ //Multiply
+                if(s.equals("+")){ //Add
                     ArrayList<Double> nums = checkNum(elements, range, index, -1, 1);
                     elements.set(index-1, nums.get(0) + nums.get(1));
                     elements.remove(index);
                     elements.remove(index);
-                } else if (s.equals("-")) { //Divide
+                } else if (s.equals("-")) { //Subtract
                     ArrayList<Double> nums = checkNum(elements, range, index, -1, 1);
                     elements.set(index-1, nums.get(0) - nums.get(1));
                     elements.remove(index);
