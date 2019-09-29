@@ -358,7 +358,7 @@ public class Compiler {
         ArrayList<String> split = splitFile(vfile);
         for (int i = 0; i < split.size(); i++) {
             String line = split.get(i);
-            if (line.trim().isEmpty()) {
+            if (line.trim().isEmpty() || line.startsWith("#")) {
                 continue;
             }
             output.add(toLine(line, i + 1, vfile, project));

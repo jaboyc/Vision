@@ -1,4 +1,9 @@
+# This code executes when the project is run.
 when started
-    set [x] to (3*-2)
-    print (-3*- x)
+
+    # We first create a variable named 'x', and set its value to -6.
+    set [x] to (3 * -2)
+
+    # We then print the value of 'x' to the console.
+    print (x)
 end
