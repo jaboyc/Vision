@@ -7,10 +7,6 @@ import com.jlogical.vision.project.CodeRange;
  */
 public class CompilerException extends Exception {
 
-    /**
-     * The type of the exception. Used for differentiating between different types of CompilerExceptions.
-     */
-    String type;
 
     /**
      * The range of where the error occured.
@@ -22,15 +18,11 @@ public class CompilerException extends Exception {
      *
      * @param message the message of the exception.
      */
-    public CompilerException(String message, String type, CodeRange range) {
+    public CompilerException(String message, CodeRange range) {
         super(message + "(@ " + range + ")");
-        this.type = type;
         this.range = range;
     }
 
-    public String getType() {
-        return type;
-    }
 
     public CodeRange getRange() {
         return range;

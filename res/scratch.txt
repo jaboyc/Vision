@@ -1,16 +1,8 @@
 # This code executes when the project is run.
 when started
 
-    # We first create a variable named 'x', and set its value to -6.
-    set [x] to (3 * -2)
+end
 
-    # We then print the value of 'x' to the console.
-    print ( x )
+define command print
 
-    # Change the value of 'x', and print it again.
-    set [x] to ( \
-        1+2-3+ \
-        4-5+6 \
-    )
-    print (x)
 end

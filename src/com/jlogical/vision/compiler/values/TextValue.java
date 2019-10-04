@@ -34,18 +34,18 @@ public class TextValue implements Value {
     private Command commandHolder;
 
     /**
-     * The Project the TextValue is in.
+     * The Compiler the TextValue was compiled with. Used to generate values for interpolation.
      */
-    private Project project;
+    private Compiler compiler;
 
     /**
      * Creates a new TextValue with a given value, range, command.
      */
-    public TextValue(String value, CodeRange range, Command commandHolder, Project project) {
+    public TextValue(String value, CodeRange range, Command commandHolder, Compiler compiler) {
         this.value = value != null ? value : "";
         this.range = range;
         this.commandHolder = commandHolder;
-        this.project = project;
+        this.compiler = compiler;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class TextValue implements Value {
                         throw new VisionException("Value in text interpolation cannot be blank!", getRange());
                     }
                     try {
-                        Value v = Compiler.toValue(new Input(currVar, getRange(), '('), commandHolder, project);
+                        Value v = compiler.toValue(new Input(currVar, getRange(), '('), commandHolder);
                         output += v.getValue().toString() + c;
                     } catch (CompilerException e) {
                         throw new VisionException(e.getMessage(), getRange());
@@ -87,7 +87,7 @@ public class TextValue implements Value {
                 throw new VisionException("Value in text interpolation cannot be blank!", getRange());
             }
             try {
-                Value v = Compiler.toValue(new Input(currVar, getRange(), '('), commandHolder, project);
+                Value v = compiler.toValue(new Input(currVar, getRange(), '('), commandHolder);
                 output += v.getValue().toString();
             } catch (CompilerException e) {
                 throw new VisionException(e.getMessage(), getRange());

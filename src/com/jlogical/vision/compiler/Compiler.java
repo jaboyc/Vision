@@ -4,6 +4,8 @@ import com.jlogical.vision.api.elements.CustomCBlock;
 import com.jlogical.vision.api.elements.CustomCommand;
 import com.jlogical.vision.api.elements.CustomHat;
 import com.jlogical.vision.api.elements.CustomReporter;
+import com.jlogical.vision.compiler.definitions.DefineTemplate;
+import com.jlogical.vision.compiler.definitions.DefinedCommand;
 import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.compiler.script.elements.*;
@@ -24,7 +26,37 @@ import java.util.Stack;
  */
 public class Compiler {
 
+    /**
+     * Array of keywords that cannot be used in variable names.
+     */
     private static final String[] KEYWORDS = {"end", "define", "with", "as", "for", "new"};
+
+    /**
+     * The project that is currently being compiled.
+     */
+    private Project project;
+
+    /**
+     * A list of the lines that are being compiled.
+     */
+    private ArrayList<Line> lines;
+
+    /**
+     * A list of the definition templates discovered.
+     */
+    private ArrayList<DefineTemplate> defineTemplates;
+
+    /**
+     * The script that is currently being created and will be returned.
+     */
+    private Script script;
+
+    /**
+     * Creates a compiler that will compile the given project.
+     */
+    private Compiler(Project project) {
+        this.project = project;
+    }
 
     /**
      * Compiles a Project.
@@ -32,6 +64,15 @@ public class Compiler {
      * @return the Script when fully compiled. Returns a failed script if there was an error.
      */
     public static Script compile(Project project) {
+        return new Compiler(project).compile();
+    }
+
+    /**
+     * Compiles a Project.
+     *
+     * @return the Script when fully compiled. Returns a failed script if there was an error.
+     */
+    private Script compile() {
         if (project == null) {
             return Script.failedScript("The Project provided did not have any code.");
         }
@@ -39,9 +80,9 @@ public class Compiler {
             return Script.failedScript("The Project provided did not have any code.");
         }
         try {
-            ArrayList<Line> lines = precompile(project);
-
-            Script script = compileLines(lines, project);
+            precompile();
+            findDefinitions();
+            compileLines();
             postCompile();
             return script;
         } catch (CompilerException e) {
@@ -54,27 +95,42 @@ public class Compiler {
      * Does everything necessary for the actual compilation.
      * Converts all the VisionFiles into Lines, and merges them together.
      *
-     * @param project the Project it is currently compiling.
      * @throws CompilerException if there was an imbalance in one of the lines.
      */
-    private static ArrayList<Line> precompile(Project project) throws CompilerException {
-        ArrayList<Line> lines = new ArrayList<>();
+    private void precompile() throws CompilerException {
+        lines = new ArrayList<>();
         for (VisionFile vfile : project.getFiles()) {
-            lines.addAll(toLines(vfile, project));
+            lines.addAll(toLines(vfile));
         }
+    }
 
-        return lines;
+    /**
+     * Finds all "define" hats and converts them into DefineTemplates. Returns a list of the found templates.
+     */
+    private void findDefinitions() throws CompilerException {
+        defineTemplates = new ArrayList<>();
+
+        for (Line line : lines) {
+            if (line.getCode().startsWith("define command ")) {
+                if (line.getCode().equals("define command ")) {
+                    throw new CompilerException("'define command' needs a name to go along with it!", line.getRange());
+                }
+
+                String commandCore = line.getCore().substring("define command ".length());
+
+                defineTemplates.add(new DefinedCommand(commandCore));
+            }
+        }
     }
 
     /**
      * Converts all the Lines into a Script.
      *
-     * @param lines the ArrayList of Lines for where to compile from.
      * @return the Script.
      * @throws CompilerException if an exception has occurred.
      */
-    private static Script compileLines(ArrayList<Line> lines, Project project) throws CompilerException {
-        Script script = Script.blank();
+    private void compileLines() throws CompilerException {
+        script = Script.blank();
 
         ArrayList<Hat> hats = new ArrayList<>();
         Hat currHat = null;
@@ -83,13 +139,13 @@ public class Compiler {
         int index = 0;
         for (Line line : lines) {
             if (index == 0) {
-                currHat = toHat(line, project, script);
+                currHat = toHat(line);
                 hats.add(currHat);
                 index++;
             } else if (index > 0) {
-                Command command = toCommand(line, currHat, currCBlock, project);
+                Command command = toCommand(line, currHat, currCBlock);
                 if (currHat == null) {
-                    throw new CompilerException("Cannot compile a Command without a Hat!", "error", line.getRange());
+                    throw new CompilerException("Cannot compile a Command without a Hat!", line.getRange());
                 }
                 if (currCBlock != null) {
                     currCBlock.getCommands().add(command);
@@ -118,28 +174,28 @@ public class Compiler {
                     currCBlock = cblock;
                 }
             } else {
-                throw new CompilerException("There are more 'end's than Hats or CBlocks!", "end imbalance", line.getRange());
+                throw new CompilerException("There are more 'end's than Hats or CBlocks!", line.getRange());
             }
         }
         if (index > 0) {
-            throw new CompilerException("There are not enough 'end's!", "end imbalance", lines.get(lines.size() - 1).getRange());
+            throw new CompilerException("There are not enough 'end's!", lines.get(lines.size() - 1).getRange());
         }
         script.setHats(hats);
         script.setCompileLog("");
-        return script;
     }
 
     /**
      * Converts the Line to a Hat.
      *
-     * @param line    the Line to convert.
-     * @param project the Project it is currently compiling.
-     * @param script  the Script that it is currently making.
+     * @param line the Line to convert.
      * @return the Hat.
      * @throws CompilerException if the Hat is not valid.
      */
-    private static Hat toHat(Line line, Project project, Script script) throws CompilerException {
+    private Hat toHat(Line line) throws CompilerException {
         if (containsKeyword(line.getCore())) {
+            if (line.getCode().startsWith("define command ")) {
+
+            }
             throw new IllegalArgumentException("Hat cannot contain a keyword!");
         } else {
             for (CustomHat hat : project.getHats()) {
@@ -148,7 +204,7 @@ public class Compiler {
                 }
             }
         }
-        throw new CompilerException(line.getCode() + " is not a valid Hat!", "invalid code", line.getRange());
+        throw new CompilerException(line.getCode() + " is not a valid Hat!", line.getRange());
     }
 
     /**
@@ -157,11 +213,10 @@ public class Compiler {
      * @param line         the Line to compile.
      * @param hatHolder    the Hat that will hold the Command.
      * @param cblockHolder the CBlock that will hold the Command. Null if none.
-     * @param project      the Project it is currently compiling.
      * @return the Command.
      * @throws CompilerException if the Command is not valid.
      */
-    private static Command toCommand(Line line, Hat hatHolder, CBlock cblockHolder, Project project) throws CompilerException {
+    private Command toCommand(Line line, Hat hatHolder, CBlock cblockHolder) throws CompilerException {
         if (containsKeyword(line.getCore())) {
             if (line.getCode().equals("end")) {
                 return new End(line);
@@ -170,19 +225,19 @@ public class Compiler {
         for (CustomCommand command : project.getCommands()) {
             if (coreEquals(command.getCore(), line.getCore())) {
                 Command c = new Command(command, null, line, hatHolder, cblockHolder);
-                c.setValues(toValues(line.getInputs(), c, project));
+                c.setValues(toValues(line.getInputs(), c));
                 return c;
             }
         }
         for (CustomCBlock cblock : project.getCBlocks()) {
             if (coreEquals(cblock.getCore(), line.getCore())) {
                 CBlock c = new CBlock(cblock, null, line, hatHolder, null, cblockHolder, null);
-                c.setValues(toValues(line.getInputs(), c, project));
+                c.setValues(toValues(line.getInputs(), c));
                 return c;
             }
         }
 
-        throw new CompilerException(line.getCode() + " is not a valid Command!", "invalid code", line.getRange());
+        throw new CompilerException(line.getCode() + " is not a valid Command!", line.getRange());
     }
 
     /**
@@ -190,14 +245,13 @@ public class Compiler {
      *
      * @param inputs        the inputs to convert.
      * @param commandHolder the Command that is holding the Values.
-     * @param project       the Project it is currently compiling.
      * @return a List of Values. Never will be null.
      * @throws CompilerException if any of the Values produce an error when compiling.
      */
-    private static ArrayList<Value> toValues(ArrayList<Input> inputs, Command commandHolder, Project project) throws CompilerException {
+    private ArrayList<Value> toValues(ArrayList<Input> inputs, Command commandHolder) throws CompilerException {
         ArrayList<Value> values = new ArrayList<>();
         for (Input input : inputs) {
-            values.add(toValue(input, commandHolder, project));
+            values.add(toValue(input, commandHolder));
         }
         return values;
     }
@@ -207,15 +261,14 @@ public class Compiler {
      *
      * @param input         the input to convert.
      * @param commandHolder the Command that is holding the Value.
-     * @param project       the Project it is currently compiling.
      * @return the Value.
      * @throws CompilerException if the given input cannot be converted to any value.
      */
-    public static Value toValue(Input input, Command commandHolder, Project project) throws CompilerException {
+    public Value toValue(Input input, Command commandHolder) throws CompilerException {
         String val = input.getText();
         switch (input.getType()) {
             case '[':
-                return new TextValue(val, input.getRange(), commandHolder, project);
+                return new TextValue(val, input.getRange(), commandHolder, this);
             case '(':
                 val = val.trim();
                 if (looksNumeric(val)) {
@@ -227,19 +280,19 @@ public class Compiler {
                 }
                 try {
                     Pair<String, ArrayList<Input>> split = splitElement(val, input.getRange().startLocation());
-                    Reporter reporter = toReporter(split.getFirst(), split.getSecond(), commandHolder, input.getRange(), project);
+                    Reporter reporter = toReporter(split.getFirst(), split.getSecond(), commandHolder, input.getRange());
                     if (reporter != null) {
                         return reporter;
                     }
                     if (!split.getSecond().isEmpty() || split.getFirst().matches(".*[+\\-*/^<>=].*")) {
-                        return new ExpressionValue(input.getText(), toValues(split.getSecond(), commandHolder, project), input.getRange(), commandHolder);
+                        return new ExpressionValue(input.getText(), toValues(split.getSecond(), commandHolder), input.getRange(), commandHolder);
                     }
                     return new VariableValue(val, input.getRange(), commandHolder);
                 } catch (CompilerException e) {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                throw new CompilerException("Value '" + input.getText() + "' cannot be found!", "invalid value", input.getRange());
+                throw new CompilerException("Value '" + input.getText() + "' cannot be found!", input.getRange());
             case '{':
                 val = val.trim();
             default:
@@ -254,17 +307,16 @@ public class Compiler {
      * @param inputs        the inputs of the reporter.
      * @param commandHolder the Command that is holding the Reporter.
      * @param range         the Range of the Reporter.
-     * @param project       the Project it is currently compiling.
      * @return the Reporter if successfully able to find the CustomReporter. Null otherwise.
      * @throws CompilerException if any of the inputs contain produce an error when compiling.
      */
-    private static Reporter toReporter(String core, ArrayList<Input> inputs, Command commandHolder, CodeRange range, Project project) throws CompilerException {
+    private Reporter toReporter(String core, ArrayList<Input> inputs, Command commandHolder, CodeRange range) throws CompilerException {
         if (containsKeyword(core)) {
 
         }
         for (CustomReporter reporter : project.getReporters()) {
             if (coreEquals(reporter.getCore(), core)) {
-                return new Reporter(reporter, toValues(inputs, commandHolder, project), commandHolder, range);
+                return new Reporter(reporter, toValues(inputs, commandHolder), commandHolder, range);
             }
         }
         return null;
@@ -340,19 +392,18 @@ public class Compiler {
     /**
      * Does everything post compilation related.
      */
-    private static void postCompile() {
+    private void postCompile() {
 
     }
 
     /**
      * Converts the given Project into an ArrayList of Lines.
      *
-     * @param vfile   the VisionFile to convert to lines.
-     * @param project the Project it is currently compiling.
+     * @param vfile the VisionFile to convert to lines.
      * @return the converted ArrayList. Null if text is null.
      * @throws CompilerException if a Line is off balance.
      */
-    private static ArrayList<Line> toLines(VisionFile vfile, Project project) throws CompilerException {
+    private ArrayList<Line> toLines(VisionFile vfile) throws CompilerException {
         if (vfile == null) {
             return null;
         }
@@ -363,7 +414,7 @@ public class Compiler {
             if (line.trim().isEmpty() || line.trim().startsWith("#")) {
                 continue;
             }
-            output.add(toLine(line, i + 1, vfile, project));
+            output.add(toLine(line, i + 1, vfile));
         }
         return output;
     }
@@ -402,11 +453,10 @@ public class Compiler {
      * @param line    the line to convert.
      * @param lineNum the line number of the given line.
      * @param vfile   the VisionFile the line is found in.
-     * @param project the Project it is currently compiling.
      * @return the Line. Null if line is null.
      * @throws CompilerException if a Line is off balance.
      */
-    private static Line toLine(String line, int lineNum, VisionFile vfile, Project project) throws CompilerException {
+    private Line toLine(String line, int lineNum, VisionFile vfile) throws CompilerException {
         if (line == null) {
             return null;
         }
@@ -449,36 +499,36 @@ public class Compiler {
                     if (inputTypes.isEmpty()) { //Error. Too many closing parameters.
                         switch (c) {
                             case ']':
-                                throw new CompilerException("There are more ']' than '[' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                                throw new CompilerException("There are more ']' than '[' in this line.", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                             case ')':
                                 pIndex--;
                             case '}':
                                 cIndex--;
                         }
                         if (pIndex < 0) {
-                            throw new CompilerException("There are more ')' than '(' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                            throw new CompilerException("There are more ')' than '(' in this line.", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                         }
                         if (cIndex < 0) {
-                            throw new CompilerException("There are more '}' than '{' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                            throw new CompilerException("There are more '}' than '{' in this line.", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                         }
                     }
                     char lastInputType = inputTypes.pop();
                     switch (c) {
                         case ']':
                             if (lastInputType != '[') {
-                                throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with ]", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                                throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with ]", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                             }
                             break;
                         case '}':
                             cIndex--;
                             if (lastInputType != '{') {
-                                throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with }", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                                throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with }", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                             }
                             break;
                         case ')':
                             pIndex--;
                             if (lastInputType != '(') {
-                                throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with )", "parameter mismatch", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                                throw new CompilerException("Parameters must match one another. Cannot have " + lastInputType + " matched with )", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                             }
                             break;
                     }
@@ -487,7 +537,7 @@ public class Compiler {
                         inputs.add(new Input(currInput, new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), i - currInput.length(), location.getLineNum(), i - 1), hadInterpolation ? '#' : lastInputType));
                         currInput = null;
                     } else if (index < 0) {
-                        throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without an opening parameter ('[', '(', or '{') first.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+                        throw new CompilerException("Cannot have a closing parameter (']', ')', or '}') without an opening parameter ('[', '(', or '{') first.", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
                     }
                 }
                 if (index == 0) {
@@ -517,19 +567,19 @@ public class Compiler {
 
         }
         if (index == 0 && !(pIndex == 0 && cIndex == 0)) {
-            throw new CompilerException("Something strange happened with the index of this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+            throw new CompilerException("Something strange happened with the index of this line.", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (pIndex < 0) {
-            throw new CompilerException("There are more ')' than '(' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+            throw new CompilerException("There are more ')' than '(' in this line.", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (cIndex < 0) {
-            throw new CompilerException("There are more '}' than '{' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+            throw new CompilerException("There are more '}' than '{' in this line.", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (pIndex > 0) {
-            throw new CompilerException("There are more '(' than ')' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+            throw new CompilerException("There are more '(' than ')' in this line.", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
         if (cIndex > 0) {
-            throw new CompilerException("There are more '{' than '}' in this line.", "line imbalance", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
+            throw new CompilerException("There are more '{' than '}' in this line.", new CodeRange(location.getProject(), location.getFile(), location.getLineNum(), location.getCharNum(), location.getLineNum(), location.getCharNum() + element.length()));
         }
 
         core = core.trim().replaceAll(" +", " ");
