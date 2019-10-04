@@ -30,6 +30,16 @@ public class Hat extends CompiledElement<CustomHat> {
     private ArrayList<Variable> variables;
 
     /**
+     * The output of the hat. Used when defining reporters.
+     */
+    private Object output;
+
+    /**
+     * Whether this hat is running. If set to false during run(), stops the hat from running.
+     */
+    private boolean running;
+
+    /**
      * Creates a new Hat with a core.
      */
     public Hat(CustomHat hat, Script script) {
@@ -37,6 +47,7 @@ public class Hat extends CompiledElement<CustomHat> {
         this.script = script;
         this.commands = new ArrayList<>();
         this.variables = new ArrayList<>();
+        running = false;
     }
 
     /**
@@ -53,9 +64,14 @@ public class Hat extends CompiledElement<CustomHat> {
      * @throws VisionException if there is an error running any of the Commands in the Hat.
      */
     public void run() throws VisionException {
+        running = true;
         for(Command command:commands){
+            if(!running){
+                return;
+            }
             command.run();
         }
+        running = false;
     }
 
     public Script getScript() {
@@ -82,7 +98,22 @@ public class Hat extends CompiledElement<CustomHat> {
         return CodeRange.between(commands.get(0).getRange().startLocation(), commands.get(commands.size() - 1).getRange().endLocation());
     }
 
+    /**
+     * Stops the hat from continuing to run.
+     */
+    public void stop(){
+        running = false;
+    }
+
     public ArrayList<Variable> getVariables() {
         return variables;
+    }
+
+    public Object getOutput() {
+        return output;
+    }
+
+    public void setOutput(Object output) {
+        this.output = output;
     }
 }

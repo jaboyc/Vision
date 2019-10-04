@@ -83,6 +83,10 @@ public class CoreAPI extends API {
             }
         });
 
+        addCommand("return []", p->{
+           p.getHatHolder().setOutput(p.get(0));
+           p.getHatHolder().stop();
+        });
 
     }
 

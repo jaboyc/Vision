@@ -6,6 +6,7 @@ import com.jlogical.vision.api.elements.CustomHat;
 import com.jlogical.vision.api.elements.CustomReporter;
 import com.jlogical.vision.compiler.definitions.DefineTemplate;
 import com.jlogical.vision.compiler.definitions.DefinedCommand;
+import com.jlogical.vision.compiler.definitions.DefinedReporter;
 import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.compiler.script.elements.*;
@@ -118,6 +119,13 @@ public class Compiler {
 
                 String commandCore = line.getCore().substring("define command ".length());
                 defineTemplates.add(new DefinedCommand(line, commandCore));
+            } else if(line.getCode().startsWith("define reporter ")){
+                if (line.getCode().equals("define reporter ")) {
+                    throw new CompilerException("'define reporter' needs a name to go along with it!", line.getRange());
+                }
+
+                String reporterCore = line.getCore().substring("define reporter ".length());
+                defineTemplates.add(new DefinedReporter(line, reporterCore));
             }
         }
     }
@@ -196,14 +204,26 @@ public class Compiler {
 
                 for(DefineTemplate dt: defineTemplates){
                     if(dt.getLine() == line){
-                        DefinedCommand dc = (DefinedCommand) dt;
-                        if(dc.getHat() != null){
-                            throw new CompilerException("Cannot define the same command multiple times!", line.getRange());
-                        }
 
                         Hat hat = Hat.defineTemplateHat(script);
-                        dc.setHat(hat);
-                        dc.parseVariableNames(line.getInputs());
+
+                        if(dt instanceof DefinedCommand){
+                            DefinedCommand dc = (DefinedCommand) dt;
+                            if(dc.getHat() != null){
+                                throw new CompilerException("Cannot define the same command multiple times!", line.getRange());
+                            }
+
+                            dc.setHat(hat);
+                            dc.parseVariableNames(line.getInputs());
+                        }else if(dt instanceof  DefinedReporter){
+                            DefinedReporter dr = (DefinedReporter) dt;
+                            if(dr.getHat() != null){
+                                throw new CompilerException("Cannot define the same reporter multiple times!", line.getRange());
+                            }
+
+                            dr.setHat(hat);
+                            dr.parseVariableNames(line.getInputs());
+                        }
 
                         return hat;
                     }
@@ -341,6 +361,16 @@ public class Compiler {
         for (CustomReporter reporter : project.getReporters()) {
             if (coreEquals(reporter.getCore(), core)) {
                 return new Reporter(reporter, toValues(inputs, commandHolder), commandHolder, range);
+            }
+        }
+        for (DefineTemplate dt : defineTemplates){
+            if(dt instanceof DefinedReporter){
+                DefinedReporter dc = (DefinedReporter) dt;
+                if(dc.getCore().equals(core)){
+                    Reporter c = Reporter.definedReporter(dc, null, commandHolder, range);
+                    c.setValues(toValues(inputs, commandHolder));
+                    return c;
+                }
             }
         }
         return null;

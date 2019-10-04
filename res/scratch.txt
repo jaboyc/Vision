@@ -1,14 +1,13 @@
 # This code executes when the project is run.
 when started
-    greet [Jake]
-    print multiply (3) (5)
+    print (greet [Jake])
+    print (square (3))
 end
 
-#Prints a greeting to the given name.
-define command greet [name]
-    print [Hello, #name!]
+define reporter greet [name]
+    return [Hello #name!]
 end
 
-define command print multiply (x) (y)
-    print (x*y)
+define reporter square (num)
+    return (num*num)
 end
