@@ -1,7 +1,8 @@
 when started
     set [x] to (2)
-    set global [x] to (3)
-    set [x] to ((x) + (value of global [x]))
+    set global [x] to (2)
+    change global [x] by (1)
+    set [x] to ((value of [x]) + (value of global [x]))
     print (x)
 
     print (2*x+4)

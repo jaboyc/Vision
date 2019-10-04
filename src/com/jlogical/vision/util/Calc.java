@@ -15,13 +15,12 @@ public class Calc {
     /**
      * Calculates the value of the expression and returns it.
      *
-     * @param text  the text to solve.
-     * @param value the ExpressionValue that is calling this function. Used for determining range and finding variables.
+     * @param value the ExpressionValue that is calling this function. Used for getting text, determining range, and finding variables.
      * @return the value. Null if none.
      * @throws VisionException if there was an error calculating the value.
      */
-    public static Object calc(String text, ExpressionValue value) throws VisionException {
-        ArrayList<Object> elements = parse(text, value);
+    public static Object calc(ExpressionValue value) throws VisionException {
+        ArrayList<Object> elements = parse(value);
         adjust(elements);
         return solve(elements, value);
     }
@@ -29,12 +28,13 @@ public class Calc {
     /**
      * Splits the given text and parses it to a List of elements.
      *
-     * @param text  the text to parse.
      * @param value the ExpressionValue that is calling this function.
      * @return the List of objects.
-     * @throws VisionException if there was an error parsing the text.
      */
-    private static ArrayList<Object> parse(String text, ExpressionValue value) throws VisionException {
+    private static ArrayList<Object> parse(ExpressionValue value)  {
+
+        String text = value.getText(); // The text of the equation.
+
         ArrayList<Object> elements = new ArrayList<>();
         String currInput = "";
 

@@ -1,13 +1,14 @@
 import com.jlogical.vision.compiler.Compiler;
+import com.jlogical.vision.compiler.exceptions.CompilerException;
 import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.project.Project;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CompilerTest {
 
@@ -59,6 +60,8 @@ public class CompilerTest {
         assertTrue(compile("res/string_interpolation3.txt"));
         assertTrue(compile("res/compiler_sugar.txt"));
 
+
+
     }
 
     @Test
@@ -75,6 +78,10 @@ public class CompilerTest {
         assertEquals(compileAndRun("res/string_interpolation2.txt"), "pi="+Math.PI+". e="+Math.E);
         assertEquals(compileAndRun("res/string_interpolation3.txt"), "#3+2=5#");
         assertEquals(compileAndRun("res/compiler_sugar.txt"), "3.0");
+    }
 
+    @Test
+    public void testExceptions(){
+        assertFalse(compile("res/compiler_exception.txt"));
     }
 }

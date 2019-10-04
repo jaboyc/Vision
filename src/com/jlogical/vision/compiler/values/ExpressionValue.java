@@ -49,7 +49,7 @@ public class ExpressionValue implements Value {
         for(Value value : values){
             newText = newText.substring(0, value.getRange().getCharStart()) + value.getValue() + newText.substring(value.getRange().getCharEnd());
         }
-        return Calc.calc(newText, this);
+        return Calc.calc(this);
     }
 
     @Override
@@ -59,5 +59,9 @@ public class ExpressionValue implements Value {
 
     public Command getCommandHolder() {
         return commandHolder;
+    }
+
+    public String getText() {
+        return text;
     }
 }

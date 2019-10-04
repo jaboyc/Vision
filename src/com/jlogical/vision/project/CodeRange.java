@@ -128,20 +128,8 @@ public class CodeRange {
         return project;
     }
 
-    public VisionFile getFile() {
-        return file;
-    }
-
-    public int getLineStart() {
-        return lineStart;
-    }
-
     public int getCharStart() {
         return charStart;
-    }
-
-    public int getLineEnd() {
-        return lineEnd;
     }
 
     public int getCharEnd() {

@@ -145,7 +145,7 @@ public class CodeLocation {
     @Override
     public String toString() {
         if (project == null) {
-            return "nowhere";
+            return "Nowhere";
         }
         if (file == null) {
             return project.getName();

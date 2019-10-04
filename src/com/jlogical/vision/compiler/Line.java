@@ -2,8 +2,6 @@ package com.jlogical.vision.compiler;
 
 import com.jlogical.vision.project.CodeLocation;
 import com.jlogical.vision.project.CodeRange;
-import com.jlogical.vision.util.Pair;
-import com.jlogical.vision.util.Triplet;
 
 import java.util.ArrayList;
 

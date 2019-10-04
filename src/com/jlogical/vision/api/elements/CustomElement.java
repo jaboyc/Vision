@@ -32,11 +32,6 @@ public abstract class CustomElement {
         this.api = api;
     }
 
-
-    public API getApi() {
-        return api;
-    }
-
     public String getCore() {
         return core;
     }

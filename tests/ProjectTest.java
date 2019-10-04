@@ -1,10 +1,13 @@
+import com.jlogical.vision.compiler.exceptions.FileFormatException;
 import com.jlogical.vision.project.Project;
 import com.jlogical.vision.project.VisionFile;
 import org.junit.*;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ProjectTest {
 
@@ -49,6 +52,15 @@ public class ProjectTest {
         assertEquals(openProject.getFiles().get(0).getCode(), "code");
 
         file.delete();
+    }
+
+    @Test
+    public void testIncorrectSave(){
+        File file = new File("res/fail.txt");
+
+        Project project = Project.blank("testIncorrectSave");
+        project.getFiles().add(new VisionFile("name", "code"));
+        assertThrows(FileFormatException.class, () -> project.save(file));
     }
 
 }

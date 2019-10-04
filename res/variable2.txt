@@ -3,5 +3,5 @@ when started
     set [y] to (2)
     set [x] to (y)
     change [x] by (3)
-    print (x)
+    print (value of [x])
 end

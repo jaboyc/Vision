@@ -21,8 +21,6 @@ import java.util.Stack;
 
 /**
  * Compiles a Project into a Script.
- * <p>
- * //TODO During precompile, check for vertical line imbalance. We do not want an error saying 'print []' is not a valid Hat! Should instead say 'There are more 'end's than hats and CBlocks'!
  */
 public class Compiler {
 
@@ -42,6 +40,7 @@ public class Compiler {
         }
         try {
             ArrayList<Line> lines = precompile(project);
+
             Script script = compileLines(lines, project);
             postCompile();
             return script;
@@ -63,6 +62,7 @@ public class Compiler {
         for (VisionFile vfile : project.getFiles()) {
             lines.addAll(toLines(vfile, project));
         }
+
         return lines;
     }
 

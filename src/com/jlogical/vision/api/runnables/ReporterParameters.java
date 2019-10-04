@@ -24,10 +24,6 @@ public class ReporterParameters extends Parameters<Reporter> {
         this.commandHolder = commandHolder;
     }
 
-    public Command getCommandHolder() {
-        return commandHolder;
-    }
-
     public CBlock getCBlockHolder(){
         return commandHolder.getCBlockHolder();
     }
