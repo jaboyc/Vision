@@ -216,7 +216,7 @@ public abstract class Parameters<T extends CompiledElement> {
         return range;
     }
 
-    T getElement() {
+    public T getElement() {
         return element;
     }
 }

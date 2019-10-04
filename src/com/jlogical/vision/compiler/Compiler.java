@@ -117,8 +117,7 @@ public class Compiler {
                 }
 
                 String commandCore = line.getCore().substring("define command ".length());
-
-                defineTemplates.add(new DefinedCommand(commandCore));
+                defineTemplates.add(new DefinedCommand(line, commandCore));
             }
         }
     }
@@ -193,14 +192,29 @@ public class Compiler {
      */
     private Hat toHat(Line line) throws CompilerException {
         if (containsKeyword(line.getCore())) {
-            if (line.getCode().startsWith("define command ")) {
+            if (line.getCode().startsWith("define ")) {
 
+                for(DefineTemplate dt: defineTemplates){
+                    if(dt.getLine() == line){
+                        DefinedCommand dc = (DefinedCommand) dt;
+                        if(dc.getHat() != null){
+                            throw new CompilerException("Cannot define the same command multiple times!", line.getRange());
+                        }
+
+                        Hat hat = Hat.defineTemplateHat(script);
+                        dc.setHat(hat);
+                        dc.parseVariableNames(line.getInputs());
+
+                        return hat;
+                    }
+                }
+                throw new CompilerException("Could not find the given definition: " + line.getCode(), line.getRange());
             }
             throw new IllegalArgumentException("Hat cannot contain a keyword!");
         } else {
             for (CustomHat hat : project.getHats()) {
                 if (coreEquals(hat.getCore(), line.getCore())) {
-                    return new Hat(hat, null, script);
+                    return new Hat(hat, script);
                 }
             }
         }
@@ -234,6 +248,16 @@ public class Compiler {
                 CBlock c = new CBlock(cblock, null, line, hatHolder, null, cblockHolder, null);
                 c.setValues(toValues(line.getInputs(), c));
                 return c;
+            }
+        }
+        for (DefineTemplate dt : defineTemplates){
+            if(dt instanceof DefinedCommand){
+                DefinedCommand dc = (DefinedCommand) dt;
+                if(dc.getCore().equals(line.getCore())){
+                    Command c = Command.definedCommand(dc, null, line, hatHolder, cblockHolder);
+                    c.setValues(toValues(line.getInputs(), c));
+                    return c;
+                }
             }
         }
 

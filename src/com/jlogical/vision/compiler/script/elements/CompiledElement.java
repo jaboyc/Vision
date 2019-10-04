@@ -39,7 +39,7 @@ public abstract class CompiledElement<T extends CustomElement> {
      * @return the core of the template.
      */
     public String getCore() {
-        return template.getCore();
+        return template == null ? "" : template.getCore();
     }
 
     public T getTemplate() {

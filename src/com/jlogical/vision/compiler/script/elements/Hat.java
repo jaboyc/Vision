@@ -30,13 +30,21 @@ public class Hat extends CompiledElement<CustomHat> {
     private ArrayList<Variable> variables;
 
     /**
-     * Creates a new Hat with a core and a List of Commands.
+     * Creates a new Hat with a core.
      */
-    public Hat(CustomHat hat, ArrayList<Command> commands, Script script) {
+    public Hat(CustomHat hat, Script script) {
         super(hat, null);
-        this.commands = commands != null ? commands : new ArrayList<>();
         this.script = script;
+        this.commands = new ArrayList<>();
         this.variables = new ArrayList<>();
+    }
+
+    /**
+     * Returns a special hat that is for custom definitions of commands and reporters.
+     * @return the hat.
+     */
+    public static Hat defineTemplateHat(Script script){
+        return new Hat(null, script);
     }
 
     /**
