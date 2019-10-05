@@ -59,9 +59,7 @@ public class CompilerTest {
         assertTrue(compile("res/string_interpolation2.txt"));
         assertTrue(compile("res/string_interpolation3.txt"));
         assertTrue(compile("res/compiler_sugar.txt"));
-
-
-
+        assertTrue(compile("res/definitions.txt"));
     }
 
     @Test
@@ -78,6 +76,7 @@ public class CompilerTest {
         assertEquals(compileAndRun("res/string_interpolation2.txt"), "pi="+Math.PI+". e="+Math.E);
         assertEquals(compileAndRun("res/string_interpolation3.txt"), "#3+2=5#");
         assertEquals(compileAndRun("res/compiler_sugar.txt"), "3.0");
+        assertEquals(compileAndRun("res/definitions.txt"), "1.0\nHello Jake\n0.0\n9.0");
     }
 
     @Test

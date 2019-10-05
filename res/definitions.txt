@@ -1,0 +1,22 @@
+when started
+    number
+    greet [Jake]
+    print (zero)
+    print (square (3))
+end
+
+define command number
+    print (1)
+end
+
+define command greet [name]
+    print [Hello #name]
+end
+
+define reporter zero
+    return (0)
+end
+
+define reporter square (num)
+    return (num^2)
+end
