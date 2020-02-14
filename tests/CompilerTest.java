@@ -60,23 +60,25 @@ public class CompilerTest {
         assertTrue(compile("res/string_interpolation3.txt"));
         assertTrue(compile("res/compiler_sugar.txt"));
         assertTrue(compile("res/definitions.txt"));
+        assertTrue(compile("res/list.txt"));
     }
 
     @Test
     public void testProjects() throws VisionException{
         assertEquals(compileAndRun("res/helloworld.txt"), "Hello World");
         assertEquals(compileAndRun("res/variable1.txt"),  "Hello World");
-        assertEquals(compileAndRun("res/variable2.txt"),  "5.0");
-        assertEquals(compileAndRun("res/variable3.txt"),  "5.0\n14.0");
-        assertEquals(compileAndRun("res/operators1.txt"), "5.0\n5.0\n5.0");
-        assertEquals(compileAndRun("res/operators2.txt"), "false\ntrue\n5.0\n5.0\n5.0");
+        assertEquals(compileAndRun("res/variable2.txt"),  "5");
+        assertEquals(compileAndRun("res/variable3.txt"),  "5\n14");
+        assertEquals(compileAndRun("res/operators1.txt"), "5\n5\n5");
+        assertEquals(compileAndRun("res/operators2.txt"), "false\ntrue\n5\n5\n5");
         assertEquals(compileAndRun("res/control1.txt"),   "3");
         assertEquals(compileAndRun("res/control2.txt"), "1\n2\n3");
         assertEquals(compileAndRun("res/string_interpolation1.txt"), "Hello World");
         assertEquals(compileAndRun("res/string_interpolation2.txt"), "pi="+Math.PI+". e="+Math.E);
         assertEquals(compileAndRun("res/string_interpolation3.txt"), "#3+2=5#");
-        assertEquals(compileAndRun("res/compiler_sugar.txt"), "3.0");
-        assertEquals(compileAndRun("res/definitions.txt"), "1.0\nHello Jake\n0.0\n9.0");
+        assertEquals(compileAndRun("res/compiler_sugar.txt"), "3");
+        assertEquals(compileAndRun("res/definitions.txt"), "1\nHello Jake\n0\n9");
+        assertEquals(compileAndRun("res/list.txt"), "1\n2\n10\n6\n6\nfalse\ntrue\n2\n5\n0\ntrue");
     }
 
     @Test

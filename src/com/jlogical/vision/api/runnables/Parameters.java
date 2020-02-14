@@ -9,6 +9,7 @@ import com.jlogical.vision.compiler.values.Value;
 import com.jlogical.vision.project.CodeRange;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Stores information regarding parameters of running a command. Needs to be concrete based on the type of Element running it.
@@ -39,7 +40,7 @@ public abstract class Parameters<T extends CompiledElement> {
      * Creates a Parameters with a given List of Values.
      */
     public Parameters(T element, ArrayList<Value> values, Hat hat, CodeRange range) {
-        if(element == null){
+        if (element == null) {
             throw new IllegalArgumentException("Element cannot be null!");
         }
         this.element = element;
@@ -76,7 +77,13 @@ public abstract class Parameters<T extends CompiledElement> {
         if (value == null) {
             throw new VisionException("A Value cannot be null!", range);
         }
-        return value.getValue();
+        Object o = value.getValue();
+        if (o instanceof Double) {
+            Double d = (Double) o;
+            if (d == (int) d.doubleValue())
+                return (int) d.doubleValue();
+        }
+        return o;
     }
 
     /**
@@ -198,6 +205,29 @@ public abstract class Parameters<T extends CompiledElement> {
             }
         }
         throw new VisionException("Cannot convert '" + val + "' to a boolean!", range);
+    }
+
+    /**
+     * Returns the list of the value at the given index.
+     *
+     * @param index the index of the value.
+     * @return the List representation of the value.
+     * @throws VisionException if the index is negative, too big, or cannot be converted to a List.
+     */
+    public List list(int index) throws VisionException {
+        return toList(get(index));
+    }
+
+    /**
+     * Returns the given value as a List. Used as a util command.
+     *
+     * @param val the value to convert.
+     * @return the List representation of the value.
+     * @throws VisionException if the value cannot be converted to a List.
+     */
+    public List toList(Object val) throws VisionException {
+        if (val instanceof List) return (List) val;
+        throw new VisionException("Cannot convert '" + val + "' to a list!", range);
     }
 
     public Script getScript() {

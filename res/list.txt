@@ -1,0 +1,26 @@
+when started
+    set [l] to (list)
+    for every [x] up to (5)
+        for (l) add (x)
+    end
+    for (l) set index (2) to (10)
+    for (l) add (2) at index (2)
+
+    print (for (l) get (1))
+    print (for (l) get (2))
+    print (for (l) get (3))
+    print (for (l) size)
+    print (for (l) index of (5))
+    print (for (l) is empty)
+    print (for (l) contains (4))
+
+    for (l) remove index (1)
+
+    print (for (l) get (1))
+    print (for (l) size)
+
+    for (l) clear
+
+    print (for (l) size)
+    print (for (l) is empty)
+end

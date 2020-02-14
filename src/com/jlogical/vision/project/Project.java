@@ -6,6 +6,7 @@ import com.jlogical.vision.api.elements.CustomCommand;
 import com.jlogical.vision.api.elements.CustomHat;
 import com.jlogical.vision.api.elements.CustomReporter;
 import com.jlogical.vision.api.system.CoreAPI;
+import com.jlogical.vision.api.system.collection.CollectionsAPI;
 import com.jlogical.vision.compiler.exceptions.FileFormatException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -67,7 +68,7 @@ public class Project {
     private Project(String name, ArrayList<VisionFile> files, ArrayList<API> apis) {
         this.name = name != null ? name : "empty";
         this.files = files != null ? files : new ArrayList<>();
-        this.apis = apis != null ? apis : new ArrayList<>(Arrays.asList(new CoreAPI(this)));
+        this.apis = apis != null ? apis : new ArrayList<>(Arrays.asList(new CoreAPI(this), new CollectionsAPI(this)));
         commands = new ArrayList<>();
         reporters = new ArrayList<>();
         hats = new ArrayList<>();
@@ -123,14 +124,14 @@ public class Project {
      * @return the Project. Null if the file is null, not found, or not in a .txt file.
      * @throws IOException if there was an error opening the file.
      */
-    public static Project fromTextFile(File file, String name) throws IOException{
-        if(file == null || !file.exists() || !file.getPath().endsWith(".txt")){
+    public static Project fromTextFile(File file, String name) throws IOException {
+        if (file == null || !file.exists() || !file.getPath().endsWith(".txt")) {
             return null;
         }
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String code = "";
         String line;
-        while((line = reader.readLine()) != null){
+        while ((line = reader.readLine()) != null) {
             code += line + "\n";
         }
         return new Project(name, new ArrayList<>(Arrays.asList(new VisionFile("main", code))), null);
@@ -144,7 +145,7 @@ public class Project {
      * @return the Project. Null if the path is null, not found, or not a .txt file.
      * @throws IOException if there was an error opening the file.
      */
-    public static Project fromTextFile(String path, String name) throws IOException{
+    public static Project fromTextFile(String path, String name) throws IOException {
         if (path == null || path.isEmpty()) {
             return null;
         }
@@ -254,6 +255,7 @@ public class Project {
 
     /**
      * Adds an API to the Projects APIs and sorts it.
+     *
      * @param api the API to add.
      */
     public void addAPI(API api) {
@@ -299,6 +301,7 @@ public class Project {
 
     /**
      * Returns the APIs. Do not use this to add APIs. Use .addAPI() instead in order to sort the CustomElements into the Project.
+     *
      * @return the APIs.
      */
     public ArrayList<API> getApis() {

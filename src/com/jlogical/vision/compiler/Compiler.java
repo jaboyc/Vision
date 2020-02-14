@@ -38,12 +38,12 @@ public class Compiler {
     private Project project;
 
     /**
-     * A list of the lines that are being compiled.
+     * A collection of the lines that are being compiled.
      */
     private ArrayList<Line> lines;
 
     /**
-     * A list of the definition templates discovered.
+     * A collection of the definition templates discovered.
      */
     private ArrayList<DefineTemplate> defineTemplates;
 
@@ -106,7 +106,7 @@ public class Compiler {
     }
 
     /**
-     * Finds all "define" hats and converts them into DefineTemplates. Returns a list of the found templates.
+     * Finds all "define" hats and converts them into DefineTemplates. Returns a collection of the found templates.
      */
     private void findDefinitions() throws CompilerException {
         defineTemplates = new ArrayList<>();
@@ -394,8 +394,8 @@ public class Compiler {
      */
     private static boolean containsKeyword(String core) {
         String[] split = core.split(" "); //Splits up the line's code into separate words.
-        List<String> splitList = new ArrayList<>(Arrays.asList(split)); //Converts the array into a list.
-        splitList.retainAll(Arrays.asList(KEYWORDS)); //Intersects the first list with the keywords list.
+        List<String> splitList = new ArrayList<>(Arrays.asList(split)); //Converts the array into a collection.
+        splitList.retainAll(Arrays.asList(KEYWORDS)); //Intersects the first collection with the keywords collection.
         return !splitList.isEmpty(); //Returns if the splitList has anything inside it, meaning there was a match.
     }
 
