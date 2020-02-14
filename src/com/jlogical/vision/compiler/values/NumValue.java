@@ -27,6 +27,8 @@ public class NumValue implements Value {
 
     @Override
     public Object getValue() {
+        if (value == (int) value)
+            return (int) value;
         return value;
     }
 

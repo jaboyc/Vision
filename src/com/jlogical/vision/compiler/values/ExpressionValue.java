@@ -49,7 +49,13 @@ public class ExpressionValue implements Value {
         for(Value value : values){
             newText = newText.substring(0, value.getRange().getCharStart()) + value.getValue() + newText.substring(value.getRange().getCharEnd());
         }
-        return Calc.calc(this);
+        Object o = Calc.calc(this);
+        if (o instanceof Double) {
+            Double d = (Double) o;
+            if (d == (int) d.doubleValue())
+                return (int) d.doubleValue();
+        }
+        return o;
     }
 
     @Override
