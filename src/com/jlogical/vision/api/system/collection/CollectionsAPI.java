@@ -23,8 +23,20 @@ public class CollectionsAPI extends API {
      * Adds all the commands and reporters for lists.
      */
     private void listCommands() {
+
+        // Constructors
         addReporter("new list", p -> new ArrayList());
         addReporter("list", p -> new ArrayList());
+        addReporter("list []>>", p->{
+            ArrayList list = new ArrayList();
+            for(int i=0;i<p.getValues().size();i++) list.add(p.get(i));
+            return list;
+        });
+        addReporter("[]>>", p->{
+            ArrayList list = new ArrayList();
+            for(int i=0;i<p.getValues().size();i++) list.add(p.get(i));
+            return list;
+        });
 
         // Commands
         addCommand("for () set index [] to []", p -> p.list(0).set(p.numInt(1)-1, p.get(2)));

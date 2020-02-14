@@ -1,13 +1,5 @@
-# This code executes when the project is run.
 when started
-    print (greet [Jake])
-    print (square (3))
-end
+    set [x] to ([1])
 
-define reporter greet [name]
-    return [Hello #name!]
-end
-
-define reporter square (num)
-    return (num*num)
+    print (x)
 end

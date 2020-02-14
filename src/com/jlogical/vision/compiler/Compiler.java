@@ -119,7 +119,7 @@ public class Compiler {
 
                 String commandCore = line.getCore().substring("define command ".length());
                 defineTemplates.add(new DefinedCommand(line, commandCore));
-            } else if(line.getCode().startsWith("define reporter ")){
+            } else if (line.getCode().startsWith("define reporter ")) {
                 if (line.getCode().equals("define reporter ")) {
                     throw new CompilerException("'define reporter' needs a name to go along with it!", line.getRange());
                 }
@@ -202,22 +202,22 @@ public class Compiler {
         if (containsKeyword(line.getCore())) {
             if (line.getCode().startsWith("define ")) {
 
-                for(DefineTemplate dt: defineTemplates){
-                    if(dt.getLine() == line){
+                for (DefineTemplate dt : defineTemplates) {
+                    if (dt.getLine() == line) {
 
                         Hat hat = Hat.defineTemplateHat(script);
 
-                        if(dt instanceof DefinedCommand){
+                        if (dt instanceof DefinedCommand) {
                             DefinedCommand dc = (DefinedCommand) dt;
-                            if(dc.getHat() != null){
+                            if (dc.getHat() != null) {
                                 throw new CompilerException("Cannot define the same command multiple times!", line.getRange());
                             }
 
                             dc.setHat(hat);
                             dc.parseVariableNames(line.getInputs());
-                        }else if(dt instanceof  DefinedReporter){
+                        } else if (dt instanceof DefinedReporter) {
                             DefinedReporter dr = (DefinedReporter) dt;
-                            if(dr.getHat() != null){
+                            if (dr.getHat() != null) {
                                 throw new CompilerException("Cannot define the same reporter multiple times!", line.getRange());
                             }
 
@@ -270,10 +270,10 @@ public class Compiler {
                 return c;
             }
         }
-        for (DefineTemplate dt : defineTemplates){
-            if(dt instanceof DefinedCommand){
+        for (DefineTemplate dt : defineTemplates) {
+            if (dt instanceof DefinedCommand) {
                 DefinedCommand dc = (DefinedCommand) dt;
-                if(dc.getCore().equals(line.getCore())){
+                if (dc.getCore().equals(line.getCore())) {
                     Command c = Command.definedCommand(dc, null, line, hatHolder, cblockHolder);
                     c.setValues(toValues(line.getInputs(), c));
                     return c;
@@ -363,10 +363,10 @@ public class Compiler {
                 return new Reporter(reporter, toValues(inputs, commandHolder), commandHolder, range);
             }
         }
-        for (DefineTemplate dt : defineTemplates){
-            if(dt instanceof DefinedReporter){
+        for (DefineTemplate dt : defineTemplates) {
+            if (dt instanceof DefinedReporter) {
                 DefinedReporter dc = (DefinedReporter) dt;
-                if(dc.getCore().equals(core)){
+                if (dc.getCore().equals(core)) {
                     Reporter c = Reporter.definedReporter(dc, null, commandHolder, range);
                     c.setValues(toValues(inputs, commandHolder));
                     return c;
@@ -409,37 +409,53 @@ public class Compiler {
     private static boolean coreEquals(String perfect, String test) {
         int pIndex = 0; //Current index of perfect.
         int tIndex = 0; //Current index of test.
+        boolean inMultiParam = false; // Whether it's currently inside of a multiple parameter section.
         while (pIndex < perfect.length() && tIndex < test.length()) {
             char pChar = perfect.charAt(pIndex);
             char tChar = test.charAt(tIndex);
 
-            switch (pChar) {
-                case '[':
-                    if (!(tChar == '[' || tChar == '(' || tChar == '{')) { //Can be any parameter.
-                        return false;
-                    }
-                    break;
-                case '(':
-                    if (tChar != '(') { //Can only be objects.
-                        return false;
-                    }
-                case '{':
-                    if (!(tChar == '{' || tChar == '(')) { //Can be statements or a reference to a statement.
-                        return false;
-                    }
-                case ']':
-                case ')':
-                case '}':
-                    break;
-                default:
-                    if (tChar != pChar) {
-                        return false;
-                    }
-            }
+            // If inside of multi parameter section, keep looping.
+            // If test has any characters except for a space or brackets,
+            //    return false since it cannot have any more characters than the parameter section.
+            if (inMultiParam) {
+                if (!(tChar == ' ' || tChar == '[' || tChar == ']' || tChar == '(' || tChar == ')' || tChar == '{' || tChar == '}'))
+                    return false;
+                tIndex++;
+            } else {
+                switch (pChar) {
+                    case '[':
+                        if (!(tChar == '[' || tChar == '(' || tChar == '{')) { //Can be any parameter.
+                            return false;
+                        }
+                        break;
+                    case '(':
+                        if (tChar != '(') { //Can only be objects.
+                            return false;
+                        }
+                    case '{':
+                        if (!(tChar == '{' || tChar == '(')) { //Can be statements or a reference to a statement.
+                            return false;
+                        }
+                    case ']':
+                        // Check if the next inputs are '>>', indicating a multi parameter section.
+                        if (pIndex < perfect.length() - 2 && perfect.charAt(pIndex + 1) == '>' && perfect.charAt(pIndex + 2) == '>')
+                            inMultiParam = true;
+                    case ')':
+                    case '}':
+                        break;
+                    default:
+                        if (tChar != pChar) {
+                            return false;
+                        }
+                }
 
-            pIndex++;
-            tIndex++;
+                pIndex++;
+                tIndex++;
+            }
         }
+
+        if(inMultiParam) return true; // If the multi param passed through the end, it works.
+
         return pIndex == perfect.length() && tIndex == test.length();
     }
 
