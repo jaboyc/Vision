@@ -48,7 +48,7 @@ public class Variable {
                         return variable;
                     }
                 }
-            }while((look = cblock.getCBlockHolder()) != null);
+            }while((look = look.getCBlockHolder()) != null);
         }
         for(Variable variable: hat.getVariables()){
             if(name.equals(variable.getName())){

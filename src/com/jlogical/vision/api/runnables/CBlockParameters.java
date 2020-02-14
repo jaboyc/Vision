@@ -25,6 +25,13 @@ public class CBlockParameters extends CommandParameters<CBlock> {
         getCBlock().runLoop();
     }
 
+    /**
+     * @return whether the cblock should stop or not.
+     */
+    public boolean shouldStop() {
+        return !getCBlock().isRunning();
+    }
+
     public CBlock getCBlock(){
         return getElement();
     }

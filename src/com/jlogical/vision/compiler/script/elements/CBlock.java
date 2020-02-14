@@ -29,8 +29,12 @@ public class CBlock extends Command<CustomCBlock> {
     private ArrayList<Variable> variables;
 
     /**
+     * Whether the CBlock is running.
+     */
+    private boolean running = false;
+
+    /**
      * Creates a new CompiledElement with a core, template, values, and line.
-     *
      */
     public CBlock(CustomCBlock template, ArrayList<Value> values, Line line, Hat hatHolder, ArrayList<Command> commands, CBlock cblockHolder, CBlock chain) {
         super(template, values, line, hatHolder, cblockHolder);
@@ -43,7 +47,9 @@ public class CBlock extends Command<CustomCBlock> {
      * Runs the commands inside this CBlock.
      */
     public void run() throws VisionException {
+        running = true;
         getTemplate().getRunnable().run(new CBlockParameters(this, getValues(), getHatHolder(), getRange(), getCBlockHolder()));
+        running = false;
     }
 
     /**
@@ -51,10 +57,19 @@ public class CBlock extends Command<CustomCBlock> {
      *
      * @throws VisionException if any of the Commands have an exception when running.
      */
-    public void runLoop() throws VisionException{
-        for(Command command : getCommands()){
+    public void runLoop() throws VisionException {
+        running = true;
+        for (Command command : getCommands()) {
             command.run();
+            if (!running) return;
         }
+    }
+
+    /**
+     * Stops the loop.
+     */
+    public void stop() {
+        running = false;
     }
 
     public ArrayList<Command> getCommands() {
@@ -75,6 +90,10 @@ public class CBlock extends Command<CustomCBlock> {
 
     public ArrayList<Variable> getVariables() {
         return variables;
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
     @Override

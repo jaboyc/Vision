@@ -20,7 +20,7 @@ public class ReporterParameters extends Parameters<Reporter> {
      * Creates a Parameters with a given List of Values.
      */
     public ReporterParameters(Reporter reporter, ArrayList<Value> values, Command commandHolder, CodeRange range) {
-        super(reporter, values, commandHolder.getHatHolder(), range);
+        super(reporter, values, commandHolder.getHatHolder(), commandHolder.getCBlockHolder(), range);
         this.commandHolder = commandHolder;
     }
 

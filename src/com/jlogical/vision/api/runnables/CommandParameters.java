@@ -22,7 +22,7 @@ public class CommandParameters<T extends Command> extends Parameters<T>{
      * Creates a Parameters with a given List of Values.
      */
     public CommandParameters(T command, ArrayList<Value> values, Hat hatHolder, CodeRange range, CBlock cblockHolder) {
-        super(command, values, hatHolder, range);
+        super(command, values, hatHolder, cblockHolder, range);
         this.cblockHolder = cblockHolder;
     }
 

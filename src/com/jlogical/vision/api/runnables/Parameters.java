@@ -3,6 +3,7 @@ package com.jlogical.vision.api.runnables;
 
 import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.script.Script;
+import com.jlogical.vision.compiler.script.elements.CBlock;
 import com.jlogical.vision.compiler.script.elements.CompiledElement;
 import com.jlogical.vision.compiler.script.elements.Hat;
 import com.jlogical.vision.compiler.values.Value;
@@ -32,6 +33,11 @@ public abstract class Parameters<T extends CompiledElement> {
     private Hat hatHolder;
 
     /**
+     * The CBlock that the Parameters are in. Null if not present.
+     */
+    private CBlock cblockHolder;
+
+    /**
      * The range that this Parameter is covering. Used for exception throwing.
      */
     private CodeRange range;
@@ -39,13 +45,14 @@ public abstract class Parameters<T extends CompiledElement> {
     /**
      * Creates a Parameters with a given List of Values.
      */
-    public Parameters(T element, ArrayList<Value> values, Hat hat, CodeRange range) {
+    public Parameters(T element, ArrayList<Value> values, Hat hat, CBlock cBlock, CodeRange range) {
         if (element == null) {
             throw new IllegalArgumentException("Element cannot be null!");
         }
         this.element = element;
         this.values = values != null ? values : new ArrayList<>();
         this.hatHolder = hat;
+        this.cblockHolder = cBlock;
         this.range = range;
     }
 
@@ -57,6 +64,29 @@ public abstract class Parameters<T extends CompiledElement> {
      */
     public void err(String message) throws VisionException {
         throw new VisionException(message, range);
+    }
+
+
+    /**
+     * Returns out of the hat with the given return value.
+     * @param returnValue the value to return from the hat.
+     */
+    public void hatReturn(Object returnValue){
+        CBlock cBlock = cblockHolder;
+        while(cBlock != null){
+            cBlock.stop();
+            cBlock = cBlock.getCBlockHolder();
+        }
+
+        hatHolder.setOutput(returnValue);
+        hatHolder.stop();
+    }
+
+    /**
+     * Stops the most enclosed loop.
+     */
+    public void stopLoop(){
+        cblockHolder.stop();
     }
 
     /**

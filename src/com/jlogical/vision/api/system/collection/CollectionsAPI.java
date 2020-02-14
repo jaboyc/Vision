@@ -61,6 +61,8 @@ public class CollectionsAPI extends API {
             List list = p.list(1);
 
             for (Object o : list) {
+                if(p.shouldStop()) return;
+
                 variable.setValue(o);
                 p.runLoop();
             }

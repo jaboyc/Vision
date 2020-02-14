@@ -1,10 +1,14 @@
 package com.jlogical.vision.api.system;
 
 import com.jlogical.vision.api.API;
+import com.jlogical.vision.api.runnables.CBlockParameters;
 import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.script.Variable;
 import com.jlogical.vision.project.Project;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Scanner;
 
 /**
@@ -22,6 +26,7 @@ public class CoreAPI extends API {
         controlCommands();
         variableCommands();
         mathLogicCommands();
+        stringCommands();
     }
 
     /**
@@ -42,12 +47,11 @@ public class CoreAPI extends API {
         // Reporters
         addReporter("ask []", p -> {
             String output = p.str(0);
-            System.out.println(output);
+            System.out.print(output);
             p.getScript().appendOutputLog(output);
 
             Scanner scanner = new Scanner(System.in);
             String input = scanner.nextLine();
-
             p.getScript().appendOutputLog(input);
 
             return input;
@@ -76,6 +80,7 @@ public class CoreAPI extends API {
         addCBlock("else", p -> p.runLoop());
         addCBlock("repeat []", p -> {
             for (int i = 0; i < p.numInt(0); i++) {
+                if(p.shouldStop()) return;
                 p.runLoop();
             }
         });
@@ -83,6 +88,7 @@ public class CoreAPI extends API {
             Variable variable = new Variable(p.str(0), 0);
             p.getCBlock().getVariables().add(variable);
             for (int i = 1; i <= p.numInt(1); i++) {
+                if(p.shouldStop()) return;
                 variable.setValue(i);
                 p.runLoop();
             }
@@ -90,19 +96,26 @@ public class CoreAPI extends API {
         });
         addCBlock("while []", p -> {
             while (p.bool(0)) {
+                if(p.shouldStop()) return;
+                p.runLoop();
+            }
+        });
+        addCBlock("forever", p->{
+            while(true){
+                if(p.shouldStop()) return;
                 p.runLoop();
             }
         });
         addCBlock("repeat until []", p -> {
             while (!p.bool(0)) {
+                if(p.shouldStop()) return;
                 p.runLoop();
             }
         });
 
-        addCommand("return []", p -> {
-            p.getHatHolder().setOutput(p.get(0));
-            p.getHatHolder().stop();
-        });
+        addCommand("return []", p -> p.hatReturn(p.get(0)));
+        addCommand("return", p-> p.hatReturn(null));
+        addCommand("stop loop", p-> p.stopLoop());
 
     }
 
@@ -184,7 +197,7 @@ public class CoreAPI extends API {
         addReporter("random from [] to []", p -> {
             double min = Math.min(p.num(0), p.num(1));
             double max = Math.max(p.num(0), p.num(1));
-            return Math.random() * (max - min) + max;
+            return Math.random() * (max - min) + min;
         });
         addReporter("round []", p -> Math.round(p.num(0)));
         addReporter("floor []", p -> Math.floor(p.num(0)));
@@ -209,6 +222,13 @@ public class CoreAPI extends API {
             }
             return p.str(0).equals(p.str(1));
         });
+        addReporter("[] != []", p->{
+            try {
+                return p.num(0) != p.num(1);
+            } catch (Exception e) {
+            }
+            return !p.str(0).equals(p.str(1));
+        });
         addReporter("[] < []", p -> p.num(0) < p.num(1));
         addReporter("[] > []", p -> p.num(0) > p.num(1));
         addReporter("[] <= []", p -> p.num(0) <= p.num(1));
@@ -224,6 +244,22 @@ public class CoreAPI extends API {
 
         addReporter("if [] then [] else []", p -> p.bool(0) ? p.get(1) : p.get(2));
         addReporter("nothing", p -> null);
+    }
 
+    /**
+     * Adds the commands and reporters for strings.
+     */
+    private void stringCommands(){
+        addReporter("length of []", p->p.str(0).length());
+        addReporter("letter [] of []", p->p.str(1).charAt(p.numInt(0)-1));
+        addReporter("join []>>", p->{
+            StringBuilder stringBuilder = new StringBuilder();
+            for(int i=0;i<p.getValues().size();i++){
+                stringBuilder.append(p.str(i));
+            }
+            return stringBuilder.toString();
+        });
+        addReporter("[] to uppercase", p->p.str(0).toUpperCase());
+        addReporter("[] to lowercase", p->p.str(0).toLowerCase());
     }
 }

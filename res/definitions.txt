@@ -17,6 +17,6 @@ define reporter zero
     return (0)
 end
 
-define reporter square (num)
+define reporter square [num]
     return (num^2)
 end

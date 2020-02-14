@@ -1,0 +1,8 @@
+when started
+    set [s] to [Hello World]
+
+    print (length of (s))
+    print (letter (1) of (s))
+    print (join [Hello][ ][World][!])
+    print (join [s: ](s))
+end

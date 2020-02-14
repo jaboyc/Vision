@@ -1,0 +1,62 @@
+when started
+    init
+
+    # Continue the game until you run out of health.
+    while ((health) > (0))
+        print game
+        set [guess] to (get guess)
+        process (guess)
+    end
+end
+
+# Prints the game to the screen.
+define command print game
+    set [out] to []
+    for every [i] up to (length of (display))
+        set [char] to (letter (i) of (display))
+        set [out] to (join (out)(char)[ ])
+    end
+    print (out)
+    print [Health: #health]
+end
+
+# Processes the given guess.
+define command process [guess]
+
+end
+
+# Returns a one letter guess that hasn't been guessed before.
+define reporter get guess
+    forever
+        set [guess] to ((ask [Guess a letter: ]) to lowercase)
+
+        # Error checking on the guess.
+        if ((length of (guess)) != (1))
+            print [Your guess can only have one letter!]
+        else if (not (for (alphabet) contains (guess)))
+            print [Your guess must be a letter in the alphabet!]
+        else if (for (guessed letters) contains (guess))
+            print [You have already guessed that letter!]
+        else
+            # If the guess is valid, return it.
+            return (guess)
+        end
+    end
+end
+
+# Initializes all the global variables.
+define command init
+
+    # Initialize the answer and the displayed word
+    set [word choices] to ([APPLE][BANANA][GRAPE])
+    set global [answer] to (for (word choices) get (random from (1) to (for (word choices) size)))
+    set global [display] to []
+    for every [i] up to (length of (answer))
+        set [display] to (join (display)[_])
+    end
+
+    # Initialize other variables.
+    set global [health] to (6)
+    set global [guessed letters] to (list)
+    set global [alphabet] to ([a][b][c][d][e][f][g][h][i][j][k][l][m][n][o][p][q][r][s][t][u][v][w][x][y][z])
+end

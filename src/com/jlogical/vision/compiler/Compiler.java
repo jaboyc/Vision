@@ -273,7 +273,7 @@ public class Compiler {
         for (DefineTemplate dt : defineTemplates) {
             if (dt instanceof DefinedCommand) {
                 DefinedCommand dc = (DefinedCommand) dt;
-                if (dc.getCore().equals(line.getCore())) {
+                if (coreEquals(dc.getCore(), line.getCore())) {
                     Command c = Command.definedCommand(dc, null, line, hatHolder, cblockHolder);
                     c.setValues(toValues(line.getInputs(), c));
                     return c;
@@ -366,7 +366,7 @@ public class Compiler {
         for (DefineTemplate dt : defineTemplates) {
             if (dt instanceof DefinedReporter) {
                 DefinedReporter dc = (DefinedReporter) dt;
-                if (dc.getCore().equals(core)) {
+                if (coreEquals(dc.getCore(), core)) {
                     Reporter c = Reporter.definedReporter(dc, null, commandHolder, range);
                     c.setValues(toValues(inputs, commandHolder));
                     return c;

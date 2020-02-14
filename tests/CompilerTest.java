@@ -61,6 +61,7 @@ public class CompilerTest {
         assertTrue(compile("res/compiler_sugar.txt"));
         assertTrue(compile("res/definitions.txt"));
         assertTrue(compile("res/list.txt"));
+        assertTrue(compile("res/string.txt"));
     }
 
     @Test
@@ -79,6 +80,7 @@ public class CompilerTest {
         assertEquals(compileAndRun("res/compiler_sugar.txt"), "3");
         assertEquals(compileAndRun("res/definitions.txt"), "1\nHello Jake\n0\n9");
         assertEquals(compileAndRun("res/list.txt"), "1\n2\n10\n6\n6\nfalse\ntrue\n2\n5\n0\ntrue\n1\n3\n6");
+        assertEquals(compileAndRun("res/string.txt"), "11\nH\nHello World!\ns: Hello World");
     }
 
     @Test
