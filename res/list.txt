@@ -23,4 +23,15 @@ when started
 
     print (for (l) size)
     print (for (l) is empty)
+
+    set [l] to ([1][2][3])
+
+    print (for (l) get (1))
+    print (for (l) size)
+
+    set [sum] to (0)
+    for each [x] in (l)
+        change [sum] by (x)
+    end
+    print (sum)
 end

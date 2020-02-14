@@ -78,7 +78,7 @@ public class CompilerTest {
         assertEquals(compileAndRun("res/string_interpolation3.txt"), "#3+2=5#");
         assertEquals(compileAndRun("res/compiler_sugar.txt"), "3");
         assertEquals(compileAndRun("res/definitions.txt"), "1\nHello Jake\n0\n9");
-        assertEquals(compileAndRun("res/list.txt"), "1\n2\n10\n6\n6\nfalse\ntrue\n2\n5\n0\ntrue");
+        assertEquals(compileAndRun("res/list.txt"), "1\n2\n10\n6\n6\nfalse\ntrue\n2\n5\n0\ntrue\n1\n3\n6");
     }
 
     @Test
