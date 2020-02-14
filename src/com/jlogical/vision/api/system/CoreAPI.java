@@ -9,6 +9,7 @@ import com.jlogical.vision.project.Project;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -195,9 +196,18 @@ public class CoreAPI extends API {
         addReporter("sqrt of []", p -> Math.sqrt(p.num(0)));
         addReporter("[] root of []", p -> Math.pow(p.num(1), 1 / p.num(0)));
         addReporter("random from [] to []", p -> {
-            double min = Math.min(p.num(0), p.num(1));
-            double max = Math.max(p.num(0), p.num(1));
-            return Math.random() * (max - min) + min;
+            // If both numbers are integers, random inclusive of integers.
+            if(p.num(0) == p.numInt(0) && p.num(1) == p.numInt(1)){
+                Random random = new Random();
+                int min = Math.min(p.numInt(0), p.numInt(1));
+                int max = Math.max(p.numInt(0), p.numInt(1));
+                return random.nextInt(max - min + 1) + min;
+            }else{ // Otherwise a random double.
+                double min = Math.min(p.num(0), p.num(1));
+                double max = Math.max(p.num(0), p.num(1));
+                return Math.random() * (max - min) + min;
+            }
+
         });
         addReporter("round []", p -> Math.round(p.num(0)));
         addReporter("floor []", p -> Math.floor(p.num(0)));
@@ -251,7 +261,7 @@ public class CoreAPI extends API {
      */
     private void stringCommands(){
         addReporter("length of []", p->p.str(0).length());
-        addReporter("letter [] of []", p->p.str(1).charAt(p.numInt(0)-1));
+        addReporter("letter [] of []", p->""+p.str(1).charAt(p.numInt(0)-1));
         addReporter("join []>>", p->{
             StringBuilder stringBuilder = new StringBuilder();
             for(int i=0;i<p.getValues().size();i++){

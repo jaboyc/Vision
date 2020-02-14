@@ -2,27 +2,88 @@ when started
     init
 
     # Continue the game until you run out of health.
-    while ((health) > (0))
+    while (not (game done))
         print game
         set [guess] to (get guess)
         process (guess)
+    end
+
+    # End of game results.
+    if ((health) <= (0))
+        print (join [You ran out of lives! The word was ]((answer) to uppercase))
+    else
+        print game
+        print [Congratulations!]
     end
 end
 
 # Prints the game to the screen.
 define command print game
+
+    # Print the current word.
     set [out] to []
     for every [i] up to (length of (display))
-        set [char] to (letter (i) of (display))
+        set [char] to ((letter (i) of (display)) to uppercase)
         set [out] to (join (out)(char)[ ])
     end
     print (out)
+
     print [Health: #health]
+    print []
+end
+
+# Returns whether the game is done yet.
+define reporter game done
+
+    # The game is done when you run out of health.
+    if ((health) <= (0))
+        return (true)
+    end
+
+    # Search for a '_' in the display.
+    set [found] to (false)
+    for every [i] up to (length of (display))
+        set [char] to (letter (i) of (display))
+        if ((char) = [_])
+            set [found] to (true)
+        end
+    end
+
+    # If the '_' was found, return false. Otherwise true.
+    return (not (found))
+end
+
+# Returns the displayed text with '_' for the missing letters.
+define reporter display
+    set [out] to []
+    for every [i] up to (length of (answer))
+        set [char] to (letter (i) of (answer))
+        if (for (guessed letters) contains (char))
+            set [out] to (join (out)(char))
+        else
+            set [out] to (join (out)[_])
+        end
+    end
+    return (out)
 end
 
 # Processes the given guess.
 define command process [guess]
+    for (guessed letters) add (guess)
 
+    # Replace letters in the display with the correct letters if the guess is valid.
+    set [found] to (false)
+    for every [i] up to (length of (answer))
+        set [char] to (letter (i) of (answer))
+        if ((guess) = (char))
+            set [found] to (true)
+        end
+    end
+
+    # Reduce health if letter is not found.
+    if (not (found))
+        change [health] by (-1)
+    end
 end
 
 # Returns a one letter guess that hasn't been guessed before.
@@ -48,12 +109,8 @@ end
 define command init
 
     # Initialize the answer and the displayed word
-    set [word choices] to ([APPLE][BANANA][GRAPE])
+    set [word choices] to ([apple][banana][grape])
     set global [answer] to (for (word choices) get (random from (1) to (for (word choices) size)))
-    set global [display] to []
-    for every [i] up to (length of (answer))
-        set [display] to (join (display)[_])
-    end
 
     # Initialize other variables.
     set global [health] to (6)
