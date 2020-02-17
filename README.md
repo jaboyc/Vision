@@ -58,7 +58,7 @@ Here's an examples of some flow control.
 		end
 	end
 	
-Lastly, an example of looping.
+An example of looping.
 
 	when started
 		# Will print the first 5 integers.
@@ -67,10 +67,25 @@ Lastly, an example of looping.
 		end
 	end
 	
+Lists are powerful and easy to understand. 
+
+	when started
+		set [fruits] to ([Apple][Banana][Grape])
+		set [first] to (for (fruits) get (1))
+		for (fruits) add [Orange]
+		for (fruits) set index (1) to [Avocado]
+		for (fruits) remove index (2)
+		set [size] to (for (fruits) size)
+		
+		# Print the fruits. 
+		for each [fruit] in (fruits)
+			print (fruit)
+		end
+	end
+	
 More examples can be found in the 'res' folder. 
 
 # Future
 There are many things that are planned for the future.
-- [ ] Lists & Collections
 - [ ] Objects
 - [ ] GUI System
