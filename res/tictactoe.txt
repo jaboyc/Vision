@@ -1,0 +1,120 @@
+when started
+    init
+
+    # Keep playing until the game is over.
+    repeat until (game done)
+        print board
+        if ((player) = [X])
+            human move
+            set [player] to [O]
+        else
+            ai move
+            set [player] to [X]
+        end
+    end
+
+    print board
+
+    # Print results.
+    set [_winner] to (winner)
+    if ((_winner) = [O])
+        print [You win!]
+    else if ((_winner) = [X])
+        print [You lost!]
+    else
+        print [It is a tie!]
+    end
+end
+
+# Prints the board to the screen.
+define command print board
+    print (join [ ](for (board) get (1))[ | ](for (board) get (2))[ | ](for (board) get (3)))
+    print [---+---+---]
+    print (join [ ](for (board) get (4))[ | ](for (board) get (5))[ | ](for (board) get (6)))
+    print [---+---+---]
+    print (join [ ](for (board) get (7))[ | ](for (board) get (8))[ | ](for (board) get (9)))
+    print []
+end
+
+# Action to run when it's the humans' turn.
+define command human move
+    set [input] to (get input)
+    for (board) set index (input) to [O]
+end
+
+# Action to run when it's the computer's turn.
+define command ai move
+    set [empty] to (empty spaces)
+    set [i] to (random from (1) to (for (empty) size))
+    for (board) set index (for (empty) get (i)) to [X]
+end
+
+# Returns a list of the indices of the empty spaces in the board.
+define reporter empty spaces
+    set [empty] to (list)
+    for every [x] up to (9)
+        if ((for (board) get (x)) = [ ])
+            for (empty) add (x)
+        end
+    end
+    return (empty)
+end
+
+# Gets the input from the user.
+define reporter get input
+    forever
+        set [input] to (ask [Choose a space to place an O down (Value between 1-9): ])
+
+        if (((input) < (1)) or ((input) > (9)))
+            print [The value must be between 1 and 9!]
+        else if ((for (board) get (input)) != [ ])
+            print [That spot is already taken!]
+        else
+            return (input)
+        end
+    end
+end
+
+# Returns whether the game is done.
+define reporter game done
+    if (not (for (board) contains [ ]))
+        return (true)
+    end
+    return ((winner) != [ ])
+end
+
+# Returns who the winner is. Returns [ ] if no one has won yet.
+define reporter winner
+
+    # Check rows
+    set [rows] to ([1][4][7])
+    for each [x] in (rows)
+        if (and ((for (board) get (x)) = (for (board) get (x+1)))((for (board) get (x)) = (for (board) get (x+2)))((for (board) get (x)) != [ ]))
+            return (for (board) get (x))
+        end
+    end
+
+    # Check columns
+    set [cols] to ([1][2][3])
+    for each [x] in (cols)
+        if (and ((for (board) get (x)) = (for (board) get (x+3)))((for (board) get (x)) = (for (board) get (x+6)))((for (board) get (x)) != [ ]))
+            return (for (board) get (x))
+        end
+    end
+
+    # Check diagonals
+    if (and ((for (board) get (1)) = (for (board) get (5)))((for (board) get (1)) = (for (board) get (9)))((for (board) get (1)) != [ ]))
+        return (for (board) get (1))
+    end
+    if (and ((for (board) get (3)) = (for (board) get (5)))((for (board) get (3)) = (for (board) get (7)))((for (board) get (3)) != [ ]))
+        return (for (board) get (3))
+    end
+
+    return [ ]
+end
+
+# Initializes all the global variables.
+define command init
+    set global [board] to ([ ][ ][ ][ ][ ][ ][ ][ ][ ])
+    set global [player] to [X]
+end

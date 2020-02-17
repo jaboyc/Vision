@@ -13,7 +13,7 @@ public class Main {
     public static void main(String[] args) {
 
         try {
-            Project project = Project.fromTextFile("res/hangman.txt", "hangman");
+            Project project = Project.fromTextFile("res/tictactoe.txt", "hangman");
             Script script = Compiler.compile(project);
             script.start();
         } catch(IOException e) {

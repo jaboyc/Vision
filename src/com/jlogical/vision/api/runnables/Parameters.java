@@ -134,7 +134,7 @@ public abstract class Parameters<T extends CompiledElement> {
      * @return the String value of the given input.
      */
     public String toString(Object value) {
-        return value.toString();
+        return value == null ? "nothing" : value.toString();
     }
 
     /**

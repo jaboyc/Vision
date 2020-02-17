@@ -251,6 +251,21 @@ public class CoreAPI extends API {
         addReporter("[] and []", p -> p.bool(0) && p.bool(1));
         addReporter("[] or []", p -> p.bool(0) || p.bool(1));
         addReporter("not []", p -> !p.bool(0));
+        addReporter("and []>>", p->{
+           for(int i=0;i<p.getValues().size();i++){
+               if(!p.bool(i))
+                   return false;
+           }
+           return true;
+        });
+        addReporter("or []>>", p->{
+           for(int i=0;i<p.getValues().size();i++){
+               if(p.bool(i))
+                   return true;
+           }
+           return false;
+        });
+
 
         addReporter("if [] then [] else []", p -> p.bool(0) ? p.get(1) : p.get(2));
         addReporter("nothing", p -> null);
