@@ -63,6 +63,8 @@ public class CompilerTest {
         assertTrue(compile("res/list.txt"));
         assertTrue(compile("res/string.txt"));
         assertTrue(compile("res/custom_objects.txt"));
+        assertTrue(compile("res/hangman.txt"));
+        assertTrue(compile("res/tictactoe.txt"));
     }
 
     @Test
