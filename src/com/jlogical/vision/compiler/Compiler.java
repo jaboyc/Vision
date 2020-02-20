@@ -205,7 +205,7 @@ public class Compiler {
                 for (DefineTemplate dt : defineTemplates) {
                     if (dt.getLine() == line) {
 
-                        Hat hat = Hat.defineTemplateHat(script);
+                        Hat hat = Hat.defineTemplateHat(script, line.getInputs());
 
                         if (dt instanceof DefinedCommand) {
                             DefinedCommand dc = (DefinedCommand) dt;
@@ -214,7 +214,7 @@ public class Compiler {
                             }
 
                             dc.setHat(hat);
-                            dc.parseVariableNames(line.getInputs());
+//                            dc.parseVariableNames(line.getInputs());
                         } else if (dt instanceof DefinedReporter) {
                             DefinedReporter dr = (DefinedReporter) dt;
                             if (dr.getHat() != null) {
@@ -222,7 +222,7 @@ public class Compiler {
                             }
 
                             dr.setHat(hat);
-                            dr.parseVariableNames(line.getInputs());
+//                            dr.parseVariableNames(line.getInputs());
                         }
 
                         return hat;

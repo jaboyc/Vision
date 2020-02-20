@@ -65,12 +65,16 @@ public class Reporter extends CompiledElement<CustomReporter> implements Value {
         Reporter reporter = e.getElement();
         Hat hat = reporter.definedReporter.getHat();
 
-        hat.getVariables().clear();
-        for(int i=0;i<reporter.getValues().size();i++){
-            hat.getVariables().add(new Variable(reporter.definedReporter.getVariableNames().get(i), e.getValues().get(i).getValue()));
-        }
+//        hat.getVariables().clear();
+//        for(int i=0;i<reporter.getValues().size();i++){
+//            hat.getVariables().add(new Variable(reporter.definedReporter.getVariableNames().get(i), e.getValues().get(i).getValue()));
+//        }
 
-        hat.run(null);
+
+        ArrayList<Object> inputs = new ArrayList<>();
+        for(int i = 0;i<e.getValues().size();i++)
+            inputs.add(e.get(i));
+        hat.run(inputs.toArray());
         return hat.getOutput();
     }
 

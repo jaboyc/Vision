@@ -64,10 +64,12 @@ public class Hat extends CompiledElement<CustomHat> {
     /**
      * Returns a special hat that is for custom definitions of commands and reporters.
      *
+     * @param script the script the hat belongs to.
+     * @param inputs the inputs of the hat for variable extraction.
      * @return the hat.
      */
-    public static Hat defineTemplateHat(Script script) {
-        return new Hat(null, null, script);
+    public static Hat defineTemplateHat(Script script, ArrayList<Input> inputs) {
+        return new Hat(null, inputs, script);
     }
 
     /**

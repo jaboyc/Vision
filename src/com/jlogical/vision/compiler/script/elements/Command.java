@@ -82,12 +82,14 @@ public class Command<T extends CustomCommand> extends CompiledElement<T> {
         Command command = (Command) e.getElement();
         Hat hat = command.definedCommand.getHat();
 
-        hat.getVariables().clear();
-        for(int i=0;i<command.getValues().size();i++){
-            hat.getVariables().add(new Variable(command.definedCommand.getVariableNames().get(i), ((Value) e.getValues().get(i)).getValue()));
-        }
-
-        hat.run(null);
+//        hat.getVariables().clear();
+//        for(int i=0;i<command.getValues().size();i++){
+//            hat.getVariables().add(new Variable(command.definedCommand.getVariableNames().get(i), ((Value) e.getValues().get(i)).getValue()));
+//        }
+        ArrayList<Object> inputs = new ArrayList<>();
+        for(int i = 0;i<e.getValues().size();i++)
+            inputs.add(e.get(i));
+        hat.run(inputs.toArray());
     }
 
     @Override
