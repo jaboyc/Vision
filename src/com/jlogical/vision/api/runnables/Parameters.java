@@ -1,6 +1,7 @@
 package com.jlogical.vision.api.runnables;
 
 
+import com.jlogical.vision.api.system.objects.CustomObject;
 import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.compiler.script.elements.CBlock;
@@ -69,11 +70,12 @@ public abstract class Parameters<T extends CompiledElement> {
 
     /**
      * Returns out of the hat with the given return value.
+     *
      * @param returnValue the value to return from the hat.
      */
-    public void hatReturn(Object returnValue){
+    public void hatReturn(Object returnValue) {
         CBlock cBlock = cblockHolder;
-        while(cBlock != null){
+        while (cBlock != null) {
             cBlock.stop();
             cBlock = cBlock.getCBlockHolder();
         }
@@ -85,7 +87,7 @@ public abstract class Parameters<T extends CompiledElement> {
     /**
      * Stops the most enclosed loop.
      */
-    public void stopLoop(){
+    public void stopLoop() {
         cblockHolder.stop();
     }
 
@@ -258,6 +260,29 @@ public abstract class Parameters<T extends CompiledElement> {
     public List toList(Object val) throws VisionException {
         if (val instanceof List) return (List) val;
         throw new VisionException("Cannot convert '" + val + "' to a list!", range);
+    }
+
+    /**
+     * Returns the custom object of the value at the given index.
+     *
+     * @param index the index of the value.
+     * @return the CustomObject representation of the value.
+     * @throws VisionException if the index is negative, too big, or cannot be converted to a CustomObject.
+     */
+    public CustomObject co(int index) throws VisionException {
+        return toCustomObject(get(index));
+    }
+
+    /**
+     * Returns the given value as a Custom Object. Used as a util command.
+     *
+     * @param val the value to convert.
+     * @return the Custom Objet representation of the value.
+     * @throws VisionException if the value cannot be converted to a custom object.
+     */
+    public CustomObject toCustomObject(Object val) throws VisionException {
+        if (val instanceof CustomObject) return (CustomObject) val;
+        throw new VisionException("Cannot convert '" + val + "' to a custom object!", range);
     }
 
     public Script getScript() {

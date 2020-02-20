@@ -48,7 +48,7 @@ public class CollectionsAPI extends API {
         addCommand("for () clear", p -> p.list(0).clear());
 
         // Reporters
-        addReporter("for () get []", p -> p.list(0).get(p.numInt(1) - 1));
+        addReporter("for () item []", p -> p.list(0).get(p.numInt(1) - 1));
         addReporter("for () size", p -> p.list(0).size());
         addReporter("for () index of []", p -> p.list(0).indexOf(p.get(1)) + 1);
         addReporter("for () contains []", p -> p.list(0).contains(p.get(1)));

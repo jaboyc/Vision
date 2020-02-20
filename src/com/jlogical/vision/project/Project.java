@@ -7,6 +7,7 @@ import com.jlogical.vision.api.elements.CustomHat;
 import com.jlogical.vision.api.elements.CustomReporter;
 import com.jlogical.vision.api.system.CoreAPI;
 import com.jlogical.vision.api.system.collection.CollectionsAPI;
+import com.jlogical.vision.api.system.objects.CustomObjectsAPI;
 import com.jlogical.vision.compiler.exceptions.FileFormatException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -68,7 +69,7 @@ public class Project {
     private Project(String name, ArrayList<VisionFile> files, ArrayList<API> apis) {
         this.name = name != null ? name : "empty";
         this.files = files != null ? files : new ArrayList<>();
-        this.apis = apis != null ? apis : new ArrayList<>(Arrays.asList(new CoreAPI(this), new CollectionsAPI(this)));
+        this.apis = apis != null ? apis : new ArrayList<>(Arrays.asList(new CoreAPI(this), new CollectionsAPI(this), new CustomObjectsAPI(this)));
         commands = new ArrayList<>();
         reporters = new ArrayList<>();
         hats = new ArrayList<>();

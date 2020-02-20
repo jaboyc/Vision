@@ -1,6 +1,7 @@
 package com.jlogical.vision.compiler.script.elements;
 
 import com.jlogical.vision.api.elements.CustomHat;
+import com.jlogical.vision.compiler.Input;
 import com.jlogical.vision.compiler.exceptions.VisionException;
 import com.jlogical.vision.compiler.script.Script;
 import com.jlogical.vision.compiler.script.Variable;
@@ -25,6 +26,11 @@ public class Hat extends CompiledElement<CustomHat> {
     private Script script;
 
     /**
+     * List of variable names for the predefined variables in the hat.
+     */
+    private ArrayList<String> variableNames;
+
+    /**
      * List of local Variables in the Hat.
      */
     private ArrayList<Variable> variables;
@@ -41,37 +47,74 @@ public class Hat extends CompiledElement<CustomHat> {
 
     /**
      * Creates a new Hat with a core.
+     *
+     * @param hat the custom hat to model this hat on.
+     * @param inputs the inputs of the hat. Used for getting variable names.
+     * @param script the script this hat belongs to.
      */
-    public Hat(CustomHat hat, Script script) {
+    public Hat(CustomHat hat, ArrayList<Input> inputs, Script script) {
         super(hat, null);
         this.script = script;
         this.commands = new ArrayList<>();
         this.variables = new ArrayList<>();
+        initVariableNames(inputs);
         running = false;
     }
 
     /**
      * Returns a special hat that is for custom definitions of commands and reporters.
+     *
      * @return the hat.
      */
-    public static Hat defineTemplateHat(Script script){
-        return new Hat(null, script);
+    public static Hat defineTemplateHat(Script script) {
+        return new Hat(null, null, script);
     }
 
     /**
      * Runs the Hat.
      *
+     * @param inputs inputs of the hat.
      * @throws VisionException if there is an error running any of the Commands in the Hat.
      */
-    public void run() throws VisionException {
+    public void run(Object[] inputs) throws VisionException {
+        setupInputs(inputs);
+
         running = true;
-        for(Command command:commands){
-            if(!running){
-                return;
-            }
+        for (Command command : commands) {
+            if (!running) return;
             command.run();
         }
         running = false;
+    }
+
+    /**
+     * Sets up the inputs of the hat with the given inputs.
+     * @param inputs the inputs to initialize the hat variables to.
+     */
+    private void setupInputs(Object[] inputs){
+
+        // Don't do anything if there are no inputs.
+        if(inputs == null) return;
+
+        // Check for invalid argument size.
+        if(inputs.length != variableNames.size())
+            throw new IllegalArgumentException("Cannot have different sizes of inputs and variable names");
+
+        // Add new a new variable for each input.
+        for(int i=0;i<variableNames.size();i++)
+            variables.add(new Variable(variableNames.get(i), inputs[i]));
+    }
+
+    /**
+     * Sets up the variable names of the hat with the given inputs in the line the hat was declared in.
+     *
+     * @param inputs the inputs to set up.
+     */
+    private void initVariableNames(ArrayList<Input> inputs) {
+        variableNames = new ArrayList<>();
+        if(inputs == null) return;
+        for(Input input : inputs)
+            variableNames.add(input.getText());
     }
 
     public Script getScript() {
@@ -80,9 +123,10 @@ public class Hat extends CompiledElement<CustomHat> {
 
     /**
      * Adds a Command to the Hat.
+     *
      * @param command the Command to add.
      */
-    public void addCommand(Command command){
+    public void addCommand(Command command) {
         commands.add(command);
     }
 
@@ -101,7 +145,7 @@ public class Hat extends CompiledElement<CustomHat> {
     /**
      * Stops the hat from continuing to run.
      */
-    public void stop(){
+    public void stop() {
         running = false;
     }
 

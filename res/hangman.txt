@@ -110,7 +110,7 @@ define command init
 
     # Initialize the answer and the displayed word
     set [word choices] to ([apple][banana][grape][pear][orange][apricot][avocado][blackberry][blueberry][cherry][kiwi][lemon][lime][mango][olive][peach][pineapple][strawberry][watermelon][coconut])
-    set global [answer] to (for (word choices) get (random from (1) to (for (word choices) size)))
+    set global [answer] to (for (word choices) item (random from (1) to (for (word choices) size)))
 
     # Initialize other variables.
     set global [health] to (6)

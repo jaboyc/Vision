@@ -234,7 +234,7 @@ public class Compiler {
         } else {
             for (CustomHat hat : project.getHats()) {
                 if (coreEquals(hat.getCore(), line.getCore())) {
-                    return new Hat(hat, script);
+                    return new Hat(hat, line.getInputs(), script);
                 }
             }
         }

@@ -1,14 +1,14 @@
 when started
     set [book] to (robinson crusoe)
-    print (book)
+    print (for (book) get [title])
 end
 
 define reporter robinson crusoe
     set [book] to (new [book])
 
     for (book) set [title] to [Robinson Crusoe]
-    for (book) set [author] to [Daniel Defoe]
-    for (book) set [publisher] to [Publisher Press]
+    for (book) set [author] to [Jack London]
+    for (book) set [publisher] to [Jake Boychenko Press]
     for (book) set [chapters] to (list)
     for (book) set [pages] to (429)
 

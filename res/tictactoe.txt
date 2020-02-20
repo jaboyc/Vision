@@ -28,11 +28,11 @@ end
 
 # Prints the board to the screen.
 define command print board
-    print (join [ ](for (board) get (1))[ | ](for (board) get (2))[ | ](for (board) get (3)))
+    print (join [ ](for (board) item (1))[ | ](for (board) item (2))[ | ](for (board) item (3)))
     print [---+---+---]
-    print (join [ ](for (board) get (4))[ | ](for (board) get (5))[ | ](for (board) get (6)))
+    print (join [ ](for (board) item (4))[ | ](for (board) item (5))[ | ](for (board) item (6)))
     print [---+---+---]
-    print (join [ ](for (board) get (7))[ | ](for (board) get (8))[ | ](for (board) get (9)))
+    print (join [ ](for (board) item (7))[ | ](for (board) item (8))[ | ](for (board) item (9)))
     print []
 end
 
@@ -46,14 +46,14 @@ end
 define command ai move
     set [empty] to (empty spaces)
     set [i] to (random from (1) to (for (empty) size))
-    for (board) set index (for (empty) get (i)) to [X]
+    for (board) set index (for (empty) item (i)) to [X]
 end
 
 # Returns a list of the indices of the empty spaces in the board.
 define reporter empty spaces
     set [empty] to (list)
     for every [x] up to (9)
-        if ((for (board) get (x)) = [ ])
+        if ((for (board) item (x)) = [ ])
             for (empty) add (x)
         end
     end
@@ -67,7 +67,7 @@ define reporter get input
 
         if (((input) < (1)) or ((input) > (9)))
             print [The value must be between 1 and 9!]
-        else if ((for (board) get (input)) != [ ])
+        else if ((for (board) item (input)) != [ ])
             print [That spot is already taken!]
         else
             return (input)
@@ -89,25 +89,25 @@ define reporter winner
     # Check rows
     set [rows] to ([1][4][7])
     for each [x] in (rows)
-        if (and ((for (board) get (x)) = (for (board) get (x+1)))((for (board) get (x)) = (for (board) get (x+2)))((for (board) get (x)) != [ ]))
-            return (for (board) get (x))
+        if (and ((for (board) item (x)) = (for (board) item (x+1)))((for (board) item (x)) = (for (board) item (x+2)))((for (board) item (x)) != [ ]))
+            return (for (board) item (x))
         end
     end
 
     # Check columns
     set [cols] to ([1][2][3])
     for each [x] in (cols)
-        if (and ((for (board) get (x)) = (for (board) get (x+3)))((for (board) get (x)) = (for (board) get (x+6)))((for (board) get (x)) != [ ]))
-            return (for (board) get (x))
+        if (and ((for (board) item (x)) = (for (board) item (x+3)))((for (board) item (x)) = (for (board) item (x+6)))((for (board) item (x)) != [ ]))
+            return (for (board) item (x))
         end
     end
 
     # Check diagonals
-    if (and ((for (board) get (1)) = (for (board) get (5)))((for (board) get (1)) = (for (board) get (9)))((for (board) get (1)) != [ ]))
-        return (for (board) get (1))
+    if (and ((for (board) item (1)) = (for (board) item (5)))((for (board) item (1)) = (for (board) item (9)))((for (board) item (1)) != [ ]))
+        return (for (board) item (1))
     end
-    if (and ((for (board) get (3)) = (for (board) get (5)))((for (board) get (3)) = (for (board) get (7)))((for (board) get (3)) != [ ]))
-        return (for (board) get (3))
+    if (and ((for (board) item (3)) = (for (board) item (5)))((for (board) item (3)) = (for (board) item (7)))((for (board) item (3)) != [ ]))
+        return (for (board) item (3))
     end
 
     return [ ]

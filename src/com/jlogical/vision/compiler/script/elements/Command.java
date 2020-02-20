@@ -87,7 +87,7 @@ public class Command<T extends CustomCommand> extends CompiledElement<T> {
             hat.getVariables().add(new Variable(command.definedCommand.getVariableNames().get(i), ((Value) e.getValues().get(i)).getValue()));
         }
 
-        hat.run();
+        hat.run(null);
     }
 
     @Override

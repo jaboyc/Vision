@@ -70,7 +70,7 @@ public class Reporter extends CompiledElement<CustomReporter> implements Value {
             hat.getVariables().add(new Variable(reporter.definedReporter.getVariableNames().get(i), e.getValues().get(i).getValue()));
         }
 
-        hat.run();
+        hat.run(null);
         return hat.getOutput();
     }
 
